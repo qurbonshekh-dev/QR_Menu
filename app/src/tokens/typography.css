@@ -1,0 +1,242 @@
+/* Generated from artifacts/tokens.json → typography.style — see directives/build_tokens.md.
+   Класс на каждый Text Style: имя = имя Figma Text Style в kebab-case, чтобы
+   parity_check сверял их 1:1. Компоненты композируют эти классы, а не задают
+   font-size/line-height руками. */
+
+.ts-heading-1-extrabold {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  line-height: 52px;
+  font-weight: 800;
+}
+
+.ts-heading-2-extrabold {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  line-height: 48px;
+  font-weight: 800;
+}
+
+.ts-heading-2-medium {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  line-height: 48px;
+  font-weight: 500;
+}
+
+.ts-heading-3-bold {
+  font-family: var(--font-heading);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 700;
+}
+
+.ts-heading-4-bold {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  line-height: 40px;
+  font-weight: 700;
+}
+
+.ts-heading-5-bold {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 700;
+}
+
+.ts-heading-6-bold {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 700;
+}
+
+.ts-heading-7-bold {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.ts-heading-8-bold {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.ts-heading-9-extrabold {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+.ts-heading-9-medium {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.ts-body-xl-regular {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 32px;
+  font-weight: 400;
+}
+
+.ts-body-xl-medium {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 32px;
+  font-weight: 500;
+}
+
+.ts-body-xl-bold {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 32px;
+  font-weight: 700;
+}
+
+.ts-body-l-regular {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.ts-body-l-medium {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 500;
+}
+
+.ts-body-l-bold {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.ts-body-m-regular {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.ts-body-m-medium {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.ts-body-m-bold {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+.ts-body-s-regular {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.ts-body-s-medium {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.ts-body-s-bold {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 700;
+}
+
+.ts-body-xs-regular {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+.ts-body-xs-medium {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.ts-body-xs-bold {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.ts-body-xxs-regular {
+  font-family: var(--font-body);
+  font-size: 9px;
+  line-height: 12px;
+  font-weight: 400;
+}
+
+.ts-body-xxs-medium {
+  font-family: var(--font-body);
+  font-size: 9px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.ts-body-xxs-bold {
+  font-family: var(--font-body);
+  font-size: 9px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.ts-action-semibold {
+  font-family: var(--font-action);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.ts-action-regular {
+  font-family: var(--font-action);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+.ts-action-medium {
+  font-family: var(--font-action);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.ts-action-semibold-s {
+  font-family: var(--font-action);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+}
+
+.ts-action-semibold-l {
+  font-family: var(--font-action);
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 600;
+}

@@ -1,0 +1,10 @@
+/* Гостевой сценарий — телефон. На десктопе показываем ту же ленту по центру,
+   ограниченную шириной макета. */
+.viewport {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+}

@@ -1,0 +1,47 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-dark-1);
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.surface {
+  background: var(--color-bg-default);
+}
+
+.muted {
+  background: var(--color-bg-muted);
+}
+
+.overlay {
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-overlay);
+  backdrop-filter: blur(4px);
+  color: var(--color-text-white-1);
+}
+
+.count {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+  color: var(--color-brand-contrast);
+}

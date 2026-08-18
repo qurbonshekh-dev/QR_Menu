@@ -1,0 +1,37 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+  background: var(--color-bg-surface);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+  color: var(--color-brand-contrast);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.text {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.total {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}

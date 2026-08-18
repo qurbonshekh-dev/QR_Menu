@@ -1,0 +1,60 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Кнопка на всю ширину контейнера — используется в шапке корзины и на checkout. */
+.block {
+  display: flex;
+  width: 100%;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Size — variant property "Size" in Figma (L / M / S) */
+.l {
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+}
+
+.m {
+  gap: var(--space-2); /* Figma shows 6px here; snapped to the space scale, see parity-report.md */
+  padding: var(--space-3) var(--space-5);
+}
+
+.s {
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+}
+
+/* Variant — variant property "Variant" in Figma (Main / Secondary / Disable) */
+.main {
+  background: var(--color-brand-main);
+  /* На brand-подложке в макете всегда тёмный текст, не белый. */
+  color: var(--color-brand-contrast);
+}
+
+.secondary {
+  background: var(--color-bg-muted);
+  color: var(--color-text-dark-1);
+}
+
+.disable {
+  background: var(--color-bg-muted);
+  color: var(--color-text-dark-3);
+  cursor: not-allowed;
+}
+
+.icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+}

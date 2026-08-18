@@ -1,0 +1,25 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+}
+
+.titles {
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}

@@ -1,0 +1,72 @@
+.counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-xl);
+  color: var(--color-text-dark-1);
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: var(--space-0);
+}
+
+.step:disabled {
+  color: var(--color-text-dark-3);
+  cursor: not-allowed;
+}
+
+.step:focus-visible {
+  outline: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-focus);
+}
+
+.value {
+  min-width: var(--space-6);
+  text-align: center;
+}
+
+/* Variant — Figma property "Variant" */
+.main {
+  background: var(--color-brand-main);
+  color: var(--color-brand-contrast);
+}
+
+.secondary {
+  background: var(--color-bg-default);
+}
+
+.secondary .step {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+}
+
+/* Size — Figma property "Size" */
+.m {
+  height: 32px;
+  padding: var(--space-1) var(--space-3);
+  gap: var(--space-1);
+}
+
+.secondary.m {
+  padding: var(--space-0);
+  gap: var(--space-0);
+}
+
+.secondary.m .step {
+  width: 32px;
+  height: 32px;
+}
+
+.s {
+  height: 28px;
+  padding: var(--space-1) var(--space-3);
+  gap: var(--space-1);
+}

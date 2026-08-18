@@ -1,0 +1,71 @@
+/* Generated from artifacts/tokens.json — see directives/build_tokens.md.
+   Do not hand-edit values here; update tokens.json and regenerate. */
+:root {
+  /* Color — brand */
+  --color-brand-main: #FFDB00;
+
+  /* Color — neutral */
+  --color-neutral-white: #FFFFFF;
+  --color-neutral-50: #F8F8F8;
+  --color-neutral-100: #EEEEEE;
+  --color-neutral-200: #D0D0D0;
+  --color-neutral-300: #B9B9B9;
+  --color-neutral-900: #373737;
+  --color-neutral-base: #22272F;
+  --color-neutral-gray-900: #101828;
+  --color-neutral-overlay: rgba(89,89,89,0.3);
+
+  /* Color — accent */
+  --color-accent-danger: #F5222D;
+  --color-accent-danger-bg: #FFF1F0;
+  --color-accent-success: #52C41A;
+  --color-accent-success-bg: #F6FFED;
+  --color-accent-warning: #FADB14;
+  --color-accent-volcano-bg: #FFF2E8;
+
+  /* Color — text (base) */
+  --color-text-dark-1: #0D0E11;
+  --color-text-dark-2: #6F7073;
+  --color-text-dark-3: #9A9DA3;
+
+  /* Color — semantic aliases (never raw hex outside this block) */
+  --color-text-white-1: var(--color-neutral-white);
+  --color-text-white-2: var(--color-neutral-white);
+  --color-brand-contrast: var(--color-text-dark-1);
+  --color-bg-surface: var(--color-neutral-white);
+  --color-bg-default: var(--color-neutral-50);
+  --color-bg-muted: var(--color-neutral-100);
+  --color-bg-inverse: var(--color-neutral-900);
+  --color-bg-overlay: var(--color-neutral-overlay);
+  --color-border-default: var(--color-neutral-100);
+  --color-border-muted: var(--color-neutral-300);
+  --color-border-danger: var(--color-accent-danger);
+
+  /* Spacing — 4pt grid */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 2px 0 rgba(16,24,40,0.06), 0 1px 3px 0 rgba(16,24,40,0.10);
+  --shadow-modal: 0 0 4px -4px rgba(12,12,13,0.05), 0 16px 32px -4px rgba(12,12,13,0.10);
+  --shadow-focus: 0 0 0 3px rgba(55,55,55,0.45);
+
+  /* Typography — families */
+  --font-heading: 'Wix Madefor Display', system-ui, sans-serif;
+  --font-body: 'Wix Madefor Display', system-ui, sans-serif;
+  --font-action: 'Onest', system-ui, sans-serif;
+}

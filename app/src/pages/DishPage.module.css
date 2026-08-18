@@ -1,0 +1,110 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+}
+
+.state {
+  padding: var(--space-6);
+  color: var(--color-text-dark-2);
+}
+
+.media {
+  position: relative;
+  margin: var(--space-0) var(--space-4);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-muted);
+  aspect-ratio: 4 / 3;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rating {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+}
+
+.star {
+  color: var(--color-accent-warning);
+}
+
+.body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.headline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.price {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.meta {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.description {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ingredients li {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-default);
+  color: var(--color-text-dark-1);
+}
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-modal);
+}
+
+.actions > :last-child {
+  flex: 1 0 0;
+}

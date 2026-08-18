@@ -1,0 +1,86 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.control {
+  position: relative;
+  width: 100%;
+  min-height: 52px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+  border: 1px solid transparent;
+}
+
+.control:focus-within {
+  border-color: var(--color-border-default);
+}
+
+.control.error {
+  border-color: var(--color-border-danger);
+}
+
+.control.disabled {
+  cursor: not-allowed;
+}
+
+/* Floating label: centered over the input until it has a value or focus,
+   then shrinks to a caption above it — mirrors the Default → Focus/Filled
+   states captured from the Figma "Text Input" frame. */
+.label {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-text-dark-2);
+  pointer-events: none;
+  transition: top 0.12s ease, font-size 0.12s ease, transform 0.12s ease;
+}
+
+.input:focus ~ .label,
+.input:not(:placeholder-shown) ~ .label {
+  top: var(--space-4);
+  transform: translateY(0);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 52px;
+  padding: 22px var(--space-4) var(--space-2);
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-text-dark-1);
+}
+
+.input:placeholder-shown {
+  padding-top: 0;
+}
+
+.input:disabled {
+  color: var(--color-text-dark-3);
+  cursor: not-allowed;
+}
+
+.helper {
+  padding: 0 var(--space-4);
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--color-accent-danger);
+}

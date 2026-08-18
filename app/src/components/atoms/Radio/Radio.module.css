@@ -1,0 +1,49 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.mark {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+}
+
+.input:checked + .mark {
+  border-color: var(--color-brand-main);
+}
+
+.input:checked + .mark::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+}
+
+.input:focus-visible + .mark {
+  box-shadow: var(--shadow-focus);
+}
+
+.label {
+  color: var(--color-text-dark-1);
+}
