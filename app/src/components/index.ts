@@ -7,12 +7,15 @@ export * from './atoms/Chip';
 export * from './atoms/Counter';
 export * from './atoms/Icon';
 export * from './atoms/IconButton';
+export * from './atoms/OptionChip';
 export * from './atoms/Radio';
 export * from './atoms/TextInput';
 export * from './atoms/Toggle';
 
 export * from './molecules/DishCard';
 export * from './molecules/FormRow';
+export * from './molecules/OptionGroup';
+export * from './molecules/SearchField';
 export * from './molecules/SegmentedControl';
 
 export * from './organisms/AppHeader';

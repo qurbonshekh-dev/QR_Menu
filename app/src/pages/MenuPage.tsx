@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CartBar, Chip, DishCard, IconButton, ShoppingBagIcon, } from '../components';
-import { dishImage, formatMeta, getMenu } from '../data/menuRepository';
+import { CartBar, Chip, DishCard, IconButton, SearchField, ShoppingBagIcon } from '../components';
+import { dishImage, formatMeta, getMenu, resolveDishPrice } from '../data/menuRepository';
 import type { Menu } from '../data/types';
 import { formatPrice } from '../data/format';
 import { pluralItems } from '../data/plural';
@@ -15,6 +15,7 @@ export function MenuPage() {
   const cart = useCart();
   const [menu, setMenu] = useState<Menu | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     getMenu().then(setMenu);
@@ -22,8 +23,20 @@ export function MenuPage() {
 
   const dishes = useMemo(() => {
     if (!menu) return [];
-    return categoryId ? menu.dishes.filter((dish) => dish.categoryId === categoryId) : menu.dishes;
-  }, [menu, categoryId]);
+    const search = query.trim().toLowerCase();
+    return menu.dishes.filter((dish) => {
+      // Поиск игнорирует выбранную категорию — иначе «Плов» в категории
+      // «Десерты» выглядел бы как пустой результат по опечатке.
+      if (search) {
+        return (
+          dish.name.toLowerCase().includes(search) ||
+          dish.description.toLowerCase().includes(search) ||
+          dish.ingredients.some((ingredient) => ingredient.toLowerCase().includes(search))
+        );
+      }
+      return categoryId ? dish.categoryId === categoryId : true;
+    });
+  }, [menu, categoryId, query]);
 
   if (!menu) {
     return <p className={[styles.state, ts('body-m/regular')].join(' ')}>Загружаем меню…</p>;
@@ -41,6 +54,15 @@ export function MenuPage() {
         }
       />
 
+      <div className={styles.search}>
+        <SearchField
+          label="Поиск по меню"
+          placeholder="Плов, самбуса, кебаб…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </div>
+
       <nav className={styles.categories} aria-label="Категории меню">
         <Chip selected={categoryId === null} onClick={() => setCategoryId(null)}>
           Всё меню
@@ -56,20 +78,33 @@ export function MenuPage() {
         ))}
       </nav>
 
+      {dishes.length === 0 ? (
+        <p className={[styles.empty, ts('body-m/regular')].join(' ')}>
+          По запросу «{query.trim()}» ничего не нашлось.
+        </p>
+      ) : null}
+
       <div className={styles.grid}>
-        {dishes.map((dish) => (
-          <DishCard
-            key={dish.id}
-            title={dish.name}
-            price={dish.price}
-            meta={formatMeta(dish)}
-            image={dishImage(dish.image)}
-            rating={dish.rating}
-            quantity={cart.quantityOf(dish.id)}
-            onQuantityChange={(quantity) => cart.setQuantity(dish.id, quantity)}
-            onOpen={() => navigate(`/dish/${dish.id}`)}
-          />
-        ))}
+        {dishes.map((dish) => {
+          // У блюд с опциями (пицца: размер/тесто) выбор делается на странице
+          // блюда — «+» в сетке ведёт туда же, а не добавляет наугад.
+          const hasOptions = Boolean(dish.optionGroups?.length);
+          return (
+            <DishCard
+              key={dish.id}
+              title={dish.name}
+              price={resolveDishPrice(dish)}
+              meta={formatMeta(dish)}
+              image={dishImage(dish.image)}
+              rating={dish.rating}
+              quantity={cart.quantityOfDish(dish.id)}
+              onQuantityChange={
+                hasOptions ? () => navigate(`/dish/${dish.id}`) : (quantity) => cart.setQuantity(dish.id, quantity, dish.id)
+              }
+              onOpen={() => navigate(`/dish/${dish.id}`)}
+            />
+          );
+        })}
       </div>
 
       {cart.totalCount > 0 ? (

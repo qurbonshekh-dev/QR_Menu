@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppHeader, Badge, Button, Counter, StarIcon, } from '../components';
-import { dishImage, formatMeta, getDish } from '../data/menuRepository';
-import type { Dish } from '../data/types';
+import { AppHeader, Badge, Button, Counter, OptionGroup, StarIcon } from '../components';
+import { cartKey } from '../data/cartKey';
 import { formatPrice } from '../data/format';
+import { defaultSelections, dishImage, formatMeta, getDish, resolveDishPrice } from '../data/menuRepository';
+import type { Dish, DishSelections } from '../data/types';
 import { useCart } from '../state/cartStore';
 import { ts } from '../tokens/typography';
 import styles from './DishPage.module.css';
@@ -13,11 +14,29 @@ export function DishPage() {
   const navigate = useNavigate();
   const cart = useCart();
   const [dish, setDish] = useState<Dish | null | undefined>(undefined);
-  const [quantity, setQuantity] = useState(() => Math.max(1, cart.quantityOf(dishId)));
+  const [selections, setSelections] = useState<DishSelections>({});
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    getDish(dishId).then((found) => setDish(found ?? null));
+    getDish(dishId).then((found) => {
+      setDish(found ?? null);
+      if (found) setSelections(defaultSelections(found));
+    });
   }, [dishId]);
+
+  const hasOptions = Boolean(dish?.optionGroups?.length);
+  const key = useMemo(
+    () => (dish ? cartKey(dish.id, hasOptions ? selections : undefined) : ''),
+    [dish, hasOptions, selections],
+  );
+
+  // Смена размера/теста указывает на другую строку корзины — подтягиваем её
+  // текущее количество, чтобы счётчик не врал.
+  useEffect(() => {
+    if (!dish) return;
+    setQuantity(Math.max(1, cart.quantityOfKey(key)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   if (dish === undefined) {
     return <p className={[styles.state, ts('body-m/regular')].join(' ')}>Загружаем блюдо…</p>;
@@ -34,7 +53,8 @@ export function DishPage() {
     );
   }
 
-  const inCart = cart.quantityOf(dish.id);
+  const inCart = cart.quantityOfKey(key) > 0;
+  const unitPrice = resolveDishPrice(dish, selections);
 
   return (
     <div className={styles.page}>
@@ -54,11 +74,28 @@ export function DishPage() {
 
       <div className={styles.body}>
         <div className={styles.headline}>
-          <p className={[styles.price, ts('heading-7/bold')].join(' ')}>{formatPrice(dish.price)}</p>
+          <p className={[styles.price, ts('heading-7/bold')].join(' ')}>{formatPrice(unitPrice)}</p>
           <p className={[styles.meta, ts('body-s/medium')].join(' ')}>{formatMeta(dish)}</p>
         </div>
 
         <p className={[styles.description, ts('body-m/regular')].join(' ')}>{dish.description}</p>
+
+        {dish.optionGroups?.map((group) => (
+          <section key={group.id} className={styles.section}>
+            <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>{group.title}</h2>
+            <OptionGroup
+              aria-label={group.title}
+              layout={group.layout}
+              value={selections[group.id] ?? group.defaultOptionId}
+              onChange={(optionId) => setSelections((current) => ({ ...current, [group.id]: optionId }))}
+              options={group.options.map((option) => ({
+                id: option.id,
+                caption: option.caption,
+                label: group.layout === 'detailed' ? formatPrice(option.price ?? dish.price) : (option.label ?? ''),
+              }))}
+            />
+          </section>
+        ))}
 
         <section className={styles.section}>
           <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>Состав</h2>
@@ -77,11 +114,11 @@ export function DishPage() {
         <Button
           block
           onClick={() => {
-            cart.setQuantity(dish.id, quantity);
+            cart.setQuantity(key, quantity, dish.id, hasOptions ? selections : undefined);
             navigate('/cart');
           }}
         >
-          {inCart ? 'Обновить корзину' : `В корзину · ${formatPrice(dish.price * quantity)}`}
+          {inCart ? 'Обновить корзину' : `В корзину · ${formatPrice(unitPrice * quantity)}`}
         </Button>
       </div>
     </div>

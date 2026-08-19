@@ -3,9 +3,13 @@
     "id": "r-1",
     "name": "Ресторан «Некрасова 12»",
     "tableLabel": "Стол 12 · основной зал",
-    "currency": "RUB"
+    "currency": "UZS"
   },
   "categories": [
+    {
+      "id": "pizza",
+      "name": "Пицца"
+    },
     {
       "id": "hot",
       "name": "Горячее"
@@ -28,6 +32,122 @@
     }
   ],
   "dishes": [
+    {
+      "id": "d-13",
+      "categoryId": "pizza",
+      "name": "Пицца Маргарита",
+      "description": "Томатный соус, моцарелла, свежий базилик, оливковое масло extra virgin.",
+      "price": 2101,
+      "image": "dish-3",
+      "calories": 780,
+      "weight": 420,
+      "rating": 4.8,
+      "ingredients": [
+        "Томатный соус",
+        "Моцарелла",
+        "Базилик",
+        "Оливковое масло"
+      ],
+      "optionGroups": [
+        {
+          "id": "size",
+          "title": "Размер",
+          "layout": "detailed",
+          "options": [
+            {
+              "id": "m21",
+              "caption": "Новый стандарт",
+              "price": 2101
+            },
+            {
+              "id": "m23",
+              "caption": "Средний",
+              "price": 2301
+            },
+            {
+              "id": "m25",
+              "caption": "Большой",
+              "price": 2501
+            }
+          ],
+          "defaultOptionId": "m21"
+        },
+        {
+          "id": "dough",
+          "title": "Тесто",
+          "layout": "simple",
+          "options": [
+            {
+              "id": "traditional",
+              "label": "Традиционное"
+            },
+            {
+              "id": "thin",
+              "label": "Тонкое"
+            }
+          ],
+          "defaultOptionId": "traditional"
+        }
+      ]
+    },
+    {
+      "id": "d-14",
+      "categoryId": "pizza",
+      "name": "Пицца Пепперони",
+      "description": "Томатный соус, моцарелла, острая пепперони, орегано.",
+      "price": 2401,
+      "image": "dish-5",
+      "calories": 890,
+      "weight": 440,
+      "rating": 4.9,
+      "ingredients": [
+        "Томатный соус",
+        "Моцарелла",
+        "Пепперони",
+        "Орегано"
+      ],
+      "optionGroups": [
+        {
+          "id": "size",
+          "title": "Размер",
+          "layout": "detailed",
+          "options": [
+            {
+              "id": "m21",
+              "caption": "Новый стандарт",
+              "price": 2401
+            },
+            {
+              "id": "m23",
+              "caption": "Средний",
+              "price": 2601
+            },
+            {
+              "id": "m25",
+              "caption": "Большой",
+              "price": 2801
+            }
+          ],
+          "defaultOptionId": "m21"
+        },
+        {
+          "id": "dough",
+          "title": "Тесто",
+          "layout": "simple",
+          "options": [
+            {
+              "id": "traditional",
+              "label": "Традиционное"
+            },
+            {
+              "id": "thin",
+              "label": "Тонкое"
+            }
+          ],
+          "defaultOptionId": "traditional"
+        }
+      ]
+    },
     {
       "id": "d-1",
       "categoryId": "hot",

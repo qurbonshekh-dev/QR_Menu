@@ -1,0 +1,52 @@
+.chip {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.selected {
+  background: var(--color-bg-surface);
+}
+
+/* Layout — Figma property "Layout" */
+.detailed {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+}
+
+.simple {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+}
+
+.caption {
+  color: var(--color-text-dark-2);
+}
+
+/* Значение размера в detailed-раскладке всегда тёмное — цена должна
+   считываться независимо от выбранности, так задано в исходном макете. */
+.detailed .label {
+  color: var(--color-text-dark-1);
+}
+
+.simple .label {
+  color: var(--color-text-dark-2);
+}
+
+.selected .label {
+  color: var(--color-text-dark-1);
+}

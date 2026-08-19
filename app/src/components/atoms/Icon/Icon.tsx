@@ -122,3 +122,26 @@ export function StarIcon({ size = 12, ...rest }: IconProps) {
     </svg>
   );
 }
+
+/**
+ * Figma: `SVG` внутри поля поиска. Обводка 1.5, но у окружности нет
+ * linecap/linejoin — поэтому не через StrokeIcon, а собственный svg.
+ */
+export function SearchIcon({ size = 20, ...rest }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      aria-hidden="true"
+      focusable="false"
+      {...rest}
+    >
+      <path d="M8.8 14.1C11.7271 14.1 14.1 11.7271 14.1 8.8C14.1 5.87289 11.7271 3.5 8.8 3.5C5.87289 3.5 3.5 5.87289 3.5 8.8C3.5 11.7271 5.87289 14.1 8.8 14.1Z" />
+      <path d="M12.8 12.8L16.5 16.5" strokeLinecap="round" />
+    </svg>
+  );
+}

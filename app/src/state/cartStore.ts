@@ -1,11 +1,14 @@
 import { createContext, useContext } from 'react';
-import type { CartItem } from '../data/types';
+import type { CartItem, DishSelections } from '../data/types';
 
 export interface CartValue {
   items: CartItem[];
-  /** Количество конкретного блюда в корзине (0, если его нет). */
-  quantityOf: (dishId: string) => number;
-  setQuantity: (dishId: string, quantity: number) => void;
+  /** Количество строки корзины по составному ключу (см. data/cartKey.ts), 0 — если её нет. */
+  quantityOfKey: (key: string) => number;
+  /** Суммарное количество блюда по всем его строкам (разным размерам/тесту), для бейджей на карточке в сетке меню. */
+  quantityOfDish: (dishId: string) => number;
+  /** Создаёт/обновляет/удаляет (при quantity<=0) строку корзины. */
+  setQuantity: (key: string, quantity: number, dishId: string, selections?: DishSelections) => void;
   clear: () => void;
   totalCount: number;
   totalPrice: number;

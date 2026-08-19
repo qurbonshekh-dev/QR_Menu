@@ -1,0 +1,53 @@
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+}
+
+.field:focus-within {
+  box-shadow: var(--shadow-focus);
+}
+
+.icon {
+  flex: none;
+  color: var(--color-text-dark-2);
+}
+
+.input {
+  flex: 1 0 0;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-dark-1);
+}
+
+.input::placeholder {
+  color: var(--color-text-dark-2);
+}
+
+.input:focus {
+  outline: none;
+}
+
+/* Кнопка очистки, которую Safari/Chrome рисуют у type="search" — своя вёрстка. */
+.input::-webkit-search-decoration,
+.input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
