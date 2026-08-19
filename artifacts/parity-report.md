@@ -1,6 +1,6 @@
 # Parity Report — QR Menu
 
-Обновлено: 2026-08-18, после итерации «валюта → сум, OptionChip/OptionGroup, категория Pizza».
+Обновлено: 2026-08-19, после итераций «валюта → сум / OptionChip / Pizza», «поиск» и «вход по QR».
 Файл: `FMWyIMVAGIPPpP6SsEvGd8`. Карта id — `artifacts/figma-mirror.json`.
 
 ## Состояние
@@ -10,7 +10,7 @@
 | Токены | `tokens.json` → `tokens.css` / `tokens.ts` | коллекции `Colors` (Light), `Spacing`, `Radius` | ✅ |
 | Текстовые стили | 34 в `typography.ts` + классы `.ts-*` | 34 Text Styles, имена 1:1 | ✅ |
 | Эффекты | `shadow.card` / `.modal` / `.focus` | `Shadow/Card` / `Shadow/Modal` / `Shadow/Focus` | ✅ |
-| Компоненты | 15 в `app/src/components` | 15 Component Set'ов + 8 `Icon/*` | ✅ |
+| Компоненты | 16 в `app/src/components` | 16 Component Set'ов + 9 `Icon/*` | ✅ |
 | Экраны | 5 в `app/src/pages` | 5 фреймов на `06 — Screens`, экран `Dish — Pizza` в очереди | ⚠️ |
 
 Страница `Page 1` со Style Guide дизайнера не изменялась — она остаётся источником истины по визуалу.
@@ -22,7 +22,9 @@
 1. **Валюта ₽ → сум.** `formatPrice` переписан (кастомный форматтер, Intl не знает UZS в нужном виде): `2101` → «2 101 с». `Restaurant.currency` теперь `'UZS'`. В Figma заменены: дефолтные значения свойств `DishCard.Price` и `CartBar.Total`, спесимен на `01 — Foundations`, все размещённые тексты на `05 — Cards & Layout` и `06 — Screens` (23 узла). На `Page 1` (Style Guide дизайнера) четыре текста с `₽` остались нетронутыми — это чужой контент, не наш.
 2. **`OptionChip` (атом) + `OptionGroup` (молекула).** Порт фрейма `Frame 48482` — трек взаимоисключающих пилюль. `Layout=Detailed` (размер: подпись+цена, вес/цвет текста не меняются от State) и `Layout=Simple` (тесто: одна строка, State меняет вес/цвет). В Figma — Component Set `OptionChip` (`51:49`, 4 варианта); `OptionGroup` **не** отдельный Component Set (число опций у блюд разное — 2 или 3), а композиция N инстансов `OptionChip` в трек, как и в React.
 3. **Категория «Пицца».** 2 блюда (`d-13` Маргарита, `d-14` Пепперони), у каждого `optionGroups`: `size` (3 варианта, полностью меняют цену) + `dough` (2 варианта, без изменения цены).
-4. **Корзина: составной ключ.** `CartItem.key = dishId` или `dishId|group:option,...` — разные размеры/тесто одной пиццы теперь разные строки корзины, с раздельным количеством и корректной ценой каждой. `cart.setQuantity` принимает `(key, quantity, dishId, selections?)`.
+4. **Поиск по меню.** `SearchField` (`65:12`) + `Icon/Search` (`65:5`) — порт фрейма `Background` (`61:657`) с той же страницы `Компоненты`. В приложении стоит над чипами категорий, фильтрует по названию/описанию/составу; при активном запросе фильтр категории игнорируется. На экране `Menu` в Figma инстанс добавлен над треком чипов.
+5. **Вход по QR (фаза 1 ТЗ).** `Restaurant.tableLabel` разделён на статичный `zoneLabel` («основной зал») в `menu.json` и номер стола из URL (`?table=7`). Новый `TableSessionProvider` (внутри `HashRouter` — нужен роутер-контекст) + хелпер `formatTableLabel`. Persistence нет: без параметра всегда дефолт «12». Figma-стороны не касается.
+6. **Корзина: составной ключ.** `CartItem.key = dishId` или `dishId|group:option,...` — разные размеры/тесто одной пиццы теперь разные строки корзины, с раздельным количеством и корректной ценой каждой. `cart.setQuantity` принимает `(key, quantity, dishId, selections?)`.
 
 ## Исправленные расхождения (из прошлых итераций)
 
@@ -33,7 +35,7 @@
 
 | Компонент | React | Figma | Свойства |
 |---|---|---|---|
-| `Icon/*` | `atoms/Icon` (8 глифов) | 8 компонентов | — |
+| `Icon/*` | `atoms/Icon` (9 глифов) | 9 компонентов | — |
 | `Button` | `atoms/Button` | Set `21:56`, 9 вариантов | `Variant`, `Size`, `Label`, `Show icon` |
 | `Counter` | `atoms/Counter` | Set `23:56`, 4 варианта | `Variant`, `Size`, `Value` |
 | `Chip` | `atoms/Chip` | Set `25:38`, 2 варианта | `State`, `Label` |
@@ -47,6 +49,7 @@
 | `DishCard` | `molecules/DishCard` | Set `30:74`, 4 варианта | `Variant`, `Action`, `Price`, `Title`, `Meta` |
 | `OptionChip` | `atoms/OptionChip` | Set `51:49`, 4 варианта | `Layout`, `State`, `Caption`, `Value`/`Dough` |
 | `OptionGroup` | `molecules/OptionGroup` | композиция N `OptionChip` в трек (не Set) | — |
+| `SearchField` | `molecules/SearchField` | `65:12` | `Placeholder` |
 | `AppHeader` | `organisms/AppHeader` | `32:44` | `Title`, `Subtitle`, `Show back`, `Show action` |
 | `CartBar` | `organisms/CartBar` | `32:57` | `Summary`, `Total` |
 
@@ -92,3 +95,10 @@ Figma-инструментов на стороне платформы (не св
 4. Опубликовать библиотеку (к файлу пока не подключено ни одной).
 5. Code Connect: связать 15 компонентов с `app/src/components`.
 6. Заменить mock-меню на реальный источник через `menuRepository`.
+
+## Дальше по ТЗ (`docs/tz.md`)
+
+Фаза 1 (вход по QR) — сделана. В очереди фазы 2–6: КБЖУ и модификаторы-чекбоксы,
+переделка чекаута под dine-in (сейчас там доставка — противоречит ТЗ), мок-платёж,
+статус заказа, PWA. Каждая фаза добавляет UI-компоненты, которые нужно сразу зеркалить.
+Бэкенд и админка ресторана вынесены за скоуп текущего этапа.

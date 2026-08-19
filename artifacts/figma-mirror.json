@@ -1,0 +1,101 @@
+{
+  "fileKey": "FMWyIMVAGIPPpP6SsEvGd8",
+  "syncedAt": "2026-08-18",
+  "_note": "Карта заполнена прогоном sync_to_figma 2026-08-18. Страница `Page 1` (Style Guide дизайнера) не изменялась и служит источником.",
+  "pages": {
+    "Page 1 (Style Guide, источник)": "0:1",
+    "01 — Foundations": "18:6",
+    "02 — Icons": "18:7",
+    "03 — Controls": "18:8",
+    "04 — Inputs": "18:9",
+    "05 — Cards & Layout": "18:10",
+    "06 — Screens": "18:11"
+  },
+  "collections": {
+    "Colors": { "id": "VariableCollectionId:4:5", "modeId": "4:0", "mode": "Light" },
+    "Spacing": { "id": "VariableCollectionId:4:6" },
+    "Radius": { "id": "VariableCollectionId:4:7" }
+  },
+  "variables": {
+    "Main_1": "VariableID:11:46",
+    "Brand/Main": "VariableID:4:8",
+    "Neutral/Overlay": "VariableID:17:2",
+    "Brand/Contrast": "VariableID:17:3",
+    "Semantic/Bg/Inverse": "VariableID:17:4",
+    "Semantic/Bg/Overlay": "VariableID:17:5",
+    "Semantic/Border/Muted": "VariableID:17:6"
+  },
+  "components": {
+    "Icon/Plus": "20:5",
+    "Icon/Minus": "20:8",
+    "Icon/Check": "20:11",
+    "Icon/Chevron Left": "20:14",
+    "Icon/Pencil": "20:18",
+    "Icon/Heart": "20:21",
+    "Icon/Shopping Bag": "20:24",
+    "Icon/Star": "20:27",
+    "Button": "21:56",
+    "Counter": "23:56",
+    "Chip": "25:38",
+    "IconButton": "25:51",
+    "Toggle": "25:58",
+    "Radio": "25:64",
+    "TextInput": "26:21",
+    "SegmentedControl": "27:14",
+    "Badge": "28:13",
+    "DishCard": "30:74",
+    "AppHeader": "32:44",
+    "CartBar": "32:57",
+    "FormRow": "39:11",
+    "OptionChip": "51:49"
+  },
+  "componentProperties": {
+    "Button.Label": "Label#22:0",
+    "Button.Show icon": "Show icon#22:10",
+    "Counter.Value": "Value#23:0",
+    "Chip.Label": "Label#25:0",
+    "IconButton.Icon": "Icon#25:3",
+    "TextInput.Label": "Label#26:0",
+    "Badge.Label": "Label#28:0",
+    "DishCard.Price": "Price#33:0",
+    "DishCard.Title": "Title#33:5",
+    "DishCard.Meta": "Meta#33:10",
+    "FormRow.Label": "Label#39:0",
+    "AppHeader.Title": "Title (см. componentPropertyDefinitions узла 32:44)",
+    "CartBar.Summary": "Summary (см. componentPropertyDefinitions узла 32:57)",
+    "OptionChip.Caption": "Caption#51:0 (только Layout=Detailed)",
+    "OptionChip.Value": "Value#54:0 (Layout=Detailed — формат. цена)",
+    "OptionChip.Dough": "Dough#54:5 (только Layout=Simple)"
+  },
+  "screens": {
+    "Menu": "34:2",
+    "Dish": "35:113",
+    "Cart": "36:136",
+    "Checkout": "37:202",
+    "Order Success": "36:217",
+    "Dish — Pizza": "PENDING — сборка прервана перегрузкой классификатора, довести при следующем sync_to_figma"
+  },
+  "compositions": {
+    "OptionGroup demo (05 — Cards & Layout)": { "wrap": "57:42", "sizeTrack": "57:43", "doughTrack": "57:53" }
+  },
+  "imageHashes": {
+    "dish-1": "5d80e16593160dcde9fc28a32cac9ad854f7fc4d",
+    "dish-2": "bc070b2c55d36c4c0de546bdb981dc0ad1045665",
+    "dish-3": "164d7c16bbfe00658d00ffe9856c58e8e129b273",
+    "dish-4": "27c39ae94e52267726d6d4f8049848a7f28e1628",
+    "dish-5": "f3614e4e11983c8a35b835c0ac3470b65df6c833"
+  },
+  "sourceNodes": {
+    "styleGuide": "1:65",
+    "typography": "1:68",
+    "color": "1:187",
+    "buttons": "1:294",
+    "textInput": "1:423",
+    "select": "1:481",
+    "payment": "1:511",
+    "checkbox": "1:541",
+    "tabs": "1:547",
+    "cards": "1:566",
+    "toggle": "1:660"
+  }
+}

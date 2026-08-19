@@ -1,28 +1,57 @@
-# Цель: подключить Figma MCP к среде, проверить smoke-test.
+# Цель: подключиться к Figma и проверить доступ к файлу.
 
-## Шаги
-1. Убедиться, что `.mcp.json` в корне содержит:
-   ```json
-   { "mcpServers": { "figma": { "type": "http", "url": "https://mcp.figma.com/mcp" } } }
-   ```
-2. После создания `.mcp.json` — попросить студента перезапустить Claude Code/Cursor/Antigravity (иначе MCP не подхватится).
-3. На первый вызов любого `mcp__figma__*` — будет OAuth в браузере. Если ничего не открылось:
-   - Вызвать `mcp__figma__authenticate`, отдать студенту полученный URL.
-   - Если редирект упал на localhost — попросить URL из адресной строки и вызвать `complete_authentication`.
-4. Smoke-test:
-   - `mcp__figma__whoami` → должен вернуть email/handle
-   - `mcp__figma__get_metadata` с nodeId `"0:1"` — структура файла
-5. Если ошибка 401 — токен истёк, повторить authenticate.
+## Как это работает на практике (проверено)
 
-## Tools шпаргалка
-- `get_metadata`, `get_design_context`, `get_screenshot`, `get_variable_defs`, `whoami` — read
-- `use_figma` — главный write через Figma Plugin API
-- `generate_figma_design` — генерация дизайна по описанию
-- `create_new_file` — новый Figma-файл
+Figma-инструменты приходят **не** из `.mcp.json`, а из плагина Figma в Claude Code.
+Имена у них с хэш-префиксом сервера, например:
 
-## Лимиты use_figma
-- ~15KB кода на вызов → большие операции дробить
-- `figma.currentPage` read-only → `await figma.setCurrentPageAsync(page)`
-- `layoutSizingHorizontal "FILL"` — только ПОСЛЕ добавления ребёнка в родителя
-- Шрифты — через `figma.loadFontAsync({ family, style })`. Inter "Semi Bold" с пробелом, не "SemiBold"
-- Variable aliases — `{ type: "VARIABLE_ALIAS", id: targetVariableId }`
+```
+mcp__<serverHash>__use_figma
+mcp__<serverHash>__get_design_context
+```
+
+`.mcp.json` в корне (`https://mcp.figma.com/mcp`) — это отдельный HTTP-сервер, который
+требует OAuth и в текущей среде **не авторизован**. Он не нужен: всё, что мы делали,
+сделано через плагин. Файл оставлен как есть, чтобы не ломать конфиг quickstart.
+
+## Обязательные скиллы перед вызовом
+
+Figma-инструменты требуют предварительной загрузки скиллов — без них будут
+трудноуловимые ошибки:
+
+| Задача | Скилл |
+|---|---|
+| Любой вызов `use_figma` (запись) | `figma-use` |
+| Создание компонентов/переменных | `figma-generate-library` (вместе с `figma-use`) |
+| Сборка экранов из инстансов | `figma-generate-design` (вместе с `figma-use`) |
+| Чтение дизайна в код (`get_design_context`) | `figma-design-to-code` |
+
+## Smoke-test
+
+1. `get_metadata` без `nodeId` → список страниц документа.
+2. `get_metadata` с `nodeId: "0:1"` → структура исходного Style Guide.
+3. Проверить, что `fileKey` из `figma.config.json` совпадает: `FMWyIMVAGIPPpP6SsEvGd8`.
+
+## Шпаргалка по инструментам
+
+- **Чтение:** `get_metadata` (структура), `get_design_context` (код+скриншот+токены),
+  `get_screenshot`, `get_variable_defs`, `search_design_system`, `get_libraries`
+- **Запись:** `use_figma` — единственный универсальный write через Plugin API
+- **Ассеты:** `download_assets` (выгрузить SVG/PNG из Figma), `upload_assets` (залить в Figma)
+
+## Грабли `use_figma` (проверены на этом проекте)
+
+- Скрипт **атомарен**: упал — не выполнилось ничего. Читать ошибку, чинить, повторять.
+- `figma.currentPage` — только `await figma.setCurrentPageAsync(page)`, и **не чаще одного раза за вызов**.
+- `layoutSizingHorizontal = 'FILL'` — только ПОСЛЕ `appendChild` в auto-layout родителя.
+- `layoutPositioning = 'ABSOLUTE'` — только если родитель auto-layout (не обычный frame).
+- Цвета в диапазоне 0–1, не 0–255.
+- Шрифты: `await figma.loadFontAsync({ family, style })` перед ЛЮБОЙ записью текста.
+  В нашем ДС стили без пробела: `SemiBold`, `ExtraBold` (у Inter — наоборот, с пробелом).
+- `addComponentProperty(name, 'INSTANCE_SWAP', defaultValue)` — дефолт это **id компонента**, не `key`.
+- Свойства инстанса адресуются полным ключом с суффиксом: `'Label#22:0'`, не `'Label'`.
+- Текстовое свойство на Component Set **общее для всех вариантов** — разные подписи
+  у Default/Selected на мастере невозможны (на инстансах переопределяется нормально).
+- Instance swap **наследует размер слота**: Toggle 44×24 в слоте Radio 16×16 обрежется.
+  Решение — отдельные варианты набора под каждую геометрию слота (см. `FormRow`).
+- Возвращать все созданные id через `return` — иначе следующий вызов не сможет на них сослаться.

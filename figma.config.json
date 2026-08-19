@@ -1,7 +1,20 @@
 {
   "fileKey": "FMWyIMVAGIPPpP6SsEvGd8",
-  "fileUrl": "https://www.figma.com/design/FMWyIMVAGIPPpP6SsEvGd8/DS?node-id=1-65",
-  "collections": { "colors": "Colors", "spacing": "Spacing", "radius": "Radius", "typography": "Typography" },
-  "pages": { "tokens": "01 — Tokens", "library": "02 — Components", "demo": "03 — Demo" },
-  "modes": { "colors": ["Light"] }
+  "fileUrl": "https://www.figma.com/design/FMWyIMVAGIPPpP6SsEvGd8/DS",
+  "collections": { "colors": "Colors", "spacing": "Spacing", "radius": "Radius" },
+  "modes": { "colors": ["Light"] },
+  "pages": {
+    "source": "Page 1",
+    "foundations": "01 — Foundations",
+    "icons": "02 — Icons",
+    "controls": "03 — Controls",
+    "inputs": "04 — Inputs",
+    "cards": "05 — Cards & Layout",
+    "screens": "06 — Screens"
+  },
+  "_notes": [
+    "pages.source — исходный Style Guide дизайнера (frame 1:65). Не редактируем: источник истины по визуалу.",
+    "Типографика живёт как Text Styles, а не как коллекция переменных — поэтому в collections её нет.",
+    "Полная карта id (переменные, компоненты, свойства, экраны, image-хэши) — artifacts/figma-mirror.json."
+  ]
 }
