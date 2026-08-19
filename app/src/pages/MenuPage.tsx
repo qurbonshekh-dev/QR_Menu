@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartBar, Chip, DishCard, IconButton, SearchField, ShoppingBagIcon } from '../components';
-import { dishImage, formatMeta, getMenu, resolveDishPrice } from '../data/menuRepository';
+import { dishImage, formatMeta, formatTableLabel, getMenu, resolveDishPrice } from '../data/menuRepository';
 import type { Menu } from '../data/types';
 import { formatPrice } from '../data/format';
 import { pluralItems } from '../data/plural';
 import { useCart } from '../state/cartStore';
+import { useTableSession } from '../state/tableSessionStore';
 import { ts } from '../tokens/typography';
 import { AppHeader } from '../components';
 import styles from './MenuPage.module.css';
@@ -13,6 +14,7 @@ import styles from './MenuPage.module.css';
 export function MenuPage() {
   const navigate = useNavigate();
   const cart = useCart();
+  const { tableNumber } = useTableSession();
   const [menu, setMenu] = useState<Menu | null>(null);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -46,7 +48,7 @@ export function MenuPage() {
     <div className={styles.page}>
       <AppHeader
         title={menu.restaurant.name}
-        subtitle={menu.restaurant.tableLabel}
+        subtitle={formatTableLabel(tableNumber, menu.restaurant)}
         action={
           <IconButton aria-label="Корзина" count={cart.totalCount} onClick={() => navigate('/cart')}>
             <ShoppingBagIcon size={20} />

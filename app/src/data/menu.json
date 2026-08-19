@@ -2,7 +2,7 @@
   "restaurant": {
     "id": "r-1",
     "name": "Ресторан «Некрасова 12»",
-    "tableLabel": "Стол 12 · основной зал",
+    "zoneLabel": "основной зал",
     "currency": "UZS"
   },
   "categories": [

@@ -4,8 +4,9 @@
 export interface Restaurant {
   id: string;
   name: string;
-  /** Подпись в шапке: «Стол 12 · зал» — приходит из QR-кода. */
-  tableLabel: string;
+  /** Название зала — статическая часть подписи, комбинируется с номером
+   *  стола из URL/QR в formatTableLabel (напр. «основной зал»). */
+  zoneLabel: string;
   /** UZS — узбекский сум, единственная валюта меню. Отображается как «2 101 с». */
   currency: 'UZS';
 }

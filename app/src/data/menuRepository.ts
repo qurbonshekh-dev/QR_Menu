@@ -6,7 +6,7 @@ import dish3 from '../assets/dishes/dish-3.png';
 import dish4 from '../assets/dishes/dish-4.png';
 import dish5 from '../assets/dishes/dish-5.png';
 import rawMenu from './menu.json';
-import type { Dish, DishSelections, Menu } from './types';
+import type { Dish, DishSelections, Menu, Restaurant } from './types';
 
 const images: Record<string, string> = {
   'dish-1': dish1,
@@ -43,6 +43,12 @@ export function findDish(id: string): Dish | undefined {
 
 export function formatMeta(dish: Dish): string {
   return `${dish.calories} ккал | ${dish.weight} гр`;
+}
+
+/** Собирает подпись под именем ресторана из номера стола (сессия) и
+ *  статичного zoneLabel ресторана: «Стол 12 · основной зал». */
+export function formatTableLabel(tableNumber: string, restaurant: Restaurant): string {
+  return `Стол ${tableNumber} · ${restaurant.zoneLabel}`;
 }
 
 /** Выбор по умолчанию для всех групп опций блюда (defaultOptionId каждой группы). */
