@@ -19,7 +19,10 @@
 
 Ссылки:
 
-- Прод: https://qr-menu-pi-sage.vercel.app (автодеплой с `git push` в `main`)
+- Прод гостевого меню: https://qr-menu-pi-sage.vercel.app (Root Directory `apps/guest`)
+- Прод приложения официанта: https://foodwaiter.vercel.app (Root Directory `apps/waiter`)
+  Оба — автодеплой с `git push` в `main`; на каждое приложение свой проект Vercel из этого же
+  репозитория. Для кухни и админки заводятся такие же проекты со своим Root Directory.
 - Репозиторий: https://github.com/qurbonshekh-dev/QR_Menu
 - Figma: https://www.figma.com/design/FMWyIMVAGIPPpP6SsEvGd8/DS
 - ТЗ на продукт: `docs/tz.md`
