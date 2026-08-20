@@ -1,0 +1,61 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.label {
+  color: var(--color-text-dark-2);
+}
+
+.number {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  flex: 1 0 auto;
+  color: var(--color-text-dark-1);
+}
+
+.tableIcon {
+  color: var(--color-text-dark-2);
+}
+
+.waiter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+  color: var(--color-brand-contrast);
+}
+
+.waiterText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.waiterName {
+  color: var(--color-text-dark-1);
+}

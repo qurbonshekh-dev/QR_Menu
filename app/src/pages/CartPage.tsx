@@ -14,12 +14,12 @@ export function CartPage() {
   if (cart.items.length === 0) {
     return (
       <div className={styles.page}>
-        <AppHeader title="Корзина" onBack={() => navigate('/')} />
+        <AppHeader title="Корзина" onBack={() => navigate('/menu')} />
         <div className={styles.empty}>
           <p className={[styles.emptyText, ts('body-m/regular')].join(' ')}>
             Пока пусто. Выберите блюда в меню — они появятся здесь.
           </p>
-          <Button onClick={() => navigate('/')}>Открыть меню</Button>
+          <Button onClick={() => navigate('/menu')}>Открыть меню</Button>
         </div>
       </div>
     );
@@ -27,7 +27,7 @@ export function CartPage() {
 
   return (
     <div className={styles.page}>
-      <AppHeader title="Корзина" subtitle={`${cart.totalCount} ${pluralItems(cart.totalCount)} в заказе`} onBack={() => navigate('/')} />
+      <AppHeader title="Корзина" subtitle={`${cart.totalCount} ${pluralItems(cart.totalCount)} в заказе`} onBack={() => navigate('/menu')} />
 
       <div className={styles.list}>
         {cart.items.map((item) => {

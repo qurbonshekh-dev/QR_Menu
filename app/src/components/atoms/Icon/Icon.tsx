@@ -145,3 +145,59 @@ export function SearchIcon({ size = 20, ...rest }: IconProps) {
     </svg>
   );
 }
+
+/** Figma: `System` (список — плитка «Меню»). */
+export function MenuListIcon(props: IconProps) {
+  return (
+    <StrokeIcon grid={20} {...props}>
+      <path d="M7.5 5.83333H16.6667" />
+      <path d="M7.5 10H16.6667" />
+      <path d="M7.5 14.1667H16.6667" />
+      <path d="M3.75 5.83333H4.16667" />
+      <path d="M3.75 10H4.16667" />
+      <path d="M3.75 14.1667H4.16667" />
+    </StrokeIcon>
+  );
+}
+
+/** Figma: `System` (человек — плитка «Официант»). */
+export function UserIcon(props: IconProps) {
+  return (
+    <StrokeIcon grid={20} {...props}>
+      <path d="M10 9.16667C11.6108 9.16667 12.9167 7.86083 12.9167 6.25C12.9167 4.63917 11.6108 3.33333 10 3.33333C8.38917 3.33333 7.08333 4.63917 7.08333 6.25C7.08333 7.86083 8.38917 9.16667 10 9.16667Z" />
+      <path d="M15 16.6667C15 13.9052 12.7614 11.6667 10 11.6667C7.23858 11.6667 5 13.9052 5 16.6667" />
+    </StrokeIcon>
+  );
+}
+
+/** Figma: `System` (кошелёк — плитка «Оплатить счёт»). */
+export function WalletIcon(props: IconProps) {
+  return (
+    <StrokeIcon grid={20} {...props}>
+      <path d="M15.8333 6.66667V5.41667C15.8333 4.72631 15.2737 4.16667 14.5833 4.16667H5C4.07953 4.16667 3.33333 4.91286 3.33333 5.83333V14.1667C3.33333 15.0871 4.07953 15.8333 5 15.8333H15C15.9205 15.8333 16.6667 15.0871 16.6667 14.1667V8.33333C16.6667 7.41286 15.9205 6.66667 15 6.66667H4.58333" />
+      <path d="M13.3333 11.6667H13.3417" />
+    </StrokeIcon>
+  );
+}
+
+/** Figma: `System` (столик — карточка стола). */
+export function TableIcon(props: IconProps) {
+  return (
+    <StrokeIcon grid={20} {...props}>
+      <path d="M2.91667 7.5H17.0833C17.0833 5.65905 15.5909 4.16667 13.75 4.16667H6.25C4.40905 4.16667 2.91667 5.65905 2.91667 7.5Z" />
+      <path d="M7.5 7.5L6.25 15.8333" />
+      <path d="M12.5 7.5L13.75 15.8333" />
+    </StrokeIcon>
+  );
+}
+
+/** Figma: `System` (чек — плитка «Мои заказы»). */
+export function ReceiptIcon(props: IconProps) {
+  return (
+    <StrokeIcon grid={20} {...props}>
+      <path d="M5 2.5V17.5L7.5 16.25L10 17.5L12.5 16.25L15 17.5V2.5H5Z" />
+      <path d="M7.91667 6.66667H12.0833" />
+      <path d="M7.91667 10H12.0833" />
+    </StrokeIcon>
+  );
+}

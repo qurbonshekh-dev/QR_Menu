@@ -28,7 +28,12 @@ export function OrderSuccessPage() {
       {state.total ? (
         <p className={[styles.total, ts('heading-8/bold')].join(' ')}>{formatPrice(state.total)}</p>
       ) : null}
-      <Button onClick={() => navigate('/')}>Вернуться в меню</Button>
+      <div className={styles.actions}>
+        <Button onClick={() => navigate('/menu')}>Заказать ещё</Button>
+        <Button variant="secondary" onClick={() => navigate('/')}>
+          На главную
+        </Button>
+      </div>
     </div>
   );
 }

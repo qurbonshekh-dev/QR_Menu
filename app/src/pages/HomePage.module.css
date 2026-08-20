@@ -1,0 +1,127 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+}
+
+.state {
+  padding: var(--space-6);
+  color: var(--color-text-dark-2);
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+.welcomeTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.welcomeText {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-0) var(--space-4) var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Слева карточка стола на две строки, справа стопка плиток — как на макете. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-4) var(--space-3);
+}
+
+.tableSlot {
+  grid-row: span 2;
+  display: flex;
+}
+
+.tableSlot > * {
+  flex: 1 0 auto;
+}
+
+.call {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+
+.callTitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.callReasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.callActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tableEdit {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.tableEdit > *:first-child {
+  flex: 1 0 0;
+}
+
+/* Голосовое подтверждение вызова официанта — визуально дублируется подписью плитки. */
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.rows {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-content: start;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-4) var(--space-6);
+}
+
+.fab {
+  position: sticky;
+  bottom: var(--space-4);
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-0) var(--space-4) var(--space-4);
+}
+
+.fab > * {
+  box-shadow: var(--shadow-card);
+}

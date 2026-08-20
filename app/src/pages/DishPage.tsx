@@ -45,9 +45,9 @@ export function DishPage() {
   if (dish === null) {
     return (
       <div className={styles.page}>
-        <AppHeader title="Блюдо не найдено" onBack={() => navigate('/')} />
+        <AppHeader title="Блюдо не найдено" onBack={() => navigate('/menu')} />
         <div className={styles.body}>
-          <Button onClick={() => navigate('/')}>Вернуться в меню</Button>
+          <Button onClick={() => navigate('/menu')}>Вернуться в меню</Button>
         </div>
       </div>
     );

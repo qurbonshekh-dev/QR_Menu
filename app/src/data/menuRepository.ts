@@ -6,7 +6,7 @@ import dish3 from '../assets/dishes/dish-3.png';
 import dish4 from '../assets/dishes/dish-4.png';
 import dish5 from '../assets/dishes/dish-5.png';
 import rawMenu from './menu.json';
-import type { Dish, DishSelections, Menu, Restaurant } from './types';
+import type { Dish, DishSelections, Menu, Restaurant, Waiter } from './types';
 
 const images: Record<string, string> = {
   'dish-1': dish1,
@@ -30,6 +30,16 @@ function delay<T>(value: T, ms = 150): Promise<T> {
 
 export function getMenu(): Promise<Menu> {
   return delay(menu);
+}
+
+/** Ресторан без блюд — нужен экранам, которым каталог не требуется (главная, счёт). */
+export function getRestaurant(): Promise<Restaurant> {
+  return delay(menu.restaurant);
+}
+
+/** Официант стола. Пока один на весь ресторан — см. Waiter в types.ts. */
+export function getWaiter(): Waiter {
+  return menu.restaurant.waiter;
 }
 
 export function getDish(id: string): Promise<Dish | undefined> {
@@ -77,4 +87,9 @@ export function describeSelections(dish: Dish, selections?: DishSelections): str
     })
     .filter((part): part is string => Boolean(part));
   return parts.length ? parts.join(' · ') : null;
+}
+
+/** Инициал для аватара официанта — фото официантов в моке нет. */
+export function waiterInitial(waiter: Waiter): string {
+  return waiter.name.trim().charAt(0).toUpperCase();
 }

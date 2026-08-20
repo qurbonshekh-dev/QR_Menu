@@ -20,3 +20,10 @@
   background: var(--color-bg-inverse);
   color: var(--color-text-white-1);
 }
+
+/* State: Disabled — раздел заведён, но откроется в следующей версии. */
+.chip:disabled {
+  background: var(--color-bg-muted);
+  color: var(--color-text-dark-3);
+  cursor: default;
+}

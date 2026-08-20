@@ -12,12 +12,14 @@ import {
 import type { DeliveryMethod, PaymentMethod } from '../data/types';
 import { formatPrice } from '../data/format';
 import { useCart } from '../state/cartStore';
+import { useOrders } from '../state/ordersStore';
 import { ts } from '../tokens/typography';
 import styles from './CheckoutPage.module.css';
 
 export function CheckoutPage() {
   const navigate = useNavigate();
   const cart = useCart();
+  const { placeOrder } = useOrders();
   const [delivery, setDelivery] = useState<DeliveryMethod>('delivery');
   const [payment, setPayment] = useState<PaymentMethod>('online');
   const [street, setStreet] = useState('');
@@ -32,9 +34,10 @@ export function CheckoutPage() {
       setStreetError('Укажите улицу и дом');
       return;
     }
-    const orderId = String(Math.floor(1000 + Math.random() * 9000));
+    // Заказ уходит в сессию стола — из неё живут «Мои заказы» и счёт на главной.
+    const order = placeOrder(cart.items, cart.totalPrice);
     cart.clear();
-    navigate(`/order/${orderId}`, { state: { total: cart.totalPrice, delivery, payment, callBack, comment } });
+    navigate(`/order/${order.id}`, { state: { total: order.total, delivery, payment, callBack, comment } });
   };
 
   return (

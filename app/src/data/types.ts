@@ -1,6 +1,12 @@
 /** Доменные типы меню. UI работает только с ними — источник данных подменяем
  *  в menuRepository (сейчас локальный JSON, дальше — API/Supabase). */
 
+/** Официант, закреплённый за столом. Пока статичен для всего ресторана —
+ *  привязка «стол → официант» появится вместе с бэкендом. */
+export interface Waiter {
+  name: string;
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -9,6 +15,7 @@ export interface Restaurant {
   zoneLabel: string;
   /** UZS — узбекский сум, единственная валюта меню. Отображается как «2 101 с». */
   currency: 'UZS';
+  waiter: Waiter;
 }
 
 export interface Category {
@@ -92,4 +99,18 @@ export interface Order {
   payment: PaymentMethod;
   address?: string;
   comment?: string;
+}
+
+/**
+ * Заказ, оформленный в текущей сессии за столом. Живёт в sessionStorage до
+ * закрытия вкладки: бэкенда нет, статус двигать некому — поэтому он всегда
+ * 'placed', реальные статусы («готовится», «подан») придут в фазе 5.
+ */
+export interface SessionOrder {
+  id: string;
+  items: CartItem[];
+  total: number;
+  /** ISO-время оформления — для подписи «в 19:40». */
+  placedAt: string;
+  status: 'placed';
 }

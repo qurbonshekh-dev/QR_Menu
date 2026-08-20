@@ -3,7 +3,7 @@ import { ts } from '../../../tokens/typography';
 import styles from './Chip.module.css';
 
 export interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** Mirrors the Figma "State" property (Default / Selected). */
+  /** Mirrors the Figma "State" property (Default / Selected / Disabled — через нативный disabled). */
   selected?: boolean;
   children: ReactNode;
 }

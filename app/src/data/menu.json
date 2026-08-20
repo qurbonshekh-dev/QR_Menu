@@ -3,7 +3,10 @@
     "id": "r-1",
     "name": "Ресторан «Некрасова 12»",
     "zoneLabel": "основной зал",
-    "currency": "UZS"
+    "currency": "UZS",
+    "waiter": {
+      "name": "Анна"
+    }
   },
   "categories": [
     {

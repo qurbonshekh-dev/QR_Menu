@@ -49,6 +49,7 @@ export function MenuPage() {
       <AppHeader
         title={menu.restaurant.name}
         subtitle={formatTableLabel(tableNumber, menu.restaurant)}
+        onBack={() => navigate('/')}
         action={
           <IconButton aria-label="Корзина" count={cart.totalCount} onClick={() => navigate('/cart')}>
             <ShoppingBagIcon size={20} />
