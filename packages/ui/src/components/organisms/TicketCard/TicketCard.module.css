@@ -1,0 +1,113 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+}
+
+/* Age — цвет шапки говорит возраст тикета быстрее любых цифр. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-white-1);
+}
+
+.ontime .head {
+  background: var(--color-ticket-ontime);
+}
+
+.caution .head {
+  background: var(--color-ticket-caution);
+}
+
+.late .head {
+  background: var(--color-ticket-late);
+}
+
+.headLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hotkey {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-overlay);
+}
+
+.serving {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--color-border-default);
+  color: var(--color-text-dark-2);
+}
+
+.items {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-content: start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.quantity {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-muted);
+  color: var(--color-text-dark-1);
+}
+
+.itemText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.title {
+  color: var(--color-text-dark-1);
+}
+
+.options {
+  color: var(--color-text-dark-2);
+}
+
+/* Пожелание по позиции — то, из-за чего блюдо уходит на переделку. */
+.itemComment {
+  color: var(--color-ticket-late);
+}
+
+.comment {
+  margin: 0 var(--space-4) var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-warning);
+  color: var(--color-text-dark-1);
+}
+
+.action {
+  padding: var(--space-0) var(--space-4) var(--space-4);
+}

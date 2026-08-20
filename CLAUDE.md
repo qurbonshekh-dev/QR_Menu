@@ -10,8 +10,8 @@
 2. **Дизайн-система** — React-компоненты и Figma-компоненты, зеркальные друг другу 1:1.
    Токены, стили и компоненты существуют в обеих средах одновременно.
 
-Приложение официанта начато (`apps/waiter`, главный экран). В планах ещё два — экран кухни
-и админка менеджера. Они живут в том же
+Начаты приложение официанта (`apps/waiter`, главный экран) и экран кухни (`apps/kitchen`).
+В планах админка менеджера. Они живут в том же
 репозитории (`apps/waiter`, `apps/kitchen`, `apps/admin`) и делят ДС и домен через `packages/*`,
 иначе parity с Figma рассыплется на четыре расходящиеся копии. **Все три бессмысленны без бэкенда:**
 официант ждёт заказ гостя, кухня — заказ официанта, менеджер — накопленные данные. Поэтому сначала
@@ -78,15 +78,19 @@ apps/guest/src/        Гостевое QR-меню (Vite + React 19)
 apps/waiter/src/       Приложение официанта (Vite + React 19)
   data/                floorRepository — мок зала и смены, тот же шов, что menuRepository
   pages/               HomePage: смена, чаевые, лента столов, карточка стола, таб-бар
+apps/kitchen/src/      Экран кухни, планшет/монитор на стене (Vite + React 19)
+  data/                ticketsRepository — имитация ленты заказов, на её месте будет realtime
+  pages/               KitchenPage: сетка тикетов, all-day, бамп и возврат
 packages/ui/src/       ДС — одна на все приложения. Реестр: components/index.ts (сверяется с Figma 1:1)
   components/atoms/    Badge Button Chip Counter Icon IconButton OptionChip Radio TextArea TextInput Toggle
   components/molecules/ ActionTile DishCard FormRow OptionGroup SearchField SegmentedControl
                        StatusPill TableCard TableStatusChip
-  components/organisms/ AppHeader CartBar TabBar
+  components/organisms/ AppHeader CartBar TabBar TicketCard
   tokens/              tokens.css/ts (переменные), typography.css/ts (34 Text Style)
   styles.css           единая точка подключения: @import '@food/ui/styles.css'
 packages/domain/src/   types, format (сомони), plural, cartKey, split, floor (столы и статусы),
-                       staff (сотрудник и смена) — чистая логика без React
+                       staff (сотрудник и смена), kitchen (тикеты, возраст, all-day)
+                       — чистая логика без React
 artifacts/             tokens.json (источник токенов), figma-mirror.json (карта id), parity-report.md
 directives/            Инструкции пайплайна (quickstart, sync_to_figma, parity_check, ...)
 docs/tz.md             ТЗ на продукт
@@ -146,6 +150,16 @@ location, а внутренние переходы query не переносят
 `free` / `busy` / `attention` / `reserved`. Цвета живут в токенах `--color-status-*`, а не в экранах:
 иначе «свободен» позеленеет по-разному в приложениях официанта, кухни и админки. Промежуточных
 оттенков не заводим — официанту нужно с одного взгляда отличить «можно сажать» от «зовут».
+
+**Возраст тикета — не статус стола.** `--color-ticket-ontime/caution/late` отдельно от
+`--color-status-*`, хотя ссылаются на те же базовые цвета: в зале это состояние стола, на кухне —
+сколько блюдо уже ждёт. Пороги (8 и 15 минут) лежат в `DEFAULT_AGE_THRESHOLDS` и передаются
+аргументом: у мангала и у бара они разные. Жёлтый `accent/warning` под «внимание» не годится —
+сливается с брендовой кнопкой, поэтому caution оранжевый.
+
+**Кухонный экран читается с трёх метров.** Позиции набраны `body-l`, номер стола и таймер —
+`heading-8`; `body-s` там, где повар не читает, а опознаёт. Один таймер на весь экран
+(`useNow`), а не по секундомеру в каждой карточке.
 
 **Чаевые вместо платежа.** Платёжного шлюза нет (фаза 4), поэтому чаевые не оплачиваются отдельно,
 а прибавляются к счёту стола: `tip` лежит в том же `OrdersProvider` (`qr-menu.tip`), `billTotal =

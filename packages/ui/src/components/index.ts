@@ -26,3 +26,4 @@ export * from './molecules/TableStatusChip';
 export * from './organisms/AppHeader';
 export * from './organisms/CartBar';
 export * from './organisms/TabBar';
+export * from './organisms/TicketCard';

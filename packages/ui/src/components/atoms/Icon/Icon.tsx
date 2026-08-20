@@ -334,3 +334,13 @@ export function ArrowRightIcon(props: IconProps) {
     </StrokeIcon>
   );
 }
+
+/** Figma: `Arrows` (стрелка возврата — «Вернуть тикет» на кухне). */
+export function UndoIcon(props: IconProps) {
+  return (
+    <StrokeIcon grid={20} {...props}>
+      <path d="M2.5 8.33333H13.3333C15.1743 8.33333 16.6667 9.82572 16.6667 11.6667C16.6667 13.5076 15.1743 15 13.3333 15H10" />
+      <path d="M5.83333 5L2.5 8.33333L5.83333 11.6667" />
+    </StrokeIcon>
+  );
+}

@@ -20,6 +20,16 @@
       ],
       "port": 5174,
       "autoPort": true
+    },
+    {
+      "name": "kitchen",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:kitchen"
+      ],
+      "port": 5175,
+      "autoPort": true
     }
   ]
 }

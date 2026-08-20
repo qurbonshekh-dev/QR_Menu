@@ -1,0 +1,92 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg-default);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-6);
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.stats {
+  display: flex;
+  flex: none;
+  gap: var(--space-6);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  color: var(--color-text-dark-1);
+}
+
+.statLabel {
+  color: var(--color-text-dark-2);
+}
+
+.allDay {
+  display: flex;
+  flex: 1 0 0;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.allDayItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-default);
+  color: var(--color-text-dark-1);
+}
+
+.allDayCount {
+  color: var(--color-text-dark-2);
+}
+
+/* Сетка тикетов: на планшете 1280 — четыре колонки, на 1024 — три.
+   Скролл на кухне враг: повар не листает, он смотрит. */
+.grid {
+  display: grid;
+  flex: 1 0 auto;
+  align-content: start;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+}
+
+/* Полоса возврата липнет к низу, поэтому под ней оставляем место —
+   иначе она накрывает кнопку «Готово» последнего тикета. */
+.withRecall {
+  padding-bottom: 88px;
+}
+
+.empty {
+  margin: auto;
+  color: var(--color-text-dark-3);
+}
+
+.recall {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+}
+
+.recallLabel {
+  color: var(--color-text-dark-2);
+}
