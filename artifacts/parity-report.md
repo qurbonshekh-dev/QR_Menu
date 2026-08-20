@@ -10,7 +10,7 @@
 | Токены | `tokens.json` → `tokens.css` / `tokens.ts` | коллекции `Colors` (Light), `Spacing`, `Radius` | ✅ |
 | Текстовые стили | 34 в `typography.ts` + классы `.ts-*` | 34 Text Styles, имена 1:1 | ✅ |
 | Эффекты | `shadow.card` / `.modal` / `.focus` | `Shadow/Card` / `Shadow/Modal` / `Shadow/Focus` | ✅ |
-| Компоненты | 18 в `app/src/components` | 16 Component Set'ов + 9 `Icon/*` | ⚠️ долг: `ActionTile`, `TableCard`, 5 иконок, состояние `Chip/Disabled` |
+| Компоненты | 18 в `app/src/components` | 16 Component Set'ов + 14 `Icon/*` | ⚠️ долг: `ActionTile`, `TableCard` |
 | Экраны | 8 в `app/src/pages` | 5 фреймов на `06 — Screens`, `Dish — Pizza` + 3 новых в очереди | ⚠️ |
 
 Страница `Page 1` со Style Guide дизайнера не изменялась — она остаётся источником истины по визуалу.
@@ -110,17 +110,26 @@ Figma-инструментов на стороне платформы (не св
 
 ## Долг синхронизации с Figma
 
-Впервые за проект React ушёл вперёд Figma: MCP-сервер `figma` не авторизован, а сессия неинтерактивная —
-OAuth в ней не пройти. Не зеркалированы:
+Синк запущен 2026-08-20 и **прерван на середине** — упёрлись в лимит вызовов Figma MCP на плане
+Education. Точные id и место продолжения — в `artifacts/figma-mirror.json` → `_pendingSync`.
 
+Зеркалировано:
+
+- `Icon/MenuList` (`70:9`), `Icon/User` (`70:13`), `Icon/Wallet` (`70:17`), `Icon/Table` (`70:22`),
+  `Icon/Receipt` (`70:27`) на `02 — Icons` — обводка привязана к `Text/Dark/1`;
+- вариант `State=Disabled` у `Chip` (`72:35`) — фон `Semantic/Bg/Muted`, текст `Text/Dark/3`,
+  TEXT-свойство `Label#25:0` перепривязано.
+
+Осталось:
+
+- `Chip` (`25:38`) — фрейм набора шириной 320, третий вариант лежит за его границей и визуально обрезан.
+  Лечится одним `set.resize(480, 60)`;
 - Component Set `ActionTile` (`Variant=Tile|Wide` × `State=Default|Disabled`) на `05 — Cards & Layout`;
-- Component Set `TableCard` на `05 — Cards & Layout`;
-- иконки `Icon/MenuList`, `Icon/User`, `Icon/Wallet`, `Icon/Table`, `Icon/Receipt` на `02 — Icons`;
-- вариант `State=Disabled` у `Chip` (`25:38`);
-- экраны `Home`, `Orders`, `Bill` (обе вкладки — счёт и чаевые) на `06 — Screens`.
+- Component `TableCard` на `05 — Cards & Layout`;
+- экраны `Home`, `Orders`, `Bill` (обе вкладки — счёт и чаевые) на `06 — Screens`, x = 2200 / 2640 / 3080.
 
 Токенов и текстовых стилей итерация не добавила — всё новое собрано из существующих переменных,
-так что расхождение чисто компонентное и закрывается одним прогоном `sync_to_figma` после авторизации.
+так что расхождение чисто компонентное.
 
 ## Известный нюанс инструмента: общие TEXT-свойства коллапсируют по вариантам
 

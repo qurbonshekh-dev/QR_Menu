@@ -1,6 +1,6 @@
 {
   "fileKey": "FMWyIMVAGIPPpP6SsEvGd8",
-  "syncedAt": "2026-08-18",
+  "syncedAt": "2026-08-20",
   "_note": "Карта заполнена прогоном sync_to_figma 2026-08-18. Страница `Page 1` (Style Guide дизайнера) не изменялась и служит источником.",
   "pages": {
     "Page 1 (Style Guide, источник)": "0:1",
@@ -12,9 +12,17 @@
     "06 — Screens": "18:11"
   },
   "collections": {
-    "Colors": { "id": "VariableCollectionId:4:5", "modeId": "4:0", "mode": "Light" },
-    "Spacing": { "id": "VariableCollectionId:4:6" },
-    "Radius": { "id": "VariableCollectionId:4:7" }
+    "Colors": {
+      "id": "VariableCollectionId:4:5",
+      "modeId": "4:0",
+      "mode": "Light"
+    },
+    "Spacing": {
+      "id": "VariableCollectionId:4:6"
+    },
+    "Radius": {
+      "id": "VariableCollectionId:4:7"
+    }
   },
   "variables": {
     "Main_1": "VariableID:11:46",
@@ -47,7 +55,12 @@
     "AppHeader": "32:44",
     "CartBar": "32:57",
     "FormRow": "39:11",
-    "OptionChip": "51:49"
+    "OptionChip": "51:49",
+    "Icon/MenuList": "70:9",
+    "Icon/User": "70:13",
+    "Icon/Wallet": "70:17",
+    "Icon/Table": "70:22",
+    "Icon/Receipt": "70:27"
   },
   "componentProperties": {
     "Button.Label": "Label#22:0",
@@ -65,7 +78,15 @@
     "CartBar.Summary": "Summary (см. componentPropertyDefinitions узла 32:57)",
     "OptionChip.Caption": "Caption#51:0 (только Layout=Detailed)",
     "OptionChip.Value": "Value#54:0 (Layout=Detailed — формат. цена)",
-    "OptionChip.Dough": "Dough#54:5 (только Layout=Simple)"
+    "OptionChip.Dough": "Dough#54:5 (только Layout=Simple)",
+    "Chip": {
+      "State": [
+        "Default",
+        "Selected",
+        "Disabled"
+      ],
+      "State=Disabled node": "72:35"
+    }
   },
   "screens": {
     "Menu": "34:2",
@@ -76,7 +97,11 @@
     "Dish — Pizza": "PENDING — сборка прервана перегрузкой классификатора, довести при следующем sync_to_figma"
   },
   "compositions": {
-    "OptionGroup demo (05 — Cards & Layout)": { "wrap": "57:42", "sizeTrack": "57:43", "doughTrack": "57:53" }
+    "OptionGroup demo (05 — Cards & Layout)": {
+      "wrap": "57:42",
+      "sizeTrack": "57:43",
+      "doughTrack": "57:53"
+    }
   },
   "imageHashes": {
     "dish-1": "5d80e16593160dcde9fc28a32cac9ad854f7fc4d",
@@ -97,5 +122,44 @@
     "tabs": "1:547",
     "cards": "1:566",
     "toggle": "1:660"
+  },
+  "_pendingSync": {
+    "note": "Синк прерван лимитом Figma MCP на плане Education 2026-08-20. Продолжать отсюда.",
+    "done": [
+      "Icon/MenuList, Icon/User, Icon/Wallet, Icon/Table, Icon/Receipt на 02 — Icons (70:9, 70:13, 70:17, 70:22, 70:27)",
+      "Chip State=Disabled (72:35) создан и привязан к TEXT-свойству Label#25:0"
+    ],
+    "todo": [
+      "Chip set 25:38 — resize(480, 60): третий вариант лежит за границей фрейма набора, визуально обрезан",
+      "ActionTile — Component Set (Variant=Tile|Wide × State=Default|Disabled) на 05 — Cards & Layout, свободное место x=0 y=1100",
+      "TableCard — COMPONENT на 05 — Cards & Layout",
+      "Экраны Home / Orders / Bill на 06 — Screens: x=2200, 2640, 3080 (шаг 440, как у существующих)"
+    ],
+    "refs": {
+      "vars": {
+        "Text/Dark/1": "VariableID:4:23",
+        "Text/Dark/2": "VariableID:4:24",
+        "Text/Dark/3": "VariableID:4:25",
+        "Semantic/Bg/Surface": "VariableID:4:28",
+        "Semantic/Bg/Default": "VariableID:4:29",
+        "Semantic/Bg/Muted": "VariableID:4:30",
+        "Semantic/Border/Default": "VariableID:4:31",
+        "Brand/Main": "VariableID:4:8",
+        "Brand/Contrast": "VariableID:17:3",
+        "space/2": "VariableID:4:35",
+        "space/3": "VariableID:4:36",
+        "space/4": "VariableID:4:37",
+        "radius/lg": "VariableID:4:44",
+        "radius/full": "VariableID:4:46"
+      },
+      "textStyles": {
+        "Heading 9 ExtraBold": "S:5a23b00e57cdcda891a55d522dcf74d557db3b64,",
+        "Body S Regular": "S:45adb9598d3d50422f244b4094c8635d3721e57d,",
+        "Body S Medium": "S:f8cf66681dbfb3546dd37ccf61617c3768fb5292,",
+        "Body M Bold": "S:402ab117406f3cd896292a0e145ea3f24c7b6612,",
+        "Heading 5 Bold": "S:5af314c1d20e2e3e63605a8a9b53e30ebc038913,",
+        "Action SemiBold": "S:1f54a047ef24e3a6d488027eb6d8b678821d4dc6,"
+      }
+    }
   }
 }
