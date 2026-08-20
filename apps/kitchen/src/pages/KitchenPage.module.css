@@ -109,6 +109,32 @@
   flex: none;
 }
 
+/* touch-action: pan-y — вертикальный свайп по-прежнему скроллит колонку,
+   а горизонтальный мы забираем себе под перетаскивание тикета. */
+.draggable {
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.placeholder {
+  opacity: 0.35;
+}
+
+/* Копия под пальцем: поверх всего, событий не ловит — иначе она перекрывала бы
+   колонку, над которой висит, и приёмник не определялся бы. */
+.floating {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  cursor: grabbing;
+  box-shadow: var(--shadow-modal);
+}
+
+/* Колонка-приёмник подсвечивается, пока тикет над ней. */
+.over {
+  background: var(--color-accent-warning);
+}
+
 .columnEmpty {
   margin: var(--space-4) auto;
   color: var(--color-text-dark-3);
