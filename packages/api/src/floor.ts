@@ -14,22 +14,33 @@ export interface FloorSnapshot {
   tips: number;
 }
 
-export async function fetchFloor(): Promise<FloorSnapshot> {
+/**
+ * Зал глазами конкретного официанта: «Мои столы» из ТЗ — это столы, закреплённые
+ * за вошедшим сотрудником, а чаевые за смену — чаевые с его столов. Пока
+ * официант брался в базе первым попавшимся, оба числа были общими по ресторану.
+ */
+export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   const restaurantId = await currentRestaurantId();
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [staffResult, tablesResult, callsResult, tipsResult] = await Promise.all([
-    supabase.from('staff').select('id, name, role').eq('restaurant_id', restaurantId).eq('role', 'waiter').limit(1).single(),
+  const [tablesResult, callsResult, tipsResult] = await Promise.all([
     supabase
       .from('dining_tables')
       .select('id, number, seats, status, reserved_at')
       .eq('restaurant_id', restaurantId)
+      .eq('waiter_id', waiter.id)
       .order('number'),
     // Открытые вызовы — это и есть счётчик событий на плитке стола.
     supabase.from('waiter_calls').select('table_id').is('resolved_at', null),
-    supabase.from('orders').select('tip').gte('placed_at', startOfDay.toISOString()),
+    // Чаевые считаем по столам официанта: !inner превращает вложенную выборку
+    // в join, иначе фильтр по чужой таблице просто не применится.
+    supabase
+      .from('orders')
+      .select('tip, dining_tables!inner (waiter_id)')
+      .eq('dining_tables.waiter_id', waiter.id)
+      .gte('placed_at', startOfDay.toISOString()),
   ]);
 
   if (tablesResult.error) throw tablesResult.error;
@@ -43,9 +54,7 @@ export async function fetchFloor(): Promise<FloorSnapshot> {
 
   return {
     tips,
-    waiter: staffResult.data
-      ? { id: staffResult.data.id, name: staffResult.data.name, role: 'waiter' }
-      : { id: 'unknown', name: 'Официант', role: 'waiter' },
+    waiter,
     tables: (tablesResult.data ?? [])
       .slice()
       .sort((a, b) => Number(a.number) - Number(b.number))

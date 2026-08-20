@@ -8,3 +8,8 @@
   background: var(--color-bg-surface);
   box-shadow: var(--shadow-card);
 }
+
+.state {
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-dark-2);
+}

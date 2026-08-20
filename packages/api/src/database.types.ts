@@ -15,9 +15,31 @@ export type Database = {
         Relationships: [];
       };
       staff: {
-        Row: { id: string; restaurant_id: string; name: string; role: string; created_at: string };
-        Insert: { id?: string; restaurant_id: string; name: string; role: string; created_at?: string };
-        Update: { id?: string; restaurant_id?: string; name?: string; role?: string; created_at?: string };
+        Row: {
+          id: string;
+          restaurant_id: string;
+          name: string;
+          role: string;
+          created_at: string;
+          /** Связь с пользователем Supabase Auth: вход сотрудника (миграция staff_auth_link). */
+          auth_user_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          restaurant_id: string;
+          name: string;
+          role: string;
+          created_at?: string;
+          auth_user_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          restaurant_id?: string;
+          name?: string;
+          role?: string;
+          created_at?: string;
+          auth_user_id?: string | null;
+        };
         Relationships: [];
       };
       dining_tables: {

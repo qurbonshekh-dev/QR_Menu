@@ -23,9 +23,11 @@ import {
   type TableService,
 } from '../data/floorRepository';
 import { OrderComposition } from '../components/OrderComposition';
+import { useAuth } from '../state/authStore';
 import styles from './HomePage.module.css';
 
 export function HomePage() {
+  const { me } = useAuth();
   const [floor, setFloor] = useState<FloorSnapshot | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shiftActive, setShiftActive] = useState(false);
@@ -37,9 +39,10 @@ export function HomePage() {
   const [version, setVersion] = useState(0);
 
   useEffect(() => {
+    if (!me) return;
     let first = true;
     const load = () =>
-      void fetchFloor().then((snapshot) => {
+      void fetchFloor(me).then((snapshot) => {
         setFloor(snapshot);
         if (first) {
           first = false;
@@ -56,7 +59,7 @@ export function HomePage() {
       load();
       setVersion((current) => current + 1);
     });
-  }, []);
+  }, [me]);
 
   useEffect(() => {
     if (!selectedId) return;
