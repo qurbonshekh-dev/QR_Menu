@@ -51,6 +51,11 @@ export function findDish(id: string): Dish | undefined {
   return menu.dishes.find((dish) => dish.id === id);
 }
 
+/** Стоп-лист: поля нет — блюдо доступно. Явное `false` — кончилось. */
+export function isAvailable(dish: Dish): boolean {
+  return dish.available !== false;
+}
+
 export function formatMeta(dish: Dish): string {
   return `${dish.calories} ккал | ${dish.weight} гр`;
 }

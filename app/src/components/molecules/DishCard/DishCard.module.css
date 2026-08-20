@@ -137,3 +137,61 @@
   flex-direction: column;
   cursor: pointer;
 }
+
+/* State: Unavailable — блюдо в стоп-листе. Карточка остаётся читаемой,
+   но перестаёт выглядеть кликабельной. */
+.unavailable .media {
+  opacity: 0.4;
+}
+
+.unavailable .price,
+.unavailable .title {
+  color: var(--color-text-dark-3);
+}
+
+.soldOut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 32px;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-muted);
+  color: var(--color-text-dark-3);
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.edit {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-dark-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.edit:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-sm);
+}
+
+.remove {
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-muted);
+  color: var(--color-accent-danger);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.remove:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}

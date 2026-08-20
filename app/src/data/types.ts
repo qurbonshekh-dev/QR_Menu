@@ -69,6 +69,8 @@ export interface Dish {
   ingredients: string[];
   /** Группы опций (размер, тесто и т.п.) — есть не у всех блюд, сейчас только у пиццы. */
   optionGroups?: DishOptionGroup[];
+  /** Стоп-лист: блюдо кончилось. Нет поля — доступно (в моке так у большинства). */
+  available?: boolean;
 }
 
 export interface Menu {
@@ -86,6 +88,21 @@ export interface CartItem {
   quantity: number;
   /** Выбор пользователя по группам опций — только у блюд с optionGroups. */
   selections?: DishSelections;
+}
+
+/** Как подавать заказ — вопрос кухне, а не курьеру: dine-in-модель из ТЗ. */
+export type ServingMode = 'ready' | 'together';
+
+/** Как гости делят счёт: поровну или по позициям. */
+export type SplitMode = 'equal' | 'items';
+
+export interface SplitState {
+  mode: SplitMode;
+  /** Сколько гостей за столом делят заказ. */
+  guests: number;
+  /** Ключ строки корзины → индекс гостя (0-based). Ключа нет — позиция общая
+   *  и делится между всеми поровну. */
+  assignments: Record<string, number>;
 }
 
 export type DeliveryMethod = 'delivery' | 'pickup';
@@ -110,6 +127,11 @@ export interface SessionOrder {
   id: string;
   items: CartItem[];
   total: number;
+  /** Пожелания кухне, снятые с корзины в момент оформления. */
+  servingMode: ServingMode;
+  comment?: string;
+  /** Раскладка счёта по гостям, если её настраивали. */
+  split?: SplitState;
   /** ISO-время оформления — для подписи «в 19:40». */
   placedAt: string;
   status: 'placed';

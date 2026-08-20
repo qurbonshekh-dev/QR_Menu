@@ -11,7 +11,9 @@ import {
   UserIcon,
   WalletIcon,
 } from '../components';
-import { getWaiter } from '../data/menuRepository';
+import { findDish, getWaiter, resolveDishPrice } from '../data/menuRepository';
+import { splitTotals, type SplitLine } from '../data/split';
+import { pluralGuests } from '../data/plural';
 import { formatPrice } from '../data/format';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
@@ -55,6 +57,30 @@ export function BillPage() {
         </div>
       </div>
     );
+  }
+
+  // Счёт стола делится, если хотя бы у одного заказа сессии есть раскладка.
+  // Заказы без раскладки и чаевые считаются общими и делятся поровну — для
+  // этого хватает того же splitTotals, только ключи префиксуем номером заказа,
+  // иначе одинаковые строки из разных заказов схлопнулись бы в одну.
+  const lastSplit = [...orders].reverse().find((order) => order.split)?.split ?? null;
+  let shares: number[] = [];
+  if (lastSplit) {
+    const lines: SplitLine[] = [];
+    const assignments: Record<string, number> = {};
+    for (const order of orders) {
+      for (const item of order.items) {
+        const dish = findDish(item.dishId);
+        const key = `${order.id}:${item.key}`;
+        lines.push({ key, total: dish ? resolveDishPrice(dish, item.selections) * item.quantity : 0 });
+        const guest = order.split?.assignments[item.key];
+        if (order.split && order.split.mode === 'items' && guest !== undefined && guest < lastSplit.guests) {
+          assignments[key] = guest;
+        }
+      }
+    }
+    if (tip > 0) lines.push({ key: 'tip', total: tip });
+    shares = splitTotals(lines, { mode: 'items', guests: lastSplit.guests, assignments });
   }
 
   const presets = TIP_PERCENTS.map((percent) => ({
@@ -116,6 +142,22 @@ export function BillPage() {
             ) : null}
           </ul>
 
+          {lastSplit ? (
+            <section className={styles.shares}>
+              <h2 className={[styles.sharesTitle, ts('heading-9/extrabold')].join(' ')}>
+                Разделено на {lastSplit.guests} {pluralGuests(lastSplit.guests)}
+              </h2>
+              <ul className={styles.sharesList}>
+                {shares.map((share, guest) => (
+                  <li key={guest} className={styles.row}>
+                    <span className={[styles.rowLabel, ts('body-s/regular')].join(' ')}>Гость {guest + 1}</span>
+                    <span className={[styles.rowValue, ts('body-s/medium')].join(' ')}>{formatPrice(share)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
           <div className={styles.actions}>
             <ActionTile
               variant="wide"
@@ -123,9 +165,11 @@ export function BillPage() {
               caption={
                 billRequested
                   ? `${waiter.name} несёт счёт на ${formatPrice(billTotal)}`
-                  : tip > 0
-                    ? 'Наличными или картой на месте, с чаевыми'
-                    : 'Наличными или картой на месте'
+                  : lastSplit
+                    ? `Разделён на ${lastSplit.guests}, наличными или картой на месте`
+                    : tip > 0
+                      ? 'Наличными или картой на месте, с чаевыми'
+                      : 'Наличными или картой на месте'
               }
               icon={<UserIcon size={20} />}
               onClick={() => setBillRequested(true)}
@@ -206,7 +250,10 @@ export function BillPage() {
       )}
 
       <p className={styles.live} role="status" aria-live="polite">
-        {billRequested ? `Официант ${waiter.name} предупреждён и несёт счёт на ${formatPrice(billTotal)}.` : ''}
+        {billRequested
+          ? `Официант ${waiter.name} предупреждён и несёт счёт на ${formatPrice(billTotal)}.` +
+            (lastSplit ? ` Разделён на ${lastSplit.guests}.` : '')
+          : ''}
       </p>
     </div>
   );

@@ -24,7 +24,6 @@ export function CheckoutPage() {
   const [payment, setPayment] = useState<PaymentMethod>('online');
   const [street, setStreet] = useState('');
   const [flat, setFlat] = useState('');
-  const [comment, setComment] = useState('');
   const [callBack, setCallBack] = useState(true);
   const [streetError, setStreetError] = useState<string | undefined>();
 
@@ -35,9 +34,13 @@ export function CheckoutPage() {
       return;
     }
     // Заказ уходит в сессию стола — из неё живут «Мои заказы» и счёт на главной.
-    const order = placeOrder(cart.items, cart.totalPrice);
+    const order = placeOrder(cart.payableItems, cart.totalPrice, {
+      servingMode: cart.servingMode,
+      comment: cart.comment,
+      split: cart.split,
+    });
     cart.clear();
-    navigate(`/order/${order.id}`, { state: { total: order.total, delivery, payment, callBack, comment } });
+    navigate(`/order/${order.id}`, { state: { total: order.total, delivery, payment, callBack } });
   };
 
   return (
@@ -105,8 +108,8 @@ export function CheckoutPage() {
         </section>
 
         <section className={styles.section}>
+          {/* Комментарий кухне живёт в корзине — здесь он был про курьера. */}
           <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>Детали</h2>
-          <TextInput label="Комментарий" value={comment} onChange={(event) => setComment(event.target.value)} />
           <div className={styles.group}>
           <FormRow
             label="Перезвонить для подтверждения"
@@ -128,8 +131,14 @@ export function CheckoutPage() {
           <span className={[styles.totalLabel, ts('body-xs/medium')].join(' ')}>К оплате</span>
           <span className={[styles.totalValue, ts('heading-8/bold')].join(' ')}>{formatPrice(cart.totalPrice)}</span>
         </div>
-        <Button type="submit" disabled={cart.items.length === 0} variant={cart.items.length === 0 ? 'disable' : 'main'}>
-          Оформить заказ
+        {/* Со стоп-листом в корзине оформлять нечего: часть заказа не готовят,
+            а итог её уже не считает — сначала уберите. */}
+        <Button
+          type="submit"
+          disabled={cart.payableItems.length === 0 || cart.hasUnavailable}
+          variant={cart.payableItems.length === 0 || cart.hasUnavailable ? 'disable' : 'main'}
+        >
+          {cart.hasUnavailable ? 'Уберите закончившееся' : 'Оформить заказ'}
         </Button>
       </div>
     </form>

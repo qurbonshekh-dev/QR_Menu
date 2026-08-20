@@ -1,0 +1,83 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.control {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+  border: 1px solid transparent;
+}
+
+.control:focus-within {
+  border-color: var(--color-border-default);
+}
+
+.control.error {
+  border-color: var(--color-border-danger);
+}
+
+.control.disabled {
+  cursor: not-allowed;
+}
+
+/* Лейбл здесь не центрируется по высоте, как в TextInput: поле многострочное,
+   поэтому подпись всегда стоит в первой строке и только уменьшается. */
+.label {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-text-dark-2);
+  pointer-events: none;
+  transition: top 0.12s ease, font-size 0.12s ease;
+}
+
+.input:focus ~ .label,
+.input:not(:placeholder-shown) ~ .label {
+  top: var(--space-2);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.input {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  padding: 26px var(--space-4) var(--space-3);
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-text-dark-1);
+}
+
+.input:placeholder-shown {
+  padding-top: var(--space-4);
+}
+
+.input:disabled {
+  color: var(--color-text-dark-3);
+  cursor: not-allowed;
+}
+
+.helper {
+  padding: 0 var(--space-4);
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--color-accent-danger);
+}

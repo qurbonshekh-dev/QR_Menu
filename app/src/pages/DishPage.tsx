@@ -1,18 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppHeader, Badge, Button, Counter, OptionGroup, StarIcon } from '../components';
 import { cartKey } from '../data/cartKey';
 import { formatPrice } from '../data/format';
-import { defaultSelections, dishImage, formatMeta, getDish, resolveDishPrice } from '../data/menuRepository';
+import { defaultSelections, dishImage, formatMeta, getDish, isAvailable, resolveDishPrice } from '../data/menuRepository';
 import type { Dish, DishSelections } from '../data/types';
 import { useCart } from '../state/cartStore';
 import { ts } from '../tokens/typography';
 import styles from './DishPage.module.css';
 
+interface EditState {
+  /** Выбор редактируемой строки корзины — приходит по «Изменить». */
+  selections?: DishSelections;
+  /** Ключ строки до правки: размер сменили — ключ станет другим, старую строку убираем. */
+  cartKey?: string;
+}
+
 export function DishPage() {
   const { dishId = '' } = useParams();
   const navigate = useNavigate();
   const cart = useCart();
+  const edit = (useLocation().state ?? {}) as EditState;
   const [dish, setDish] = useState<Dish | null | undefined>(undefined);
   const [selections, setSelections] = useState<DishSelections>({});
   const [quantity, setQuantity] = useState(1);
@@ -20,8 +28,11 @@ export function DishPage() {
   useEffect(() => {
     getDish(dishId).then((found) => {
       setDish(found ?? null);
-      if (found) setSelections(defaultSelections(found));
+      // Пришли по «Изменить» — открываем блюдо с тем выбором, который уже
+      // лежит в корзине, иначе правка молча сбросила бы его на дефолт.
+      if (found) setSelections(edit.selections ?? defaultSelections(found));
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dishId]);
 
   const hasOptions = Boolean(dish?.optionGroups?.length);
@@ -55,6 +66,8 @@ export function DishPage() {
 
   const inCart = cart.quantityOfKey(key) > 0;
   const unitPrice = resolveDishPrice(dish, selections);
+  const available = isAvailable(dish);
+  const editing = Boolean(edit.cartKey);
 
   return (
     <div className={styles.page}>
@@ -110,15 +123,34 @@ export function DishPage() {
       </div>
 
       <div className={styles.actions}>
-        <Counter value={quantity} onChange={setQuantity} min={1} variant="secondary" label={`«${dish.name}»`} />
+        <Counter
+          value={quantity}
+          onChange={setQuantity}
+          min={1}
+          variant="secondary"
+          label={`«${dish.name}»`}
+        />
         <Button
           block
+          disabled={!available}
+          variant={available ? 'main' : 'disable'}
           onClick={() => {
+            // Размер сменили — строка корзины получает другой ключ, поэтому
+            // прежнюю убираем, чтобы правка не превратилась в дубль.
+            if (edit.cartKey && edit.cartKey !== key) {
+              cart.setQuantity(edit.cartKey, 0, dish.id, edit.selections);
+            }
             cart.setQuantity(key, quantity, dish.id, hasOptions ? selections : undefined);
             navigate('/cart');
           }}
         >
-          {inCart ? 'Обновить корзину' : `В корзину · ${formatPrice(unitPrice * quantity)}`}
+          {!available
+            ? 'Нет в наличии'
+            : editing
+              ? 'Сохранить изменения'
+              : inCart
+                ? 'Обновить корзину'
+                : `В корзину · ${formatPrice(unitPrice * quantity)}`}
         </Button>
       </div>
     </div>

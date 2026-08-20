@@ -19,39 +19,79 @@
   color: var(--color-text-dark-2);
 }
 
-.list {
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: column;
-  align-content: start;
-  gap: var(--space-4);
-  padding: var(--space-0) var(--space-4) var(--space-6);
-}
-
-.order {
+.section {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  padding: var(--space-0) var(--space-4) var(--space-6);
 }
 
-.orderHead {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.orderTitle {
+.sectionTitle {
   margin: 0;
   color: var(--color-text-dark-1);
 }
 
-.orderMeta {
-  margin: var(--space-1) 0 0;
+.hint {
+  margin: 0;
   color: var(--color-text-dark-2);
 }
 
-.items {
+.guests {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.guestsLabel {
+  color: var(--color-text-dark-1);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+}
+
+.lineHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.lineName {
+  color: var(--color-text-dark-1);
+}
+
+.lineOptions {
+  color: var(--color-text-dark-2);
+}
+
+.linePrice {
+  flex: none;
+  color: var(--color-text-dark-1);
+}
+
+.owners {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.totals {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -62,41 +102,11 @@
   background: var(--color-bg-default);
 }
 
-.item {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.itemName {
-  color: var(--color-text-dark-1);
-}
-
-.itemOptions {
-  color: var(--color-text-dark-2);
-}
-
-.itemPrice {
-  flex: none;
-  color: var(--color-text-dark-1);
-}
-
-.footer {
-  position: sticky;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border-top: 1px solid var(--color-border-default);
-  background: var(--color-bg-surface);
-}
-
 .total {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .totalLabel {
@@ -107,35 +117,12 @@
   color: var(--color-text-dark-1);
 }
 
-.comment {
-  margin: 0;
-  padding: var(--space-3);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-default);
-  color: var(--color-text-dark-1);
-}
-
-/* Раскладка счёта по гостям — приписка к заказу, поэтому мельче списка блюд. */
-.shares {
+.footer {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.share {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.shareLabel {
-  color: var(--color-text-dark-2);
-}
-
-.shareValue {
-  color: var(--color-text-dark-1);
+  gap: var(--space-2);
+  margin-top: auto;
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
 }

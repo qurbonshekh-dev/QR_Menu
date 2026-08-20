@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { CartItem, SessionOrder } from '../data/types';
-import { OrdersContext, type OrdersValue } from './ordersStore';
+import { OrdersContext, type OrderMeta, type OrdersValue } from './ordersStore';
 
 /** sessionStorage, а не localStorage: заказ имеет смысл только пока гость сидит
  *  за столом. Закрыл вкладку — сессия окончена, а чужой заказ из прошлого визита
@@ -34,13 +34,16 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem(TIP_STORAGE_KEY, String(tip));
   }, [tip]);
 
-  const placeOrder = useCallback((items: CartItem[], total: number) => {
+  const placeOrder = useCallback((items: CartItem[], total: number, meta: OrderMeta) => {
     const order: SessionOrder = {
       id: String(Math.floor(1000 + Math.random() * 9000)),
       items,
       total,
       placedAt: new Date().toISOString(),
       status: 'placed',
+      servingMode: meta.servingMode,
+      comment: meta.comment?.trim() ? meta.comment.trim() : undefined,
+      split: meta.split ?? undefined,
     };
     setOrders((current) => [...current, order]);
     return order;

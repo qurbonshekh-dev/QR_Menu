@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { AppHeader, Badge, Button } from '../components';
 import { describeSelections, findDish, resolveDishPrice } from '../data/menuRepository';
+import { splitTotals } from '../data/split';
 import { formatPrice } from '../data/format';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
@@ -50,6 +51,15 @@ export function OrdersPage() {
               <Badge tone="muted">принят</Badge>
             </header>
 
+            <p className={[styles.orderMeta, ts('body-xs/regular')].join(' ')}>
+              {order.servingMode === 'together' ? 'Подать всё вместе' : 'Подавать по мере готовности'}
+              {order.split ? ` · счёт на ${order.split.guests}` : ''}
+            </p>
+
+            {order.comment ? (
+              <p className={[styles.comment, ts('body-s/regular')].join(' ')}>Кухне: {order.comment}</p>
+            ) : null}
+
             <ul className={styles.items}>
               {order.items.map((item) => {
                 const dish = findDish(item.dishId);
@@ -68,6 +78,25 @@ export function OrdersPage() {
                 );
               })}
             </ul>
+            {order.split ? (
+              <ul className={styles.shares}>
+                {splitTotals(
+                  order.items.map((item) => {
+                    const dish = findDish(item.dishId);
+                    return {
+                      key: item.key,
+                      total: dish ? resolveDishPrice(dish, item.selections) * item.quantity : 0,
+                    };
+                  }),
+                  order.split,
+                ).map((share, guest) => (
+                  <li key={guest} className={styles.share}>
+                    <span className={[styles.shareLabel, ts('body-xs/regular')].join(' ')}>Гость {guest + 1}</span>
+                    <span className={[styles.shareValue, ts('body-xs/medium')].join(' ')}>{formatPrice(share)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </section>
         ))}
       </div>

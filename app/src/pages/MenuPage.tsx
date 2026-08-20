@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartBar, Chip, DishCard, IconButton, SearchField, ShoppingBagIcon } from '../components';
-import { dishImage, formatMeta, formatTableLabel, getMenu, resolveDishPrice } from '../data/menuRepository';
+import { dishImage, formatMeta, formatTableLabel, getMenu, isAvailable, resolveDishPrice } from '../data/menuRepository';
 import type { Menu } from '../data/types';
 import { formatPrice } from '../data/format';
 import { pluralItems } from '../data/plural';
@@ -92,9 +92,11 @@ export function MenuPage() {
           // У блюд с опциями (пицца: размер/тесто) выбор делается на странице
           // блюда — «+» в сетке ведёт туда же, а не добавляет наугад.
           const hasOptions = Boolean(dish.optionGroups?.length);
+          const available = isAvailable(dish);
           return (
             <DishCard
               key={dish.id}
+              unavailable={!available}
               title={dish.name}
               price={resolveDishPrice(dish)}
               meta={formatMeta(dish)}

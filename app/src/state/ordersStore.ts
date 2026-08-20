@@ -1,10 +1,17 @@
 import { createContext, useContext } from 'react';
-import type { CartItem, SessionOrder } from '../data/types';
+import type { CartItem, ServingMode, SessionOrder, SplitState } from '../data/types';
+
+/** Пожелания, снятые с корзины в момент оформления. */
+export interface OrderMeta {
+  servingMode: ServingMode;
+  comment?: string;
+  split?: SplitState | null;
+}
 
 export interface OrdersValue {
   orders: SessionOrder[];
   /** Кладёт оформленный заказ в сессию и возвращает его id. */
-  placeOrder: (items: CartItem[], total: number) => SessionOrder;
+  placeOrder: (items: CartItem[], total: number, meta: OrderMeta) => SessionOrder;
   /** Сумма всех заказов сессии — блюда без чаевых. */
   sessionTotal: number;
   /** Чаевые, добавленные гостем к счёту стола. 0 — не оставлял. */

@@ -9,6 +9,7 @@ export * from './atoms/Icon';
 export * from './atoms/IconButton';
 export * from './atoms/OptionChip';
 export * from './atoms/Radio';
+export * from './atoms/TextArea';
 export * from './atoms/TextInput';
 export * from './atoms/Toggle';
 
