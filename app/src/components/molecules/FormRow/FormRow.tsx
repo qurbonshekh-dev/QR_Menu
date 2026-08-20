@@ -29,5 +29,7 @@ export function FormRow({ label, action, onClick }: FormRowProps) {
     );
   }
 
-  return <div className={styles.row}>{content}</div>;
+  // Строка сама по себе <label>: тап по тексту переключает контрол в слоте,
+  // а не только попадание по 16-пиксельной точке справа.
+  return <label className={styles.row}>{content}</label>;
 }
