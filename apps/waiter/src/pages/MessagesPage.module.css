@@ -1,0 +1,63 @@
+.page {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-text-dark-3);
+}
+
+.section {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-dark-2);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+}
+
+/* Незакрытый запрос обведён цветом «ждут»: он требует ног, а не чтения. */
+.open {
+  border-color: var(--color-status-awaiting);
+  background: var(--color-bg-surface);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.table {
+  color: var(--color-text-dark-1);
+}
+
+.time {
+  color: var(--color-text-dark-3);
+}
+
+.reasons {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.done {
+  align-self: flex-end;
+  color: var(--color-accent-success);
+}

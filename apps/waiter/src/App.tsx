@@ -3,6 +3,7 @@ import { ts } from '@food/ui';
 import { AuthProvider, LoginPage, NoAccessPage, useAuth } from '@food/staff';
 import { AppShell, SectionStub } from './components/AppShell';
 import { HomePage } from './pages/HomePage';
+import { MessagesPage } from './pages/MessagesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DraftPage } from './pages/order/DraftPage';
 import { GuestsPage } from './pages/order/GuestsPage';
@@ -44,15 +45,7 @@ function Shift() {
     <Routes>
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
-        <Route
-          path="/messages"
-          element={
-            <SectionStub
-              title="Сообщения"
-              text="Здесь будут запросы гостей из зала и системные сообщения смены."
-            />
-          }
-        />
+        <Route path="/messages" element={<MessagesPage />} />
         <Route
           path="/handout"
           element={

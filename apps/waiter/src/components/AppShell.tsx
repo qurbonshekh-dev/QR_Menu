@@ -1,5 +1,7 @@
+import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { HomeIcon, MessageIcon, ShoppingBagIcon, TabBar, UserIcon, ts } from '@food/ui';
+import { fetchWaiterCalls, subscribeWaiterCalls } from '@food/api';
 import styles from './AppShell.module.css';
 
 /** Разделы таб-бара = верхнеуровневые маршруты: адрес в строке и подсветка
@@ -7,14 +9,25 @@ import styles from './AppShell.module.css';
 const SECTIONS = ['/', '/messages', '/handout', '/profile'] as const;
 type Section = (typeof SECTIONS)[number];
 
-export interface AppShellProps {
-  /** Непрочитанные запросы гостей — тот же счётчик, что и на карточке стола. */
-  messages?: number;
-}
-
-export function AppShell({ messages }: AppShellProps) {
+export function AppShell() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [messages, setMessages] = useState(0);
+
+  // Счётчик живёт в оболочке, а не на экране сообщений: он должен светиться
+  // и тогда, когда официант стоит в зале.
+  const count = useCallback(
+    () =>
+      void fetchWaiterCalls()
+        .then((calls) => setMessages(calls.filter((call) => !call.resolvedAt).length))
+        .catch(() => setMessages(0)),
+    [],
+  );
+
+  useEffect(() => {
+    count();
+    return subscribeWaiterCalls(count);
+  }, [count]);
 
   // Вложенные экраны заказа живут под своим разделом: со «Стол №12 → меню»
   // подсвеченной должна остаться «Главная», а не погаснуть весь таб-бар.
@@ -31,7 +44,7 @@ export function AppShell({ messages }: AppShellProps) {
         onChange={(next) => navigate(next)}
         items={[
           { value: '/', label: 'Главная', icon: <HomeIcon size={20} /> },
-          { value: '/messages', label: 'Сообщения', icon: <MessageIcon size={20} />, badge: messages },
+          { value: '/messages', label: 'Сообщения', icon: <MessageIcon size={20} />, badge: messages || undefined },
           { value: '/handout', label: 'Выдача', icon: <ShoppingBagIcon size={20} /> },
           { value: '/profile', label: 'Кабинет', icon: <UserIcon size={20} /> },
         ]}
