@@ -27,7 +27,10 @@ export const tokens = {
       success: '#52C41A',
       'success-bg': '#F6FFED',
       warning: '#FADB14',
+      volcano: '#FA541C',
       'volcano-bg': '#FFF2E8',
+      info: '#1890FF',
+      'info-bg': '#E6F7FF',
     },
     text: {
       dark: {

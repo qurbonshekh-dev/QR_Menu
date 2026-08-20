@@ -10,7 +10,8 @@
 2. **Дизайн-система** — React-компоненты и Figma-компоненты, зеркальные друг другу 1:1.
    Токены, стили и компоненты существуют в обеих средах одновременно.
 
-В планах ещё три приложения — официант, экран кухни и админка менеджера. Они живут в том же
+Приложение официанта начато (`apps/waiter`, главный экран). В планах ещё два — экран кухни
+и админка менеджера. Они живут в том же
 репозитории (`apps/waiter`, `apps/kitchen`, `apps/admin`) и делят ДС и домен через `packages/*`,
 иначе parity с Figma рассыплется на четыре расходящиеся копии. **Все три бессмысленны без бэкенда:**
 официант ждёт заказ гостя, кухня — заказ официанта, менеджер — накопленные данные. Поэтому сначала
@@ -71,13 +72,18 @@ apps/guest/src/        Гостевое QR-меню (Vite + React 19)
                        TableSessionContext + tableSessionStore
   pages/               HomePage MenuPage DishPage CartPage SplitPage CheckoutPage
                        OrderSuccessPage OrdersPage BillPage
+apps/waiter/src/       Приложение официанта (Vite + React 19)
+  data/                floorRepository — мок зала и смены, тот же шов, что menuRepository
+  pages/               HomePage: смена, чаевые, лента столов, карточка стола, таб-бар
 packages/ui/src/       ДС — одна на все приложения. Реестр: components/index.ts (сверяется с Figma 1:1)
   components/atoms/    Badge Button Chip Counter Icon IconButton OptionChip Radio TextArea TextInput Toggle
-  components/molecules/ ActionTile DishCard FormRow OptionGroup SearchField SegmentedControl TableCard
-  components/organisms/ AppHeader CartBar
+  components/molecules/ ActionTile DishCard FormRow OptionGroup SearchField SegmentedControl
+                       StatusPill TableCard TableStatusChip
+  components/organisms/ AppHeader CartBar TabBar
   tokens/              tokens.css/ts (переменные), typography.css/ts (34 Text Style)
   styles.css           единая точка подключения: @import '@food/ui/styles.css'
-packages/domain/src/   types, format (сомони), plural, cartKey, split — чистая логика без React
+packages/domain/src/   types, format (сомони), plural, cartKey, split, floor (столы и статусы),
+                       staff (сотрудник и смена) — чистая логика без React
 artifacts/             tokens.json (источник токенов), figma-mirror.json (карта id), parity-report.md
 directives/            Инструкции пайплайна (quickstart, sync_to_figma, parity_check, ...)
 docs/tz.md             ТЗ на продукт
@@ -132,6 +138,11 @@ location, а внутренние переходы query не переносят
 **Пожелания кухне живут в корзине, а не в чекауте.** `servingMode` («по мере готовности» / «вместе»)
 и комментарий — это разговор с кухней, поэтому они рядом с блюдами; в чекауте комментарий был про
 курьера. Хранятся в `CartProvider` (`qr-menu.cart-prefs`) и снимаются в `SessionOrder` при оформлении.
+
+**Статус стола — четыре значения, не больше.** `TableStatus` из `packages/domain/src/floor.ts`:
+`free` / `busy` / `attention` / `reserved`. Цвета живут в токенах `--color-status-*`, а не в экранах:
+иначе «свободен» позеленеет по-разному в приложениях официанта, кухни и админки. Промежуточных
+оттенков не заводим — официанту нужно с одного взгляда отличить «можно сажать» от «зовут».
 
 **Чаевые вместо платежа.** Платёжного шлюза нет (фаза 4), поэтому чаевые не оплачиваются отдельно,
 а прибавляются к счёту стола: `tip` лежит в том же `OrdersProvider` (`qr-menu.tip`), `billTotal =

@@ -1,0 +1,84 @@
+.chip {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 76px;
+  padding: var(--space-2) var(--space-1) var(--space-3);
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+  cursor: pointer;
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.caption {
+  color: var(--color-text-dark-2);
+}
+
+.ringWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+}
+
+.number {
+  color: var(--color-text-dark-1);
+}
+
+/* Status — цвет кольца берётся из статусных токенов через currentColor. */
+.free {
+  color: var(--color-status-free);
+}
+
+.busy {
+  color: var(--color-status-busy);
+}
+
+.attention {
+  color: var(--color-status-attention);
+}
+
+.reserved {
+  color: var(--color-status-reserved);
+}
+
+/* State: Selected — кольцо заливается, номер выворачивается в белый. */
+.selected .ring {
+  background: currentColor;
+}
+
+.selected .number {
+  color: var(--color-text-white-1);
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-status-attention);
+  color: var(--color-text-white-1);
+}

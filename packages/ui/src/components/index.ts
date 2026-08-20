@@ -19,7 +19,10 @@ export * from './molecules/FormRow';
 export * from './molecules/OptionGroup';
 export * from './molecules/SearchField';
 export * from './molecules/SegmentedControl';
+export * from './molecules/StatusPill';
 export * from './molecules/TableCard';
+export * from './molecules/TableStatusChip';
 
 export * from './organisms/AppHeader';
 export * from './organisms/CartBar';
+export * from './organisms/TabBar';

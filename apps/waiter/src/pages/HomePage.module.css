@@ -1,0 +1,165 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+}
+
+.state {
+  padding: var(--space-6);
+  color: var(--color-text-dark-2);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+  color: var(--color-brand-contrast);
+}
+
+.identity {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.name {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.shift {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+/* Чаевые — информационный блок, поэтому единственное место с info-фоном. */
+.tips {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: var(--space-0) var(--space-4) var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-info);
+}
+
+.tipsText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tipsLabel {
+  color: var(--color-text-dark-2);
+}
+
+.tipsValue {
+  color: var(--color-text-dark-1);
+}
+
+.shiftAction {
+  padding: var(--space-0) var(--space-4) var(--space-6);
+}
+
+.tables {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-4) var(--space-4);
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.lane {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-0) var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.lane::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-content: start;
+  gap: var(--space-4);
+  margin: var(--space-0) var(--space-4) var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.cardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-dark-1);
+}
+
+.cardIcon {
+  color: var(--color-text-dark-1);
+}
+
+.facts {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.fact {
+  display: inline-flex;
+  flex: 1 0 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-dark-1);
+  white-space: nowrap;
+}
+
+.factIcon {
+  color: var(--color-text-dark-2);
+}
+
+.cardActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}

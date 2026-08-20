@@ -1,0 +1,26 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  color: var(--color-text-white-1);
+  white-space: nowrap;
+}
+
+/* Status — Figma property "Status" */
+.free {
+  background: var(--color-status-free);
+}
+
+.busy {
+  background: var(--color-status-busy);
+}
+
+.attention {
+  background: var(--color-status-attention);
+}
+
+.reserved {
+  background: var(--color-status-reserved);
+}
