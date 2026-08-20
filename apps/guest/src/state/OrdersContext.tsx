@@ -1,65 +1,92 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { fetchTableOrders, placeOrder as placeOrderApi, setTableTip } from '@food/api';
+import { describeSelections, findDish, resolveDishPrice } from '../data/menuRepository';
 import type { CartItem, SessionOrder } from '@food/domain';
 import { OrdersContext, type OrderMeta, type OrdersValue } from './ordersStore';
+import { useTableSession } from './tableSessionStore';
 
-/** sessionStorage, а не localStorage: заказ имеет смысл только пока гость сидит
- *  за столом. Закрыл вкладку — сессия окончена, а чужой заказ из прошлого визита
- *  в счёте был бы хуже пустого экрана. */
-const STORAGE_KEY = 'qr-menu.orders';
-const TIP_STORAGE_KEY = 'qr-menu.tip';
-
-function readStorage(): SessionOrder[] {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as SessionOrder[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function readTip(): number {
-  const raw = Number(sessionStorage.getItem(TIP_STORAGE_KEY));
-  return Number.isFinite(raw) && raw > 0 ? raw : 0;
-}
-
+/**
+ * Заказы стола приходят из Supabase, а не из памяти вкладки: гость может
+ * перезагрузить страницу или открыть меню с другого телефона за тем же столом —
+ * счёт всё равно один.
+ */
 export function OrdersProvider({ children }: { children: ReactNode }) {
-  const [orders, setOrders] = useState<SessionOrder[]>(readStorage);
-  const [tip, setTip] = useState<number>(readTip);
+  const { tableNumber } = useTableSession();
+  const [orders, setOrders] = useState<SessionOrder[]>([]);
+  const [tip, setTipState] = useState(0);
+
+  const refresh = useCallback(async () => {
+    const rows = await fetchTableOrders(tableNumber);
+    setOrders(
+      rows.map((order) => ({
+        id: String(order.number),
+        items: order.items.map((item) => ({
+          key: item.key,
+          dishId: item.key,
+          quantity: item.quantity,
+        })),
+        total: order.total,
+        placedAt: order.placedAt,
+        status: 'placed',
+        servingMode: order.servingMode,
+        comment: order.comment,
+      })),
+    );
+    setTipState(rows.at(-1)?.tip ?? 0);
+  }, [tableNumber]);
 
   useEffect(() => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-  }, [orders]);
+    void refresh();
+  }, [refresh]);
 
-  useEffect(() => {
-    sessionStorage.setItem(TIP_STORAGE_KEY, String(tip));
-  }, [tip]);
+  const placeOrder = useCallback(
+    async (items: CartItem[], total: number, meta: OrderMeta): Promise<SessionOrder> => {
+      const placed = await placeOrderApi({
+        tableNumber,
+        total,
+        servingMode: meta.servingMode,
+        comment: meta.comment,
+        split: meta.split,
+        // Название и выбор копируются в заказ: кухня читает тикет, а не каталог.
+        items: items.map((item) => {
+          const dish = findDish(item.dishId);
+          return {
+            dishSlug: item.dishId,
+            title: dish?.name ?? 'Блюдо',
+            options: dish ? (describeSelections(dish, item.selections) ?? undefined) : undefined,
+            quantity: item.quantity,
+            unitPrice: dish ? resolveDishPrice(dish, item.selections) : 0,
+          };
+        }),
+      });
 
-  const placeOrder = useCallback((items: CartItem[], total: number, meta: OrderMeta) => {
-    const order: SessionOrder = {
-      id: String(Math.floor(1000 + Math.random() * 9000)),
-      items,
-      total,
-      placedAt: new Date().toISOString(),
-      status: 'placed',
-      servingMode: meta.servingMode,
-      comment: meta.comment?.trim() ? meta.comment.trim() : undefined,
-      split: meta.split ?? undefined,
-    };
-    setOrders((current) => [...current, order]);
-    return order;
-  }, []);
+      await refresh();
+      return {
+        id: String(placed.number),
+        items,
+        total,
+        placedAt: placed.placedAt,
+        status: 'placed',
+        servingMode: meta.servingMode,
+        comment: meta.comment,
+        split: meta.split ?? undefined,
+      };
+    },
+    [tableNumber, refresh],
+  );
+
+  const setTip = useCallback(
+    (amount: number) => {
+      setTipState(amount);
+      void setTableTip(tableNumber, amount);
+    },
+    [tableNumber],
+  );
 
   const value = useMemo<OrdersValue>(() => {
     const sessionTotal = orders.reduce((sum, order) => sum + order.total, 0);
-    return {
-      orders,
-      placeOrder,
-      sessionTotal,
-      tip,
-      setTip,
-      billTotal: sessionTotal + tip,
-    };
-  }, [orders, placeOrder, tip]);
+    return { orders, placeOrder, sessionTotal, tip, setTip, billTotal: sessionTotal + tip };
+  }, [orders, placeOrder, tip, setTip]);
 
   return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 }

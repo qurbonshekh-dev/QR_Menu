@@ -18,9 +18,9 @@ import styles from './App.module.css';
 function App() {
   return (
     <CartProvider>
-      <OrdersProvider>
-        <HashRouter>
-          <TableSessionProvider>
+      <HashRouter>
+        <TableSessionProvider>
+          <OrdersProvider>
             <div className={styles.viewport}>
               <Routes>
                 {/* QR ведёт на «/» — это хаб стола, каталог живёт на «/menu». */}
@@ -35,9 +35,9 @@ function App() {
                 <Route path="/bill" element={<BillPage />} />
               </Routes>
             </div>
-          </TableSessionProvider>
-        </HashRouter>
-      </OrdersProvider>
+          </OrdersProvider>
+        </TableSessionProvider>
+      </HashRouter>
     </CartProvider>
   );
 }

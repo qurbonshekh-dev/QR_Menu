@@ -16,7 +16,14 @@ import {
   ts,
 } from '@food/ui';
 import { formatPrice, formatShift, pluralGuests, type FloorTable } from '@food/domain';
-import { getFloor, initials, type FloorSnapshot } from '../data/floorRepository';
+import {
+  currentShift,
+  fetchFloor,
+  initials,
+  resolveWaiterCalls,
+  subscribeFloor,
+  type FloorSnapshot,
+} from '../data/floorRepository';
 import styles from './HomePage.module.css';
 
 type Tab = 'home' | 'messages' | 'handout' | 'stats';
@@ -28,14 +35,22 @@ export function HomePage() {
   const [tab, setTab] = useState<Tab>('home');
 
   useEffect(() => {
-    getFloor().then((snapshot) => {
-      setFloor(snapshot);
-      setShiftActive(snapshot.shift.active);
-      // Открываем на столе, который ждёт подачу: официант заходит в приложение
-      // именно из-за него, а не чтобы полюбоваться списком.
-      const calling = snapshot.tables.find((table) => table.status === 'awaiting');
-      setSelectedId((calling ?? snapshot.tables[0])?.id ?? null);
-    });
+    let first = true;
+    const load = () =>
+      void fetchFloor().then((snapshot) => {
+        setFloor(snapshot);
+        if (first) {
+          first = false;
+          // Открываем на столе, который ждёт подачу: официант заходит в приложение
+          // именно из-за него, а не чтобы полюбоваться списком.
+          const calling = snapshot.tables.find((table) => table.status === 'awaiting');
+          setSelectedId((calling ?? snapshot.tables[0])?.id ?? null);
+        }
+      });
+
+    load();
+    // Кухня отметила заказ готовым — стол загорается сам, без обновления экрана.
+    return subscribeFloor(load);
   }, []);
 
   if (!floor) {
@@ -53,7 +68,7 @@ export function HomePage() {
         </span>
         <div className={styles.identity}>
           <p className={[styles.name, ts('heading-9/extrabold')].join(' ')}>{floor.waiter.name}</p>
-          <p className={[styles.shift, ts('body-xs/regular')].join(' ')}>{formatShift(floor.shift)}</p>
+          <p className={[styles.shift, ts('body-xs/regular')].join(' ')}>{formatShift(currentShift)}</p>
         </div>
         <IconButton aria-label="Уведомления" variant="muted" count={floor.tables.reduce((sum, t) => sum + t.alerts, 0)}>
           <BellIcon size={20} />
@@ -115,7 +130,14 @@ export function HomePage() {
           </div>
 
           <div className={styles.cardActions}>
-            <Button block disabled={!shiftActive}>
+            <Button
+              block
+              disabled={!shiftActive}
+              onClick={() => {
+                // Официант подошёл — закрываем вызовы гостя по этому столу.
+                void resolveWaiterCalls(selected.id);
+              }}
+            >
               {selected.status === 'awaiting' ? 'Отнести заказ' : 'Принять заказ'}
             </Button>
             <Button block variant="secondary" disabled={!shiftActive}>

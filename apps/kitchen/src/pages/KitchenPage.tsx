@@ -10,7 +10,7 @@ import {
   type TicketStatus,
 } from '@food/domain';
 import { createPortal } from 'react-dom';
-import { subscribeTickets } from '../data/ticketsRepository';
+import { setTicketStatus, subscribeTickets } from '@food/api';
 import styles from './KitchenPage.module.css';
 
 /** Колонки доски — те же три состояния, что у тикета в домене. */
@@ -80,15 +80,19 @@ export function KitchenPage() {
     [tickets],
   );
 
+  // Оптимистичная правка + запись в базу: доска не должна ждать сети, но
+  // источником истины остаётся заказ — realtime вернёт настоящее состояние.
   const move = useCallback((ticket: KitchenTicket, status: TicketStatus) => {
     setMoves((current) => ({
       ...current,
       [ticket.id]: { status, readyAt: status === 'ready' ? new Date().toISOString() : undefined },
     }));
+    void setTicketStatus(ticket.id, status);
   }, []);
 
   const serve = useCallback((ticket: KitchenTicket) => {
     setServed((current) => [...current, ticket.id]);
+    void setTicketStatus(ticket.id, 'served');
   }, []);
 
   const [drag, setDrag] = useState<Drag | null>(null);

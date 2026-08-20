@@ -17,14 +17,14 @@ export function CheckoutPage() {
   const [callBack, setCallBack] = useState(true);
   const [streetError, setStreetError] = useState<string | undefined>();
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (delivery === 'delivery' && street.trim() === '') {
       setStreetError('Укажите улицу и дом');
       return;
     }
     // Заказ уходит в сессию стола — из неё живут «Мои заказы» и счёт на главной.
-    const order = placeOrder(cart.payableItems, cart.totalPrice, {
+    const order = await placeOrder(cart.payableItems, cart.totalPrice, {
       servingMode: cart.servingMode,
       comment: cart.comment,
       split: cart.split,

@@ -11,7 +11,7 @@ export interface OrderMeta {
 export interface OrdersValue {
   orders: SessionOrder[];
   /** Кладёт оформленный заказ в сессию и возвращает его id. */
-  placeOrder: (items: CartItem[], total: number, meta: OrderMeta) => SessionOrder;
+  placeOrder: (items: CartItem[], total: number, meta: OrderMeta) => Promise<SessionOrder>;
   /** Сумма всех заказов сессии — блюда без чаевых. */
   sessionTotal: number;
   /** Чаевые, добавленные гостем к счёту стола. 0 — не оставлял. */
