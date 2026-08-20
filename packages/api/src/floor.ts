@@ -71,6 +71,28 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   };
 }
 
+/** Один стол по id — экраны приёма заказа открываются по ссылке и обязаны
+ *  показать номер стола, не дожидаясь загрузки всего зала. */
+export async function fetchTable(tableId: string): Promise<FloorTable | null> {
+  const { data, error } = await supabase
+    .from('dining_tables')
+    .select('id, number, seats, status, reserved_at')
+    .eq('id', tableId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    id: data.id,
+    number: data.number,
+    status: toStatus(data.status),
+    seats: data.seats,
+    alerts: 0,
+    reservedAt: data.reserved_at
+      ? new Date(data.reserved_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+      : undefined,
+  };
+}
+
 /** Realtime по столам: официант видит, как кухня зажигает «Ждут подачу»,
  *  не трогая экран. Вызовы официанта приходят отдельным каналом. */
 export function subscribeFloor(onChange: () => void): () => void {

@@ -38,6 +38,10 @@ export interface ServiceItem {
   options?: string;
   /** Пожелание по позиции — официант читает его вслух повару или гостю. */
   comment?: string;
+  /** Модификаторы: «без лука · + сыр чеддер». */
+  modifiers?: string;
+  /** Курс подачи в минутах; undefined — по готовности. */
+  serveAfterMinutes?: number;
   unitPrice: number;
   status: ServiceItemStatus;
   /** Индекс гостя (0-based) из раскладки счёта; undefined — позиция общая. */

@@ -54,6 +54,15 @@ export interface DishOptionGroup {
 /** Выбор пользователя по группам опций конкретного блюда: groupId → optionId. */
 export type DishSelections = Record<string, string>;
 
+/** Платная добавка к блюду: «+ сыр чеддер». В отличие от группы опций, добавок
+ *  можно выбрать сколько угодно, и каждая прибавляется к цене. */
+export interface DishExtra {
+  id: string;
+  name: string;
+  /** Надбавка к цене блюда, а не цена блюда — в отличие от опции размера. */
+  price: number;
+}
+
 export interface Dish {
   id: string;
   categoryId: string;
@@ -71,6 +80,9 @@ export interface Dish {
   optionGroups?: DishOptionGroup[];
   /** Стоп-лист: блюдо кончилось. Нет поля — доступно (в моке так у большинства). */
   available?: boolean;
+  /** Платные добавки. Убрать ингредиент отдельного списка не требует — убирают
+   *  из `ingredients`, добавить можно только то, что кухня готова положить. */
+  extras?: DishExtra[];
 }
 
 export interface Menu {

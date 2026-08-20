@@ -160,6 +160,20 @@ export type Database = {
           },
         ];
       };
+      dish_extras: {
+        Row: { id: string; dish_id: string; name: string; price: number; sort_order: number };
+        Insert: { id?: string; dish_id: string; name: string; price?: number; sort_order?: number };
+        Update: Partial<Database['public']['Tables']['dish_extras']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'dish_extras_dish_id_fkey';
+            columns: ['dish_id'];
+            isOneToOne: false;
+            referencedRelation: 'dishes';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       dish_options: {
         Row: {
           id: string;
@@ -207,6 +221,10 @@ export type Database = {
           placed_at: string;
           ready_at: string | null;
           served_at: string | null;
+          /** Кто принял заказ. У гостевого заказа официанта нет — null. */
+          waiter_id: string | null;
+          /** Сколько гостей за столом — официант вводит это первым шагом. */
+          guests: number | null;
         };
         Insert: {
           id?: string;
@@ -222,6 +240,8 @@ export type Database = {
           placed_at?: string;
           ready_at?: string | null;
           served_at?: string | null;
+          waiter_id?: string | null;
+          guests?: number | null;
         };
         Update: Partial<Database['public']['Tables']['orders']['Insert']>;
         Relationships: [
@@ -251,6 +271,12 @@ export type Database = {
           comment: string | null;
           quantity: number;
           unit_price: number;
+          /** Кому нести тарелку: индекс гостя (0-based), null — общее блюдо. */
+          guest_index: number | null;
+          /** Курс подачи в минутах от оформления; null — по готовности. */
+          serve_after_minutes: number | null;
+          /** Снимок модификаторов: «без лука · + сыр чеддер». */
+          modifiers: string | null;
         };
         Insert: {
           id?: string;
@@ -261,6 +287,9 @@ export type Database = {
           comment?: string | null;
           quantity: number;
           unit_price: number;
+          guest_index?: number | null;
+          serve_after_minutes?: number | null;
+          modifiers?: string | null;
         };
         Update: Partial<Database['public']['Tables']['order_items']['Insert']>;
         Relationships: [

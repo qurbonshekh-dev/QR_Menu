@@ -1,6 +1,7 @@
 import {
   formatPrice,
   groupItemsByGuest,
+  serveLabel,
   serviceItemStatusLabel,
   serviceItemTotal,
   type ServiceItem,
@@ -43,6 +44,7 @@ export function OrderComposition({ items, guests }: OrderCompositionProps) {
               const caption = [
                 showOrderNumbers ? `Заказ №${item.orderNumber}` : null,
                 item.options,
+                item.modifiers,
                 item.comment,
               ]
                 .filter(Boolean)
@@ -63,6 +65,11 @@ export function OrderComposition({ items, guests }: OrderCompositionProps) {
                     {caption ? (
                       <span className={[styles.caption, ts('body-xs/regular')].join(' ')}>{caption}</span>
                     ) : null}
+                    {/* Время подачи — обещание гостю, а не деталь: держим его
+                        отдельной строкой, а не в общей подписи. */}
+                    <span className={[styles.serve, ts('body-xs/regular')].join(' ')}>
+                      {serveLabel(item.serveAfterMinutes)}
+                    </span>
                   </span>
                   <span className={styles.tail}>
                     <span className={[styles.status, styles[item.status], ts('body-s/medium')].join(' ')}>

@@ -89,6 +89,10 @@
   color: var(--color-text-dark-3);
 }
 
+.serve {
+  color: var(--color-text-dark-2);
+}
+
 .tail {
   display: flex;
   flex: none;

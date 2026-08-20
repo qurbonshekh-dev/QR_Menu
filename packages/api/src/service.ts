@@ -23,7 +23,7 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
   const { data, error } = await supabase
     .from('orders')
     // Строка select — литерал: склейка через + схлопывает типы встроенных выборок.
-    .select('id, number, status, total, split, placed_at, order_items (id, title, options, comment, quantity, unit_price, dishes (slug))')
+    .select('id, number, status, total, split, guests, placed_at, order_items (id, title, options, comment, modifiers, quantity, unit_price, guest_index, serve_after_minutes, dishes (slug))')
     .eq('table_id', tableId)
     .neq('status', 'cancelled')
     .gte('placed_at', startOfDay.toISOString())
@@ -37,6 +37,9 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
 
   for (const order of data) {
     const split = (order.split ?? null) as SplitState | null;
+    // Число гостей знает либо официант (спросил, садясь за стол), либо раскладка
+    // счёта гостя. Берём большее: за столом мог появиться ещё один стул.
+    if (order.guests) guests = Math.max(guests, order.guests);
     if (split?.guests) guests = Math.max(guests, split.guests);
     total += Number(order.total ?? 0);
 
@@ -51,9 +54,13 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
         quantity: item.quantity,
         options: item.options ?? undefined,
         comment: item.comment ?? undefined,
+        modifiers: item.modifiers ?? undefined,
+        serveAfterMinutes: item.serve_after_minutes ?? undefined,
         unitPrice: item.unit_price,
         status,
-        guest: takeGuest(assignments, item.dishes?.slug),
+        // Заказ, принятый официантом, знает гостя точно — он проставлен в позиции.
+        // Догадка по слагу остаётся только для гостевых заказов с раскладкой счёта.
+        guest: item.guest_index ?? takeGuest(assignments, item.dishes?.slug),
       });
     }
   }
@@ -62,8 +69,9 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
 }
 
 /**
- * Раскладка гостя приходит ключами строк корзины (`d-13|g-size:o-25`), а в
- * `order_items` этого ключа нет — есть блюдо и текст выбора. Поэтому позицию
+ * Гостевой заказ гостя в позиции не хранит: раскладка приходит ключами строк
+ * корзины (`d-13|g-size:o-25`), а в `order_items` этого ключа нет — есть блюдо
+ * и текст выбора. Поэтому позицию
  * сопоставляем по слагу блюда и «съедаем» ключ, чтобы вторая такая же позиция
  * досталась следующему гостю. Два разных размера одной пиццы у разных гостей
  * могут поменяться местами — это лучше, чем не показать гостей вовсе.

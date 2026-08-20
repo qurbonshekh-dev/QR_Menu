@@ -1,0 +1,145 @@
+.page {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-4) var(--space-6);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-default);
+}
+
+/* Группа под пальцем подсвечивается: без этого непонятно, кому упадёт тарелка. */
+.over {
+  border-color: var(--color-brand-main);
+  background: var(--color-bg-surface);
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.groupTitle {
+  color: var(--color-text-dark-2);
+}
+
+.groupTotal {
+  color: var(--color-text-dark-1);
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-text-dark-3);
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+/* Тянем только за ручку: палец по строке должен прокручивать список. */
+.grip {
+  padding: var(--space-1);
+  border: 0;
+  background: none;
+  color: var(--color-text-dark-3);
+  cursor: grab;
+  touch-action: none;
+}
+
+.rowBody {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.rowTitle {
+  color: var(--color-text-dark-1);
+}
+
+.rowMeta {
+  color: var(--color-text-dark-3);
+}
+
+.serve {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-info);
+  cursor: pointer;
+}
+
+.rowTail {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.rowPrice {
+  color: var(--color-text-dark-1);
+  white-space: nowrap;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.settingsTitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-accent-danger);
+}
+
+.ghost {
+  position: fixed;
+  z-index: 20;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-modal);
+  color: var(--color-text-dark-1);
+  pointer-events: none;
+}

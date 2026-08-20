@@ -1,0 +1,55 @@
+.page {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-0) var(--space-4) var(--space-6);
+}
+
+.photo {
+  width: 100%;
+  height: 180px;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.blockTitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.state {
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-dark-2);
+}
+
+/* Счётчик и кнопка прилипают к низу: официант листает состав блюда,
+   а решение принимает не сходя с места. */
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BellIcon,
   Button,
@@ -28,6 +29,7 @@ import styles from './HomePage.module.css';
 
 export function HomePage() {
   const { me } = useAuth();
+  const navigate = useNavigate();
   const [floor, setFloor] = useState<FloorSnapshot | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shiftActive, setShiftActive] = useState(false);
@@ -174,11 +176,13 @@ export function HomePage() {
               block
               disabled={!shiftActive}
               onClick={() => {
-                // Официант подошёл — закрываем вызовы гостя по этому столу.
+                // Официант подошёл к столу: закрываем его вызовы и идём набирать
+                // заказ. Одно движение — потому что за столом он делает именно это.
                 void resolveWaiterCalls(selected.id);
+                navigate(`/table/${selected.id}/guests`);
               }}
             >
-              {selected.status === 'awaiting' ? 'Отнести заказ' : 'Принять заказ'}
+              {selected.status === 'awaiting' ? 'Отнести и дозаказать' : 'Принять заказ'}
             </Button>
             <Button block variant="secondary" disabled={!shiftActive}>
               Забронировать стол

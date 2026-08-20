@@ -7,7 +7,12 @@ import dish3 from '../assets/dishes/dish-3.png';
 import dish4 from '../assets/dishes/dish-4.png';
 import dish5 from '../assets/dishes/dish-5.png';
 import { fetchMenu } from '@food/api';
-import type { Dish, DishSelections, Menu, Restaurant, Waiter } from '@food/domain';
+import { dishMeta, isDishAvailable } from '@food/domain';
+import type { Dish, Menu, Restaurant, Waiter } from '@food/domain';
+
+// Правила выбора и цены живут в домене: ими пользуются и официант, и кухня.
+// Экраны гостя ходят сюда, поэтому реэкспортируем под прежними именами.
+export { defaultSelections, describeSelections, resolveDishPrice } from '@food/domain';
 
 const images: Record<string, string> = {
   'dish-1': dish1,
@@ -61,45 +66,17 @@ export function findDish(id: string): Dish | undefined {
 
 /** Стоп-лист: поля нет — блюдо доступно. Явное `false` — кончилось. */
 export function isAvailable(dish: Dish): boolean {
-  return dish.available !== false;
+  return isDishAvailable(dish);
 }
 
 export function formatMeta(dish: Dish): string {
-  return `${dish.calories} ккал | ${dish.weight} гр`;
+  return dishMeta(dish);
 }
 
 /** Собирает подпись под именем ресторана из номера стола (сессия) и
  *  статичного zoneLabel ресторана: «Стол 12 · основной зал». */
 export function formatTableLabel(tableNumber: string, restaurant: Restaurant): string {
   return `Стол ${tableNumber} · ${restaurant.zoneLabel}`;
-}
-
-/** Выбор по умолчанию для всех групп опций блюда (defaultOptionId каждой группы). */
-export function defaultSelections(dish: Dish): DishSelections {
-  if (!dish.optionGroups) return {};
-  return Object.fromEntries(dish.optionGroups.map((group) => [group.id, group.defaultOptionId]));
-}
-
-/** Цена блюда с учётом выбора: если есть группа layout="detailed" (размер),
- *  её выбранный вариант заменяет базовую цену; иначе — Dish.price. */
-export function resolveDishPrice(dish: Dish, selections?: DishSelections): number {
-  const sizeGroup = dish.optionGroups?.find((group) => group.layout === 'detailed');
-  if (!sizeGroup) return dish.price;
-  const optionId = selections?.[sizeGroup.id] ?? sizeGroup.defaultOptionId;
-  const option = sizeGroup.options.find((o) => o.id === optionId);
-  return option?.price ?? dish.price;
-}
-
-/** Короткое текстовое резюме выбора для строки корзины: «23 см · Тонкое». */
-export function describeSelections(dish: Dish, selections?: DishSelections): string | null {
-  if (!dish.optionGroups || !selections) return null;
-  const parts = dish.optionGroups
-    .map((group) => {
-      const option = group.options.find((o) => o.id === selections[group.id]);
-      return option?.caption ?? option?.label ?? null;
-    })
-    .filter((part): part is string => Boolean(part));
-  return parts.length ? parts.join(' · ') : null;
 }
 
 /** Инициал для аватара официанта — фото официантов в моке нет. */

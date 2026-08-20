@@ -9,7 +9,7 @@ export async function fetchMenu(): Promise<Menu> {
     supabase.from('menu_categories').select('id, slug, name, sort_order').order('sort_order'),
     supabase
       .from('dishes')
-      .select('id, slug, name, description, price, image_key, calories, weight, rating, ingredients, available, sort_order, category_id, dish_option_groups (id, slug, title, layout, sort_order, dish_options (id, slug, caption, label, price, is_default, sort_order))')
+      .select('id, slug, name, description, price, image_key, calories, weight, rating, ingredients, available, sort_order, category_id, dish_option_groups (id, slug, title, layout, sort_order, dish_options (id, slug, caption, label, price, is_default, sort_order)), dish_extras (id, name, price, sort_order)')
       .order('sort_order'),
   ]);
 
@@ -50,6 +50,11 @@ export async function fetchMenu(): Promise<Menu> {
         };
       });
 
+    const extras = (row.dish_extras ?? [])
+      .slice()
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((extra) => ({ id: extra.id, name: extra.name, price: extra.price }));
+
     return {
       id: row.slug,
       categoryId: categoryById.get(row.category_id) ?? '',
@@ -63,6 +68,7 @@ export async function fetchMenu(): Promise<Menu> {
       ingredients: row.ingredients,
       available: row.available,
       optionGroups: groups.length > 0 ? groups : undefined,
+      extras: extras.length > 0 ? extras : undefined,
     };
   });
 

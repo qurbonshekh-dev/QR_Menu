@@ -4,6 +4,12 @@ import { AuthProvider, LoginPage, NoAccessPage, useAuth } from '@food/staff';
 import { AppShell, SectionStub } from './components/AppShell';
 import { HomePage } from './pages/HomePage';
 import { ProfilePage } from './pages/ProfilePage';
+import { DraftPage } from './pages/order/DraftPage';
+import { GuestsPage } from './pages/order/GuestsPage';
+import { OrderDishPage } from './pages/order/OrderDishPage';
+import { OrderMenuPage } from './pages/order/OrderMenuPage';
+import { SentPage } from './pages/order/SentPage';
+import { DraftProvider } from './state/DraftContext';
 import styles from './App.module.css';
 
 /** HashRouter, как и у гостя: приложение раздаётся статикой, серверных
@@ -11,11 +17,13 @@ import styles from './App.module.css';
 function App() {
   return (
     <AuthProvider>
-      <HashRouter>
-        <div className={styles.viewport}>
-          <Shift />
-        </div>
-      </HashRouter>
+      <DraftProvider>
+        <HashRouter>
+          <div className={styles.viewport}>
+            <Shift />
+          </div>
+        </HashRouter>
+      </DraftProvider>
     </AuthProvider>
   );
 }
@@ -56,6 +64,14 @@ function Shift() {
         />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
+
+      {/* Приём заказа идёт без таб-бара: официант ведёт один разговор с гостем,
+          и уйти из него посреди набора можно только осознанно — кнопкой назад. */}
+      <Route path="/table/:tableId/guests" element={<GuestsPage />} />
+      <Route path="/table/:tableId/menu" element={<OrderMenuPage />} />
+      <Route path="/table/:tableId/dish/:slug" element={<OrderDishPage />} />
+      <Route path="/table/:tableId/draft" element={<DraftPage />} />
+      <Route path="/table/:tableId/sent/:number" element={<SentPage />} />
     </Routes>
   );
 }
