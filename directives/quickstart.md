@@ -185,7 +185,7 @@ React-компонент = Figma-компонент = токен. Любое р�
 - figma_mcp_setup пройден
 - artifacts/tokens.json есть и актуален
 - figma.config.json содержит реальный fileKey
-- React-компоненты в app/src/components/{atoms,molecules,organisms}/
+- React-компоненты в packages/ui/src/components/{atoms,molecules,organisms}/
 
 ## Батчи (порядок важен — id из предыдущего нужны для следующего)
 
@@ -224,7 +224,7 @@ React-компонент = Figma-компонент = токен. Любое р�
 # Цель: формальный аудит совпадения React ↔ Figma.
 
 ## Шаги
-1. Прочитать список компонентов из app/src/components/index.ts.
+1. Прочитать список компонентов из packages/ui/src/components/index.ts.
 2. Через mcp__figma__get_metadata получить список Component Set / Component на странице "02 — Components".
 3. Сравнить:
    - Имя 1:1 (Button === Button, не button-primary)
@@ -271,7 +271,7 @@ React-компонент = Figma-компонент = токен. Любое р�
 
 #### `directives/build_tokens.md`
 ```
-# Цель: собрать единый artifacts/tokens.json + сгенерировать app/src/tokens/{tokens.ts,tokens.css,typography.ts}.
+# Цель: собрать единый artifacts/tokens.json + сгенерировать packages/ui/src/tokens/{tokens.ts,tokens.css,typography.ts}.
 
 ## Источники
 - Если был extract_patterns → artifacts/design-audit.json.
@@ -299,7 +299,7 @@ React-компонент = Figma-компонент = токен. Любое р�
 # Цель: создать/обновить React-компоненты под токены.
 
 ## Структура компонента
-app/src/components/<tier>/<Name>/
+packages/ui/src/components/<tier>/<Name>/
   <Name>.tsx
   <Name>.module.css
   index.ts
@@ -313,7 +313,7 @@ app/src/components/<tier>/<Name>/
 - Только токены через var(--color-...), var(--space-...), var(--radius-...). Никакого хардкода.
 - Props именуются как Figma variant property (Variant, Size, Tone, State).
 - Variant value strings — те же, что в Figma (primary, secondary, и т.д.).
-- Экспорт через index.ts. Главный реестр — app/src/components/index.ts.
+- Экспорт через index.ts. Главный реестр — packages/ui/src/components/index.ts.
 ```
 
 #### `directives/demo_app.md`
@@ -321,11 +321,11 @@ app/src/components/<tier>/<Name>/
 # Цель: собрать демо-страницу из существующих компонентов.
 
 ## Где
-- app/src/pages/<Name>.tsx + .module.css.
+- apps/guest/src/pages/<Name>.tsx + .module.css.
 - В Figma на 03 — Demo — frame с тем же именем, собранный ТОЛЬКО из инстансов.
 
 ## Подключение
-- Добавить в app/src/App.tsx и в навигацию (если AppShell).
+- Добавить в apps/guest/src/App.tsx и в навигацию (если AppShell).
 ```
 
 ### 1.3 — Конфиги
@@ -445,9 +445,9 @@ artifacts/figma-mirror.json
    npm create vite@latest app -- --template react-ts
    cd app && npm install && cd ..
    ```
-4. Запусти `build_tokens` — генерируй `app/src/tokens/{tokens.ts,tokens.css,typography.ts}` из `tokens.json`.
+4. Запусти `build_tokens` — генерируй `packages/ui/src/tokens/{tokens.ts,tokens.css,typography.ts}` из `tokens.json`.
 5. Получи список компонентов из Figma (`get_metadata` страницы Components, если есть). Спроси у студента приоритет (что генерить в первую очередь).
-6. Для каждого компонента: `mcp__figma__get_design_context` с nodeId → код+скриншот → адаптируй под наши токены (CSS Vars), создай в `app/src/components/<tier>/<Name>/`.
+6. Для каждого компонента: `mcp__figma__get_design_context` с nodeId → код+скриншот → адаптируй под наши токены (CSS Vars), создай в `packages/ui/src/components/<tier>/<Name>/`.
 7. Собери стартовую `App.tsx` и `pages/Dashboard.tsx` с инстансами созданных компонентов.
 8. Запусти `parity_check`.
 
@@ -482,7 +482,7 @@ artifacts/figma-mirror.json
    - группирует цвета по частоте, отступы, радиусы, шрифты,
    - детектирует повторяющиеся блоки → кандидаты в компоненты.
 4. `cd app && npm i -D cheerio && node scripts/extract-patterns.mjs` → `artifacts/design-audit.json`.
-5. Запусти `build_tokens` → `artifacts/tokens.json` + `app/src/tokens/*`.
+5. Запусти `build_tokens` → `artifacts/tokens.json` + `packages/ui/src/tokens/*`.
 6. Запусти `build_react_ds` — создай атомы → молекулы → organisms по паттернам из audit.
 7. Запусти `sync_to_figma` (создаст зеркальный Figma-файл).
 8. Запусти `parity_check`.

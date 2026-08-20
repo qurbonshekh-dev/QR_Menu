@@ -1,7 +1,7 @@
 # Цель: формальный аудит совпадения React ↔ Figma.
 
 ## Шаги
-1. Прочитать список компонентов из `app/src/components/index.ts`.
+1. Прочитать список компонентов из `packages/ui/src/components/index.ts`.
 2. Через `mcp__figma__get_metadata` получить список Component Set / Component на странице "02 — Components".
 3. Сравнить:
    - Имя 1:1 (`Button === Button`, не `button-primary`)

@@ -11,8 +11,8 @@ Mobile-first веб-приложение на React + Vite + TypeScript.
 ## Запуск
 
 ```bash
-npm --prefix app install
-npm --prefix app run dev
+npm --prefix apps/guest install
+npm --prefix apps/guest run dev
 ```
 
 Дев-сервер слушает и по локальной сети, поэтому приложение можно открыть на телефоне:
@@ -32,10 +32,10 @@ Vite напечатает адрес вида `http://192.168.x.x:5173` — те
 
 | Путь | Что |
 |---|---|
-| `app/src/components/` | Дизайн-система: atoms / molecules / organisms |
-| `app/src/pages/` | Экраны приложения |
-| `app/src/data/` | Типы, мок-меню, слой доступа к данным |
-| `app/src/tokens/` | Токены: цвета, отступы, радиусы, типографика |
+| `packages/ui/src/components/` | Дизайн-система: atoms / molecules / organisms |
+| `apps/guest/src/pages/` | Экраны приложения |
+| `apps/guest/src/data/` | Типы, мок-меню, слой доступа к данным |
+| `packages/ui/src/tokens/` | Токены: цвета, отступы, радиусы, типографика |
 | `artifacts/` | Токены-источник, карта id Figma, отчёт о parity |
 | `directives/` | Инструкции пайплайна синхронизации с Figma |
 | `docs/tz.md` | Техническое задание на продукт |

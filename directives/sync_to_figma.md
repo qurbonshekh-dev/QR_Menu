@@ -4,7 +4,7 @@
 - `figma_mcp_setup` пройден
 - `artifacts/tokens.json` есть и актуален
 - `figma.config.json` содержит реальный fileKey
-- React-компоненты в `app/src/components/{atoms,molecules,organisms}/`
+- React-компоненты в `packages/ui/src/components/{atoms,molecules,organisms}/`
 
 ## Батчи (порядок важен — id из предыдущего нужны для следующего)
 

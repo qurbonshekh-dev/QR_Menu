@@ -1,4 +1,4 @@
-# Цель: собрать единый `artifacts/tokens.json` + сгенерировать `app/src/tokens/{tokens.ts,tokens.css,typography.ts}`.
+# Цель: собрать единый `artifacts/tokens.json` + сгенерировать `packages/ui/src/tokens/{tokens.ts,tokens.css,typography.ts}`.
 
 ## Источники
 - Если был `extract_patterns` → `artifacts/design-audit.json`.

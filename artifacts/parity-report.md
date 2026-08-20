@@ -10,8 +10,8 @@
 | Токены | `tokens.json` → `tokens.css` / `tokens.ts` | коллекции `Colors` (Light), `Spacing`, `Radius` | ✅ |
 | Текстовые стили | 34 в `typography.ts` + классы `.ts-*` | 34 Text Styles, имена 1:1 | ✅ |
 | Эффекты | `shadow.card` / `.modal` / `.focus` | `Shadow/Card` / `Shadow/Modal` / `Shadow/Focus` | ✅ |
-| Компоненты | 19 в `app/src/components` | 19 Component Set'ов + 15 `Icon/*` | ✅ |
-| Экраны | 9 в `app/src/pages` | 9 фреймов на `06 — Screens` | ✅ |
+| Компоненты | 19 в `packages/ui/src/components` | 19 Component Set'ов + 15 `Icon/*` | ✅ |
+| Экраны | 9 в `apps/guest/src/pages` | 9 фреймов на `06 — Screens` | ✅ |
 
 Страница `Page 1` со Style Guide дизайнера не изменялась — она остаётся источником истины по визуалу.
 Новая страница `Компоненты` (`45:635`) — прототип пользователя (фрейм `Frame 48482` с размером/тестом пиццы),
@@ -251,7 +251,7 @@ Education, вторая прошла целиком). Зеркалировано
 2. Скачать (с разрешения) настоящие фото пицц вместо временных плейсхолдеров.
 3. Подтвердить у дизайнера: `Shadow/Focus`, переменную для `Neutral/Overlay`, состояния hover/pressed.
 4. Опубликовать библиотеку (к файлу пока не подключено ни одной).
-5. Code Connect: связать 15 компонентов с `app/src/components`.
+5. Code Connect: связать 15 компонентов с `packages/ui/src/components`.
 6. Заменить mock-меню на реальный источник через `menuRepository`.
 
 ## Дальше по ТЗ (`docs/tz.md`)

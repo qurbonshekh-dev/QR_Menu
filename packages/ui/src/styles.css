@@ -1,0 +1,4 @@
+/* Единая точка подключения стилей ДС: токены + текстовые стили.
+   Каждое приложение импортирует '@food/ui/styles.css' один раз. */
+@import './tokens/tokens.css';
+@import './tokens/typography.css';

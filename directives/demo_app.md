@@ -1,8 +1,8 @@
 # Цель: собрать демо-страницу из существующих компонентов.
 
 ## Где
-- `app/src/pages/<Name>.tsx` + `.module.css`.
+- `apps/guest/src/pages/<Name>.tsx` + `.module.css`.
 - В Figma на 03 — Demo — frame с тем же именем, собранный ТОЛЬКО из инстансов.
 
 ## Подключение
-- Добавить в `app/src/App.tsx` и в навигацию (если AppShell).
+- Добавить в `apps/guest/src/App.tsx` и в навигацию (если AppShell).

@@ -2,7 +2,7 @@
 
 ## Структура компонента
 ```
-app/src/components/<tier>/<Name>/
+packages/ui/src/components/<tier>/<Name>/
   <Name>.tsx
   <Name>.module.css
   index.ts
@@ -17,4 +17,4 @@ app/src/components/<tier>/<Name>/
 - Только токены через `var(--color-...)`, `var(--space-...)`, `var(--radius-...)`. Никакого хардкода.
 - Props именуются как Figma variant property (Variant, Size, Tone, State).
 - Variant value strings — те же, что в Figma (primary, secondary, и т.д.).
-- Экспорт через `index.ts`. Главный реестр — `app/src/components/index.ts`.
+- Экспорт через `index.ts`. Главный реестр — `packages/ui/src/components/index.ts`.

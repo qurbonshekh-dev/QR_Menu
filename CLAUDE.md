@@ -1,13 +1,20 @@
-# QR Menu
+# Food
 
 ## Что это
 
-Два проекта в одном репозитории, связанных правилом parity:
+Монорепозиторий ресторанной платформы. Сейчас в нём одно работающее приложение и одна
+дизайн-система, связанные правилом parity:
 
 1. **Приложение** — гостевое QR-меню ресторана: гость сканирует QR за столом, выбирает блюда,
-   оформляет заказ. Mobile-first web app. Живёт в `app/`.
+   оформляет заказ. Mobile-first web app. Живёт в `apps/guest/`.
 2. **Дизайн-система** — React-компоненты и Figma-компоненты, зеркальные друг другу 1:1.
    Токены, стили и компоненты существуют в обеих средах одновременно.
+
+В планах ещё три приложения — официант, экран кухни и админка менеджера. Они живут в том же
+репозитории (`apps/waiter`, `apps/kitchen`, `apps/admin`) и делят ДС и домен через `packages/*`,
+иначе parity с Figma рассыплется на четыре расходящиеся копии. **Все три бессмысленны без бэкенда:**
+официант ждёт заказ гостя, кухня — заказ официанта, менеджер — накопленные данные. Поэтому сначала
+общий контракт данных (Supabase), потом приложения.
 
 Ссылки:
 
@@ -55,23 +62,29 @@ CSS-переменную, каждый текст через Text Style. Гра�
 
 ## Структура
 
+npm workspaces, без Turborepo — на текущем размере он лишний.
+
 ```
-app/src/
-  components/          ДС. Реестр — components/index.ts (сверяется с Figma 1:1)
-    atoms/             Badge Button Chip Counter Icon IconButton OptionChip Radio TextInput Toggle
-    molecules/         DishCard FormRow OptionGroup SearchField SegmentedControl
-    organisms/         AppHeader CartBar
-  data/                Слой данных: types, menu.json (мок), menuRepository (единственная точка доступа),
-                       split.ts (раскладка счёта по гостям)
+apps/guest/src/        Гостевое QR-меню (Vite + React 19)
+  data/                menu.json (мок) + menuRepository — единственная точка доступа к данным
   state/               CartContext + cartStore, OrdersContext + ordersStore,
                        TableSessionContext + tableSessionStore
   pages/               HomePage MenuPage DishPage CartPage SplitPage CheckoutPage
                        OrderSuccessPage OrdersPage BillPage
+packages/ui/src/       ДС — одна на все приложения. Реестр: components/index.ts (сверяется с Figma 1:1)
+  components/atoms/    Badge Button Chip Counter Icon IconButton OptionChip Radio TextArea TextInput Toggle
+  components/molecules/ ActionTile DishCard FormRow OptionGroup SearchField SegmentedControl TableCard
+  components/organisms/ AppHeader CartBar
   tokens/              tokens.css/ts (переменные), typography.css/ts (34 Text Style)
+  styles.css           единая точка подключения: @import '@food/ui/styles.css'
+packages/domain/src/   types, format (сомони), plural, cartKey, split — чистая логика без React
 artifacts/             tokens.json (источник токенов), figma-mirror.json (карта id), parity-report.md
 directives/            Инструкции пайплайна (quickstart, sync_to_figma, parity_check, ...)
 docs/tz.md             ТЗ на продукт
 ```
+
+Импорты между слоями: приложение тянет `@food/ui` и `@food/domain`, ДС тянет только `@food/domain`,
+домен не тянет ничего. Обратных зависимостей быть не должно — иначе кухня притащит в себя корзину гостя.
 
 ## Ключевые архитектурные решения
 
