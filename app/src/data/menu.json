@@ -3,7 +3,7 @@
     "id": "r-1",
     "name": "Ресторан «Некрасова 12»",
     "zoneLabel": "основной зал",
-    "currency": "UZS",
+    "currency": "TJS",
     "waiter": {
       "name": "Анна"
     }
@@ -40,7 +40,7 @@
       "categoryId": "pizza",
       "name": "Пицца Маргарита",
       "description": "Томатный соус, моцарелла, свежий базилик, оливковое масло extra virgin.",
-      "price": 2101,
+      "price": 60,
       "image": "dish-3",
       "calories": 780,
       "weight": 420,
@@ -60,17 +60,17 @@
             {
               "id": "m21",
               "caption": "Новый стандарт",
-              "price": 2101
+              "price": 60
             },
             {
               "id": "m23",
               "caption": "Средний",
-              "price": 2301
+              "price": 75
             },
             {
               "id": "m25",
               "caption": "Большой",
-              "price": 2501
+              "price": 90
             }
           ],
           "defaultOptionId": "m21"
@@ -98,7 +98,7 @@
       "categoryId": "pizza",
       "name": "Пицца Пепперони",
       "description": "Томатный соус, моцарелла, острая пепперони, орегано.",
-      "price": 2401,
+      "price": 70,
       "image": "dish-5",
       "calories": 890,
       "weight": 440,
@@ -118,17 +118,17 @@
             {
               "id": "m21",
               "caption": "Новый стандарт",
-              "price": 2401
+              "price": 70
             },
             {
               "id": "m23",
               "caption": "Средний",
-              "price": 2601
+              "price": 85
             },
             {
               "id": "m25",
               "caption": "Большой",
-              "price": 2801
+              "price": 100
             }
           ],
           "defaultOptionId": "m21"
@@ -156,7 +156,7 @@
       "categoryId": "hot",
       "name": "Бургер с говядиной",
       "description": "Котлета из мраморной говядины, чеддер, соус на углях, булочка бриош.",
-      "price": 620,
+      "price": 55,
       "image": "dish-4",
       "calories": 680,
       "weight": 320,
@@ -174,7 +174,7 @@
       "categoryId": "hot",
       "name": "Паста карбонара",
       "description": "Спагетти, гуанчале, желток, пекорино романо, чёрный перец.",
-      "price": 540,
+      "price": 50,
       "image": "dish-3",
       "calories": 720,
       "weight": 340,
@@ -192,7 +192,7 @@
       "categoryId": "hot",
       "name": "Курица терияки",
       "description": "Бедро курицы в соусе терияки с рисом и кунжутом.",
-      "price": 480,
+      "price": 60,
       "image": "dish-1",
       "calories": 610,
       "weight": 360,
@@ -209,7 +209,7 @@
       "categoryId": "salads",
       "name": "Цезарь с курицей",
       "description": "Романо, курица гриль, пармезан, соус цезарь, гренки.",
-      "price": 430,
+      "price": 45,
       "image": "dish-1",
       "calories": 320,
       "weight": 240,
@@ -227,7 +227,7 @@
       "categoryId": "salads",
       "name": "Греческий салат",
       "description": "Томаты, огурцы, фета, оливки, красный лук, оливковое масло.",
-      "price": 390,
+      "price": 35,
       "image": "dish-5",
       "calories": 260,
       "weight": 260,
@@ -245,7 +245,7 @@
       "categoryId": "salads",
       "name": "Салат с тунцом",
       "description": "Тунец, микс салатов, томаты черри, перепелиное яйцо.",
-      "price": 510,
+      "price": 48,
       "image": "dish-3",
       "calories": 280,
       "weight": 230,
@@ -262,7 +262,7 @@
       "categoryId": "soups",
       "name": "Крем-суп из тыквы",
       "description": "Тыква, сливки, тыквенные семечки, трюфельное масло.",
-      "price": 320,
+      "price": 28,
       "image": "dish-2",
       "calories": 210,
       "weight": 300,
@@ -279,7 +279,7 @@
       "categoryId": "soups",
       "name": "Том ям",
       "description": "Креветки, кокосовое молоко, лемонграсс, грибы шиитаке.",
-      "price": 590,
+      "price": 55,
       "image": "dish-2",
       "calories": 340,
       "weight": 350,
@@ -297,7 +297,7 @@
       "categoryId": "desserts",
       "name": "Чизкейк Нью-Йорк",
       "description": "Сливочный сыр, песочная основа, ягодный соус.",
-      "price": 340,
+      "price": 32,
       "image": "dish-5",
       "calories": 420,
       "weight": 150,
@@ -313,7 +313,7 @@
       "categoryId": "desserts",
       "name": "Тирамису",
       "description": "Маскарпоне, савоярди, эспрессо, какао.",
-      "price": 360,
+      "price": 30,
       "image": "dish-5",
       "calories": 450,
       "weight": 160,
@@ -330,7 +330,7 @@
       "categoryId": "drinks",
       "name": "Лимонад домашний",
       "description": "Лимон, мята, содовая, тростниковый сахар.",
-      "price": 220,
+      "price": 18,
       "image": "dish-2",
       "calories": 120,
       "weight": 400,
@@ -347,7 +347,7 @@
       "categoryId": "drinks",
       "name": "Капучино",
       "description": "Двойной эспрессо и вспененное молоко.",
-      "price": 190,
+      "price": 20,
       "image": "dish-2",
       "calories": 90,
       "weight": 250,
