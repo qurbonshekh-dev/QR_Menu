@@ -238,8 +238,8 @@ export function KitchenPage() {
                   >
                   <TicketCard
                     ticket={ticket}
-                    age={ticketAge(since, now, ready ? READY_AGE_THRESHOLDS : undefined)}
                     elapsed={formatElapsed(since, now)}
+                    overdue={ticketAge(since, now, ready ? READY_AGE_THRESHOLDS : undefined) === 'late'}
                     hotkey={!ready && hotkeyIndex >= 0 && hotkeyIndex < 9 ? hotkeyIndex + 1 : undefined}
                     action={
                       ready ? (
@@ -291,8 +291,8 @@ export function KitchenPage() {
                 return (
                   <TicketCard
                     ticket={ticket}
-                    age={ticketAge(since, now, ready ? READY_AGE_THRESHOLDS : undefined)}
                     elapsed={formatElapsed(since, now)}
+                    overdue={ticketAge(since, now, ready ? READY_AGE_THRESHOLDS : undefined) === 'late'}
                     action={null}
                   />
                 );

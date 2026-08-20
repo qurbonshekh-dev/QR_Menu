@@ -130,9 +130,11 @@
   box-shadow: var(--shadow-modal);
 }
 
-/* Колонка-приёмник подсвечивается, пока тикет над ней. */
+/* Колонка-приёмник обводится, а не заливается: жёлтая заливка теперь означала бы
+   стадию «готовится». */
 .over {
-  background: var(--color-accent-warning);
+  outline: 3px solid var(--color-neutral-ink);
+  outline-offset: -3px;
 }
 
 .columnEmpty {

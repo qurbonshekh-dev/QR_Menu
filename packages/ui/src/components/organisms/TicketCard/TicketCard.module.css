@@ -7,7 +7,7 @@
   border: 1px solid var(--color-border-default);
 }
 
-/* Age — цвет шапки говорит возраст тикета быстрее любых цифр. */
+/* Стадия тикета цветом шапки: новый — красный, в работе — жёлтый, готов — зелёный. */
 .head {
   display: flex;
   align-items: center;
@@ -17,16 +17,26 @@
   color: var(--color-text-white-1);
 }
 
-.ontime .head {
-  background: var(--color-ticket-ontime);
+.queued .head {
+  background: var(--color-ticket-new);
 }
 
-.caution .head {
-  background: var(--color-ticket-caution);
+/* На жёлтом белый текст не читается — выворачиваем в тёмный. */
+.cooking .head {
+  background: var(--color-ticket-cooking);
+  color: var(--color-text-dark-1);
 }
 
-.late .head {
-  background: var(--color-ticket-late);
+.ready .head {
+  background: var(--color-ticket-ready);
+}
+
+/* Просрочка: тёмная плашка таймера — единственный цвет, читаемый на всех трёх. */
+.overdue {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-ink);
+  color: var(--color-text-white-1);
 }
 
 .headLeft {
@@ -97,7 +107,7 @@
 
 /* Пожелание по позиции — то, из-за чего блюдо уходит на переделку. */
 .itemComment {
-  color: var(--color-ticket-late);
+  color: var(--color-accent-danger);
 }
 
 .comment {

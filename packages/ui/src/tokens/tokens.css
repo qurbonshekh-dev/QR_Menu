@@ -54,11 +54,11 @@
   --color-status-awaiting: var(--color-accent-orange);
   --color-status-reserved: var(--color-neutral-ink);
 
-  /* Color — возраст тикета на кухне. Отдельно от статусов стола: там состояние
-     зала, здесь — сколько блюдо уже ждёт. Повар читает цвет, а не минуты. */
-  --color-ticket-ontime: var(--color-accent-success);
-  --color-ticket-caution: var(--color-accent-orange);
-  --color-ticket-late: var(--color-accent-danger);
+  /* Color — колонки кухонной доски. Цвет говорит стадию, а не возраст:
+     новый красный, в работе жёлтый, готовый зелёный. */
+  --color-ticket-new: var(--color-accent-danger);
+  --color-ticket-cooking: var(--color-accent-warning);
+  --color-ticket-ready: var(--color-accent-success);
 
   /* Spacing — 4pt grid */
   --space-0: 0px;
