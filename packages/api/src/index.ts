@@ -5,4 +5,5 @@ export * from './menu';
 export * from './orders';
 export * from './floor';
 export * from './kitchen';
+export * from './service';
 export type { Database } from './database.types';

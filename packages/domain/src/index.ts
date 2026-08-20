@@ -8,3 +8,4 @@ export * from './split';
 export * from './floor';
 export * from './staff';
 export * from './kitchen';
+export * from './service';

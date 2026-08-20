@@ -8,6 +8,7 @@ import {
   IconButton,
   MessageIcon,
   ShoppingBagIcon,
+  ReceiptIcon,
   StatusPill,
   TabBar,
   TableIcon,
@@ -19,11 +20,14 @@ import { formatPrice, formatShift, pluralGuests, type FloorTable } from '@food/d
 import {
   currentShift,
   fetchFloor,
+  fetchTableService,
   initials,
   resolveWaiterCalls,
   subscribeFloor,
   type FloorSnapshot,
+  type TableService,
 } from '../data/floorRepository';
+import { OrderComposition } from '../components/OrderComposition';
 import styles from './HomePage.module.css';
 
 type Tab = 'home' | 'messages' | 'handout' | 'stats';
@@ -33,6 +37,12 @@ export function HomePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shiftActive, setShiftActive] = useState(false);
   const [tab, setTab] = useState<Tab>('home');
+  // Состав держим вместе с id стола: иначе при переключении на секунду
+  // светятся позиции предыдущего стола, пока не пришёл ответ.
+  const [service, setService] = useState<{ tableId: string; data: TableService } | null>(null);
+  // Счётчик обновлений зала: по нему перечитывается и состав выбранного стола —
+  // кухня отметила блюдо готовым, и строка гостя должна стать «Нужно подать».
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
     let first = true;
@@ -50,8 +60,24 @@ export function HomePage() {
 
     load();
     // Кухня отметила заказ готовым — стол загорается сам, без обновления экрана.
-    return subscribeFloor(load);
+    return subscribeFloor(() => {
+      load();
+      setVersion((current) => current + 1);
+    });
   }, []);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    let current = true;
+    // Состав грузим отдельно от зала: он нужен только для открытого стола,
+    // тянуть позиции всех столов лентой — лишний трафик на каждом обновлении.
+    void fetchTableService(selectedId).then((data) => {
+      if (current) setService({ tableId: selectedId, data });
+    });
+    return () => {
+      current = false;
+    };
+  }, [selectedId, version]);
 
   if (!floor) {
     return <p className={[styles.state, ts('body-m/regular')].join(' ')}>Открываем смену…</p>;
@@ -59,6 +85,7 @@ export function HomePage() {
 
   const selected: FloorTable | undefined =
     floor.tables.find((table) => table.id === selectedId) ?? floor.tables[0];
+  const composition = service && service.tableId === selected?.id ? service.data : null;
 
   return (
     <div className={styles.page}>
@@ -127,7 +154,25 @@ export function HomePage() {
               <UsersIcon size={16} className={styles.factIcon} />
               На {selected.seats} {pluralGuests(selected.seats)}
             </span>
+            {composition && composition.total > 0 ? (
+              <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
+                <ReceiptIcon size={16} className={styles.factIcon} />
+                {formatPrice(composition.total)}
+              </span>
+            ) : null}
           </div>
+
+          {/* Пока состав не пришёл, не показываем ни позиций, ни «пусто»:
+              ложное «ничего не заказали» официант читает как факт. */}
+          {composition ? (
+            composition.items.length ? (
+              <OrderComposition items={composition.items} guests={composition.guests} />
+            ) : (
+              <p className={[styles.empty, ts('body-s/regular')].join(' ')}>
+                {selected.status === 'free' ? 'Стол свободен — заказов нет.' : 'Гости ещё ничего не заказали.'}
+              </p>
+            )
+          ) : null}
 
           <div className={styles.cardActions}>
             <Button

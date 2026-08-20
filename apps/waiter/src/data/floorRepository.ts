@@ -3,8 +3,8 @@
 // уедет и это.
 import type { Shift, StaffMember } from '@food/domain';
 
-export { fetchFloor, subscribeFloor, resolveWaiterCalls, setTableStatus } from '@food/api';
-export type { FloorSnapshot } from '@food/api';
+export { fetchFloor, subscribeFloor, resolveWaiterCalls, setTableStatus, fetchTableService } from '@food/api';
+export type { FloorSnapshot, TableService } from '@food/api';
 
 /** Смена жёстко задана: таблицы расписаний в базе ещё нет. */
 export const currentShift: Shift = { startsAt: '12:00', endsAt: '16:00', active: false };

@@ -1,0 +1,120 @@
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.groupHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.groupTitle {
+  color: var(--color-text-dark-2);
+}
+
+.groupTotal {
+  color: var(--color-text-dark-1);
+  white-space: nowrap;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-default);
+}
+
+/* Позицию, которую ждут на столе, обводим цветом статуса «ждут подачу»:
+   официант ищет её глазами, а не вчитывается в подписи. */
+.urgent {
+  border-color: var(--color-status-awaiting);
+  background: var(--color-bg-surface);
+}
+
+.index {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-muted);
+  color: var(--color-text-dark-2);
+}
+
+.body {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.name {
+  color: var(--color-text-dark-1);
+}
+
+.caption {
+  color: var(--color-text-dark-3);
+}
+
+.tail {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.status {
+  white-space: nowrap;
+}
+
+.price {
+  color: var(--color-text-dark-3);
+  white-space: nowrap;
+}
+
+/* Цвет статуса — только у того, что требует действия. «Готовится» нейтрально:
+   официант к такой тарелке всё равно не идёт. */
+.cooking {
+  color: var(--color-text-dark-2);
+}
+
+.to-serve {
+  color: var(--color-status-awaiting);
+}
+
+.served {
+  color: var(--color-accent-success);
+}
