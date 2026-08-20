@@ -83,7 +83,8 @@ export function SplitPage() {
             min={MIN_GUESTS}
             max={MAX_GUESTS}
             onChange={changeGuests}
-            variant="secondary"
+            variant="main"
+            size="l"
             label="гостей"
           />
         </div>
