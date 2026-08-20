@@ -14,7 +14,9 @@ export interface FormRowProps {
 export function FormRow({ label, action, onClick }: FormRowProps) {
   const content = (
     <>
-      <span className={ts('action/semibold-s')}>{label}</span>
+      {/* Body M — строка-переключатель читается наравне с текстом экрана;
+          прежний action/semibold-s (11px) был мельче всего остального. */}
+      <span className={ts('body-m/regular')}>{label}</span>
       {action}
     </>
   );
