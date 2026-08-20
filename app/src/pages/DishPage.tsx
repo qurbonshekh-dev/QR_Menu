@@ -127,7 +127,8 @@ export function DishPage() {
           value={quantity}
           onChange={setQuantity}
           min={1}
-          variant="secondary"
+          variant="main"
+          size="l"
           label={`«${dish.name}»`}
         />
         <Button
