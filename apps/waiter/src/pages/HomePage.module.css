@@ -1,6 +1,6 @@
 .page {
   display: flex;
-  min-height: 100vh;
+  flex: 1 0 auto;
   flex-direction: column;
   background: var(--color-bg-surface);
 }

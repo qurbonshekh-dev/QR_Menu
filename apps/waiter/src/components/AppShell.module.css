@@ -1,0 +1,30 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+}
+
+.content {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.stub {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+}
+
+.stubTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.stubText {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}

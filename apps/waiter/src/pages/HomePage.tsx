@@ -2,15 +2,10 @@ import { useEffect, useState } from 'react';
 import {
   BellIcon,
   Button,
-  ChartIcon,
   ClockIcon,
-  HomeIcon,
   IconButton,
-  MessageIcon,
-  ShoppingBagIcon,
   ReceiptIcon,
   StatusPill,
-  TabBar,
   TableIcon,
   TableStatusChip,
   UsersIcon,
@@ -30,13 +25,10 @@ import {
 import { OrderComposition } from '../components/OrderComposition';
 import styles from './HomePage.module.css';
 
-type Tab = 'home' | 'messages' | 'handout' | 'stats';
-
 export function HomePage() {
   const [floor, setFloor] = useState<FloorSnapshot | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shiftActive, setShiftActive] = useState(false);
-  const [tab, setTab] = useState<Tab>('home');
   // Состав держим вместе с id стола: иначе при переключении на секунду
   // светятся позиции предыдущего стола, пока не пришёл ответ.
   const [service, setService] = useState<{ tableId: string; data: TableService } | null>(null);
@@ -197,18 +189,6 @@ export function HomePage() {
           ) : null}
         </section>
       ) : null}
-
-      <TabBar
-        aria-label="Разделы приложения"
-        value={tab}
-        onChange={setTab}
-        items={[
-          { value: 'home', label: 'Главная', icon: <HomeIcon size={20} /> },
-          { value: 'messages', label: 'Сообщения', icon: <MessageIcon size={20} /> },
-          { value: 'handout', label: 'Выдача', icon: <ShoppingBagIcon size={20} />, badge: 1 },
-          { value: 'stats', label: 'Статистика', icon: <ChartIcon size={20} /> },
-        ]}
-      />
     </div>
   );
 }
