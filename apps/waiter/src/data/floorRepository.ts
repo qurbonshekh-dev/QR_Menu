@@ -8,12 +8,12 @@ const waiter: StaffMember = { id: 's-1', name: 'Фаррух Каримов', ro
 const shift: Shift = { startsAt: '12:00', endsAt: '16:00', active: false };
 
 const tables: FloorTable[] = [
-  { id: 't-21', number: '21', status: 'attention', seats: 2, alerts: 1 },
+  { id: 't-21', number: '21', status: 'awaiting', seats: 2, alerts: 1 },
   { id: 't-24', number: '24', status: 'free', seats: 4, alerts: 0 },
   { id: 't-25', number: '25', status: 'free', seats: 2, alerts: 0 },
   { id: 't-26', number: '26', status: 'busy', seats: 6, alerts: 0 },
   { id: 't-27', number: '27', status: 'reserved', seats: 4, alerts: 0, reservedAt: '19:30' },
-  { id: 't-28', number: '28', status: 'attention', seats: 4, alerts: 2 },
+  { id: 't-28', number: '28', status: 'busy', seats: 4, alerts: 2 },
 ];
 
 /** Чаевые смены — пока мок. Реальные придут вместе с платежами (фаза 4 ТЗ). */

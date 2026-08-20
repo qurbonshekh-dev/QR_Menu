@@ -5,10 +5,11 @@
  */
 
 /**
- * Статус стола. Четыре, потому что официанту нужно с одного взгляда отличать
- * «можно сажать» от «зовут» — промежуточные оттенки только замедляют.
+ * Статус стола — четыре значения из макета статусных плашек. Вызов официанта
+ * статусом не является: это событие, оно живёт в `alerts` и светится бейджем,
+ * иначе «занят + зовёт» пришлось бы выражать пятым цветом.
  */
-export type TableStatus = 'free' | 'busy' | 'attention' | 'reserved';
+export type TableStatus = 'free' | 'busy' | 'awaiting' | 'reserved';
 
 export interface FloorTable {
   id: string;
@@ -25,8 +26,8 @@ export interface FloorTable {
 
 const STATUS_LABELS: Record<TableStatus, string> = {
   free: 'Свободен',
-  busy: 'Гости за столом',
-  attention: 'Нужен официант',
+  busy: 'Занят',
+  awaiting: 'Ждут подачу',
   reserved: 'Забронирован',
 };
 

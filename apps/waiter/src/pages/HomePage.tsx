@@ -3,7 +3,6 @@ import {
   BellIcon,
   Button,
   ChartIcon,
-  CheckDoubleIcon,
   ClockIcon,
   HomeIcon,
   IconButton,
@@ -32,9 +31,9 @@ export function HomePage() {
     getFloor().then((snapshot) => {
       setFloor(snapshot);
       setShiftActive(snapshot.shift.active);
-      // Открываем на столе, который зовёт: официант заходит в приложение
+      // Открываем на столе, который ждёт подачу: официант заходит в приложение
       // именно из-за него, а не чтобы полюбоваться списком.
-      const calling = snapshot.tables.find((table) => table.status === 'attention');
+      const calling = snapshot.tables.find((table) => table.status === 'awaiting');
       setSelectedId((calling ?? snapshot.tables[0])?.id ?? null);
     });
   }, []);
@@ -101,10 +100,7 @@ export function HomePage() {
               <TableIcon size={24} className={styles.cardIcon} />
               <span className={ts('heading-7/bold')}>Стол №{selected.number}</span>
             </span>
-            <StatusPill
-              status={selected.status}
-              icon={selected.status === 'free' ? <CheckDoubleIcon size={16} /> : undefined}
-            />
+            <StatusPill status={selected.status} />
           </div>
 
           <div className={styles.facts}>
@@ -120,7 +116,7 @@ export function HomePage() {
 
           <div className={styles.cardActions}>
             <Button block disabled={!shiftActive}>
-              {selected.status === 'attention' ? 'Подойти к столу' : 'Принять заказ'}
+              {selected.status === 'awaiting' ? 'Отнести заказ' : 'Принять заказ'}
             </Button>
             <Button block variant="secondary" disabled={!shiftActive}>
               Забронировать стол

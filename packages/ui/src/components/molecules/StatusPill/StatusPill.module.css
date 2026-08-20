@@ -1,8 +1,10 @@
+/* Геометрия снята с макета статусных плашек: высота 28, иконка 16, зазор 4,
+   боковые отступы 12, скругление полное. */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
   color: var(--color-text-white-1);
   white-space: nowrap;
@@ -17,8 +19,8 @@
   background: var(--color-status-busy);
 }
 
-.attention {
-  background: var(--color-status-attention);
+.awaiting {
+  background: var(--color-status-awaiting);
 }
 
 .reserved {

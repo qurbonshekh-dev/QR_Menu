@@ -13,6 +13,7 @@
   --color-neutral-900: #373737;
   --color-neutral-base: #22272F;
   --color-neutral-gray-900: #101828;
+  --color-neutral-ink: #141414;
   --color-neutral-overlay: rgba(89,89,89,0.3);
 
   /* Color — accent */
@@ -21,7 +22,7 @@
   --color-accent-success: #52C41A;
   --color-accent-success-bg: #F6FFED;
   --color-accent-warning: #FADB14;
-  --color-accent-volcano: #FA541C;
+  --color-accent-orange: #FA8C16;
   --color-accent-volcano-bg: #FFF2E8;
   --color-accent-info: #1890FF;
   --color-accent-info-bg: #E6F7FF;
@@ -46,12 +47,12 @@
   --color-border-muted: var(--color-neutral-300);
   --color-border-danger: var(--color-accent-danger);
 
-  /* Color — статусы стола в зале. Общий словарь для официанта, кухни и админки:
-     свободен / гости за столом / нужен официант / бронь. */
+  /* Color — статусы стола в зале. Значения сняты с макета статусных плашек
+     (06 — Screens): свободен / занят / ждут подачу / забронирован. */
   --color-status-free: var(--color-accent-success);
-  --color-status-busy: var(--color-neutral-base);
-  --color-status-attention: var(--color-accent-danger);
-  --color-status-reserved: var(--color-accent-volcano);
+  --color-status-busy: var(--color-accent-danger);
+  --color-status-awaiting: var(--color-accent-orange);
+  --color-status-reserved: var(--color-neutral-ink);
 
   /* Spacing — 4pt grid */
   --space-0: 0px;

@@ -31,7 +31,17 @@
     "Brand/Contrast": "VariableID:17:3",
     "Semantic/Bg/Inverse": "VariableID:17:4",
     "Semantic/Bg/Overlay": "VariableID:17:5",
-    "Semantic/Border/Muted": "VariableID:17:6"
+    "Semantic/Border/Muted": "VariableID:17:6",
+    "Accent/Orange": "VariableID:103:2",
+    "Neutral/Ink": "VariableID:103:3",
+    "Semantic/Status/Free": "VariableID:103:4",
+    "Semantic/Status/Busy": "VariableID:103:5",
+    "Semantic/Status/Awaiting": "VariableID:103:6",
+    "Semantic/Status/Reserved": "VariableID:103:7",
+    "Accent/Info": "VariableID:111:624",
+    "Accent/Info-Bg": "VariableID:111:625",
+    "Semantic/Bg/Info": "VariableID:111:626",
+    "Semantic/Text/Info": "VariableID:111:627"
   },
   "components": {
     "Icon/Plus": "20:5",
@@ -64,7 +74,21 @@
     "Icon/Trash": "81:436",
     "ActionTile": "74:319",
     "TableCard": "75:74",
-    "TextArea": "81:442"
+    "TextArea": "81:442",
+    "Icon/CheckDouble": "104:5",
+    "Icon/UserCheck": "104:10",
+    "Icon/ClockCheck": "104:15",
+    "Icon/Loader": "104:25",
+    "Icon/Bell": "106:5",
+    "Icon/Clock": "106:9",
+    "Icon/Users": "106:15",
+    "Icon/Home": "106:19",
+    "Icon/Message": "106:22",
+    "Icon/Chart": "106:26",
+    "Icon/ArrowRight": "106:30",
+    "StatusPill": "104:93",
+    "TableStatusChip": "105:89",
+    "TabBar": "109:82"
   },
   "componentProperties": {
     "Button.Label": "Label#22:0",
@@ -144,6 +168,27 @@
         "Main": "91:43",
         "Secondary": "91:50"
       }
+    },
+    "StatusPill": {
+      "Status": [
+        "Free",
+        "Busy",
+        "Awaiting",
+        "Reserved"
+      ]
+    },
+    "TableStatusChip": {
+      "Status": [
+        "Free",
+        "Busy",
+        "Awaiting",
+        "Reserved"
+      ],
+      "State": [
+        "Default",
+        "Selected"
+      ],
+      "Table": "Table#105:0"
     }
   },
   "screens": {
@@ -156,7 +201,8 @@
     "Home": "77:236",
     "Orders": "79:343",
     "Bill": "80:353",
-    "Split": "84:383"
+    "Split": "84:383",
+    "Waiter — Home": "110:453"
   },
   "compositions": {
     "OptionGroup demo (05 — Cards & Layout)": {

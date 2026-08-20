@@ -19,6 +19,7 @@ export const tokens = {
       900: '#373737',
       base: '#22272F',
       'gray-900': '#101828',
+      ink: '#141414',
       overlay: 'rgba(89,89,89,0.3)',
     },
     accent: {
@@ -27,7 +28,7 @@ export const tokens = {
       success: '#52C41A',
       'success-bg': '#F6FFED',
       warning: '#FADB14',
-      volcano: '#FA541C',
+      orange: '#FA8C16',
       'volcano-bg': '#FFF2E8',
       info: '#1890FF',
       'info-bg': '#E6F7FF',
