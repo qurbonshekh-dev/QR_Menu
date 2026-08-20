@@ -7,4 +7,5 @@ export * from './floor';
 export * from './kitchen';
 export * from './service';
 export * from './auth';
+export * from './staff';
 export type { Database } from './database.types';

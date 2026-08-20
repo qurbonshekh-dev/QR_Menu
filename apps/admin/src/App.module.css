@@ -1,0 +1,41 @@
+/* Панель открывают с ноутбука в подсобке, но верстаем одной колонкой:
+   тот же телефон менеджера — самый частый экран в зале. */
+.viewport {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.state {
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-dark-2);
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+}
+
+.noticeTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.noticeText {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.link {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-info);
+  cursor: pointer;
+}

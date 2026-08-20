@@ -1,11 +1,17 @@
 import { useState, type FormEvent } from 'react';
 import { Button, TextInput, ts } from '@food/ui';
-import { useAuth } from '../state/authStore';
+import { useAuth } from './authStore';
 import styles from './LoginPage.module.css';
 
-/** Вход в смену. Одна форма и одна кнопка: официант открывает приложение на
+export interface LoginPageProps {
+  /** Заголовок экрана: «Вход в смену» у официанта, «Панель управления» у админки. */
+  title?: string;
+  text?: string;
+}
+
+/** Вход сотрудника. Одна форма и одна кнопка: официант открывает приложение на
  *  ходу, и любое лишнее поле здесь стоит ему времени у стола. */
-export function LoginPage() {
+export function LoginPage({ title = 'Вход в смену', text = 'Логин и пароль выдаёт менеджер ресторана.' }: LoginPageProps) {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,10 +35,8 @@ export function LoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.intro}>
-        <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>Вход в смену</h1>
-        <p className={[styles.text, ts('body-m/regular')].join(' ')}>
-          Логин и пароль выдаёт менеджер ресторана.
-        </p>
+        <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>{title}</h1>
+        <p className={[styles.text, ts('body-m/regular')].join(' ')}>{text}</p>
       </div>
 
       <form className={styles.form} onSubmit={submit} noValidate>

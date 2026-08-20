@@ -1,11 +1,9 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { ts } from '@food/ui';
+import { AuthProvider, LoginPage, NoAccessPage, useAuth } from '@food/staff';
 import { AppShell, SectionStub } from './components/AppShell';
 import { HomePage } from './pages/HomePage';
-import { LoginPage, NoAccessPage } from './pages/LoginPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { AuthProvider } from './state/AuthContext';
-import { useAuth } from './state/authStore';
 import styles from './App.module.css';
 
 /** HashRouter, как и у гостя: приложение раздаётся статикой, серверных

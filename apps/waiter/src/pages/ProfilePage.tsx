@@ -1,7 +1,7 @@
 import { Button, ts } from '@food/ui';
 import { formatShift } from '@food/domain';
 import { currentShift } from '../data/floorRepository';
-import { useAuth } from '../state/authStore';
+import { useAuth } from '@food/staff';
 import styles from './ProfilePage.module.css';
 
 const ROLE_LABELS: Record<string, string> = {

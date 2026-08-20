@@ -23,7 +23,7 @@ import {
   type TableService,
 } from '../data/floorRepository';
 import { OrderComposition } from '../components/OrderComposition';
-import { useAuth } from '../state/authStore';
+import { useAuth } from '@food/staff';
 import styles from './HomePage.module.css';
 
 export function HomePage() {
