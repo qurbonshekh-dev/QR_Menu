@@ -1,12 +1,14 @@
 .page {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   flex-direction: column;
+  overflow: hidden;
   background: var(--color-bg-default);
 }
 
 .header {
   display: flex;
+  flex: none;
   align-items: center;
   gap: var(--space-6);
   padding: var(--space-4) var(--space-6);
@@ -54,39 +56,66 @@
   color: var(--color-text-dark-2);
 }
 
-/* Сетка тикетов: на планшете 1280 — четыре колонки, на 1024 — три.
-   Скролл на кухне враг: повар не листает, он смотрит. */
-.grid {
+/* Доска: три колонки во всю высоту экрана. Скроллит колонка, а не страница —
+   иначе шапка с all-day уезжает наверх ровно тогда, когда она нужна. */
+.board {
   display: grid;
-  flex: 1 0 auto;
-  align-content: start;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  flex: 1 0 0;
+  min-height: 0;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
   padding: var(--space-4) var(--space-6);
 }
 
-/* Полоса возврата липнет к низу, поэтому под ней оставляем место —
-   иначе она накрывает кнопку «Готово» последнего тикета. */
-.withRecall {
-  padding-bottom: 88px;
+.column {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-muted);
 }
 
-.empty {
-  margin: auto;
+.columnHead {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.columnTitle {
+  color: var(--color-text-dark-1);
+}
+
+.columnCount {
+  color: var(--color-text-dark-2);
+}
+
+.columnBody {
+  display: flex;
+  flex: 1 0 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-3) var(--space-3);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Карточки в скроллящейся колонке не сжимаются: тикет должен быть целым,
+   иначе исчезает последняя строка состава — та, из-за которой и переделывают. */
+.columnBody > * {
+  flex: none;
+}
+
+.columnEmpty {
+  margin: var(--space-4) auto;
   color: var(--color-text-dark-3);
 }
 
-.recall {
-  position: sticky;
-  bottom: 0;
+.readyActions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-6);
-  border-top: 1px solid var(--color-border-default);
-  background: var(--color-bg-surface);
-}
-
-.recallLabel {
-  color: var(--color-text-dark-2);
 }

@@ -4,14 +4,22 @@ import {
   allDayCount,
   formatElapsed,
   ticketAge,
+  ticketStatusLabel,
+  READY_AGE_THRESHOLDS,
   type KitchenTicket,
+  type TicketStatus,
 } from '@food/domain';
 import { subscribeTickets } from '../data/ticketsRepository';
 import styles from './KitchenPage.module.css';
 
-/** Сколько снятых тикетов держим под рукой для возврата. Ошибочный бамп —
- *  ежедневная история, поэтому recall есть в каждом KDS. */
-const RECALL_DEPTH = 4;
+/** Колонки доски — те же три состояния, что у тикета в домене. */
+const COLUMNS: TicketStatus[] = ['queued', 'cooking', 'ready'];
+
+/** Правка статуса поверх ленты: сама лента статусы не двигает — это делает повар. */
+interface Move {
+  status: TicketStatus;
+  readyAt?: string;
+}
 
 /** Таймер один на весь экран: тикетов много, и каждый со своим интервалом
  *  превратил бы страницу в секундомерную ферму. */
@@ -25,50 +33,66 @@ function useNow(intervalMs = 1000): number {
 }
 
 export function KitchenPage() {
-  const [tickets, setTickets] = useState<KitchenTicket[]>([]);
-  const [bumped, setBumped] = useState<KitchenTicket[]>([]);
+  const [feed, setFeed] = useState<KitchenTicket[]>([]);
+  const [moves, setMoves] = useState<Record<string, Move>>({});
+  const [served, setServed] = useState<string[]>([]);
   const now = useNow();
 
-  useEffect(() => subscribeTickets(setTickets), []);
+  useEffect(() => subscribeTickets(setFeed), []);
 
-  const queue = useMemo(
+  const tickets = useMemo(
     () =>
-      tickets
-        .filter((ticket) => !bumped.some((done) => done.id === ticket.id))
+      feed
+        .filter((ticket) => !served.includes(ticket.id))
+        .map((ticket) => ({ ...ticket, ...moves[ticket.id] }))
         .sort((a, b) => new Date(a.placedAt).getTime() - new Date(b.placedAt).getTime()),
-    [tickets, bumped],
+    [feed, moves, served],
   );
 
-  const bump = useCallback((ticket: KitchenTicket) => {
-    setBumped((current) => [ticket, ...current].slice(0, RECALL_DEPTH));
+  const board = useMemo(
+    () => COLUMNS.map((status) => ({ status, items: tickets.filter((ticket) => ticket.status === status) })),
+    [tickets],
+  );
+
+  const move = useCallback((ticket: KitchenTicket, status: TicketStatus) => {
+    setMoves((current) => ({
+      ...current,
+      [ticket.id]: { status, readyAt: status === 'ready' ? new Date().toISOString() : undefined },
+    }));
   }, []);
 
-  const recall = useCallback((ticket: KitchenTicket) => {
-    setBumped((current) => current.filter((done) => done.id !== ticket.id));
+  const serve = useCallback((ticket: KitchenTicket) => {
+    setServed((current) => [...current, ticket.id]);
   }, []);
 
-  // Клавиши 1–9 снимают тикет по позиции: у повара мокрые руки, а физического
-  // bump-бара у нас нет.
+  // Нумерация сквозная по двум рабочим колонкам — цифра написана на карточке,
+  // поэтому повар жмёт ровно то, что видит. Готовые тикеты клавиш не имеют.
+  const hotkeyOrder = useMemo(
+    () => tickets.filter((ticket) => ticket.status !== 'ready'),
+    [tickets],
+  );
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const index = Number(event.key);
       if (!Number.isInteger(index) || index < 1 || index > 9) return;
-      const ticket = queue[index - 1];
-      if (ticket) bump(ticket);
+      const ticket = hotkeyOrder[index - 1];
+      if (ticket) move(ticket, ticket.status === 'queued' ? 'cooking' : 'ready');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [queue, bump]);
+  }, [hotkeyOrder, move]);
 
-  const allDay = allDayCount(queue);
-  const oldest = queue[0];
+  const active = tickets.filter((ticket) => ticket.status !== 'ready');
+  const allDay = allDayCount(active);
+  const oldest = active[0];
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.stats}>
           <span className={styles.stat}>
-            <span className={[styles.statValue, ts('heading-5/bold')].join(' ')}>{queue.length}</span>
+            <span className={[styles.statValue, ts('heading-5/bold')].join(' ')}>{active.length}</span>
             <span className={[styles.statLabel, ts('body-s/regular')].join(' ')}>в работе</span>
           </span>
           <span className={styles.stat}>
@@ -79,8 +103,8 @@ export function KitchenPage() {
           </span>
         </div>
 
-        {/* All-day: сколько одинаковых позиций во всей очереди — повар готовит партией. */}
-        <div className={styles.allDay} aria-label="Всего в очереди">
+        {/* All-day: сколько одинаковых позиций ещё готовить — повар работает партией. */}
+        <div className={styles.allDay} aria-label="Осталось приготовить">
           {allDay.map((entry) => (
             <span key={entry.title} className={[styles.allDayItem, ts('body-m/medium')].join(' ')}>
               {entry.title}
@@ -90,37 +114,66 @@ export function KitchenPage() {
         </div>
       </header>
 
-      {queue.length === 0 ? (
-        <p className={[styles.empty, ts('heading-7/bold')].join(' ')}>Очередь пуста</p>
-      ) : (
-        <div className={[styles.grid, bumped.length > 0 && styles.withRecall].filter(Boolean).join(' ')}>
-          {queue.map((ticket, index) => (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              age={ticketAge(ticket.placedAt, now)}
-              elapsed={formatElapsed(ticket.placedAt, now)}
-              hotkey={index < 9 ? index + 1 : undefined}
-              action={
-                <Button block icon={<CheckDoubleIcon size={16} />} onClick={() => bump(ticket)}>
-                  Готово
-                </Button>
-              }
-            />
-          ))}
-        </div>
-      )}
+      <div className={styles.board}>
+        {board.map((column) => (
+          <section key={column.status} className={styles.column} aria-label={ticketStatusLabel(column.status)}>
+            <header className={styles.columnHead}>
+              <span className={[styles.columnTitle, ts('heading-8/bold')].join(' ')}>
+                {ticketStatusLabel(column.status)}
+              </span>
+              <span className={[styles.columnCount, ts('heading-8/bold')].join(' ')}>{column.items.length}</span>
+            </header>
 
-      {bumped.length > 0 ? (
-        <footer className={styles.recall}>
-          <span className={[styles.recallLabel, ts('body-s/regular')].join(' ')}>Только что сняли</span>
-          {bumped.map((ticket) => (
-            <Button key={ticket.id} variant="secondary" size="m" icon={<UndoIcon size={16} />} onClick={() => recall(ticket)}>
-              Стол {ticket.table} · №{ticket.id}
-            </Button>
-          ))}
-        </footer>
-      ) : null}
+            <div className={styles.columnBody}>
+              {column.items.length === 0 ? (
+                <p className={[styles.columnEmpty, ts('body-m/regular')].join(' ')}>Пусто</p>
+              ) : null}
+
+              {column.items.map((ticket) => {
+                const ready = ticket.status === 'ready';
+                // В «Готово» цвет считается от момента готовности: там важно не
+                // сколько блюдо готовили, а сколько оно стоит и стынет.
+                const since = ready ? (ticket.readyAt ?? ticket.placedAt) : ticket.placedAt;
+                const hotkeyIndex = hotkeyOrder.findIndex((item) => item.id === ticket.id);
+                return (
+                  <TicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    age={ticketAge(since, now, ready ? READY_AGE_THRESHOLDS : undefined)}
+                    elapsed={formatElapsed(since, now)}
+                    hotkey={!ready && hotkeyIndex >= 0 && hotkeyIndex < 9 ? hotkeyIndex + 1 : undefined}
+                    action={
+                      ready ? (
+                        <div className={styles.readyActions}>
+                          <Button block onClick={() => serve(ticket)}>
+                            Выдано
+                          </Button>
+                          <Button
+                            block
+                            variant="secondary"
+                            icon={<UndoIcon size={16} />}
+                            onClick={() => move(ticket, 'cooking')}
+                          >
+                            Вернуть
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          block
+                          icon={ticket.status === 'cooking' ? <CheckDoubleIcon size={16} /> : undefined}
+                          onClick={() => move(ticket, ticket.status === 'queued' ? 'cooking' : 'ready')}
+                        >
+                          {ticket.status === 'queued' ? 'В работу' : 'Готово'}
+                        </Button>
+                      )
+                    }
+                  />
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

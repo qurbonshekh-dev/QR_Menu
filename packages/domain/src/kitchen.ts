@@ -29,6 +29,18 @@ export interface KitchenTicket {
   comment?: string;
   items: KitchenTicketItem[];
   status: TicketStatus;
+  /** Когда блюдо отметили готовым — от этого момента считается остывание. */
+  readyAt?: string;
+}
+
+const STATUS_LABELS: Record<TicketStatus, string> = {
+  queued: 'Новый',
+  cooking: 'Готовится',
+  ready: 'Готово',
+};
+
+export function ticketStatusLabel(status: TicketStatus): string {
+  return STATUS_LABELS[status];
 }
 
 /**
@@ -43,6 +55,10 @@ export interface AgeThresholds {
 }
 
 export const DEFAULT_AGE_THRESHOLDS: AgeThresholds = { caution: 8, late: 15 };
+
+/** Готовое блюдо стынет быстрее, чем ждёт неготовое, поэтому в колонке «Готово»
+ *  пороги втрое короче: пять минут на раздаче — это уже холодная тарелка. */
+export const READY_AGE_THRESHOLDS: AgeThresholds = { caution: 3, late: 6 };
 
 export function ticketAge(
   placedAt: string,
@@ -64,8 +80,9 @@ export function formatElapsed(placedAt: string, now: number): string {
 }
 
 /**
- * All-day count — сколько одинаковых позиций во всей очереди. Повар готовит
- * партией: семь пловов подряд быстрее, чем семь пловов вразнобой.
+ * All-day count — сколько одинаковых позиций ещё предстоит приготовить. Готовые
+ * тикеты сюда не входят: повар смотрит на список, чтобы готовить партией, а не
+ * чтобы вспоминать сделанное.
  */
 export function allDayCount(tickets: KitchenTicket[]): { title: string; quantity: number }[] {
   const totals = new Map<string, number>();
