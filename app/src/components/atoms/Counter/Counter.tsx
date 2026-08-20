@@ -3,14 +3,15 @@ import { ts } from '../../../tokens/typography';
 import styles from './Counter.module.css';
 
 export type CounterVariant = 'main' | 'secondary';
-export type CounterSize = 'm' | 's';
+export type CounterSize = 'l' | 'm' | 's';
 
 export interface CounterProps {
   value: number;
   onChange: (value: number) => void;
   /** Mirrors the Figma "Variant" property: Main (brand pill) / Secondary (в строке корзины). */
   variant?: CounterVariant;
-  /** Mirrors the Figma "Size" property: M (32px, карточка) / S (28px, компактная карточка). */
+  /** Mirrors the Figma "Size" property: L (40px, строка корзины) / M (32px, карточка) /
+   *  S (28px, компактная карточка). */
   size?: CounterSize;
   min?: number;
   max?: number;
@@ -26,6 +27,7 @@ export function Counter({
   max = 99,
   label = 'количество',
 }: CounterProps) {
+  const stepIcon = size === 'l' ? 20 : 16;
   return (
     <div className={[styles.counter, styles[variant], styles[size]].join(' ')}>
       <button
@@ -35,9 +37,9 @@ export function Counter({
         disabled={value <= min}
         aria-label={`Уменьшить ${label}`}
       >
-        <MinusIcon size={16} />
+        <MinusIcon size={stepIcon} />
       </button>
-      <span className={[styles.value, ts(size === 'm' ? 'action/semibold-l' : 'action/semibold')].join(' ')}>
+      <span className={[styles.value, ts(size === 's' ? 'action/semibold' : 'action/semibold-l')].join(' ')}>
         {value}
       </span>
       <button
@@ -47,7 +49,7 @@ export function Counter({
         disabled={value >= max}
         aria-label={`Увеличить ${label}`}
       >
-        <PlusIcon size={16} />
+        <PlusIcon size={stepIcon} />
       </button>
     </div>
   );

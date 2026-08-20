@@ -86,8 +86,8 @@ export function DishCard({
               <Counter
                 value={quantity}
                 onChange={onQuantityChange}
-                variant="secondary"
-                size="m"
+                variant="main"
+                size="l"
                 label={`«${title}»`}
               />
             )}

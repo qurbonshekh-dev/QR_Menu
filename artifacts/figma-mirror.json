@@ -127,7 +127,23 @@
         "Add",
         "Counter",
         "Unavailable"
-      ]
+      ],
+      "Show edit": "Show edit#92:0"
+    },
+    "Counter": {
+      "Variant": [
+        "Main",
+        "Secondary"
+      ],
+      "Size": [
+        "M",
+        "S",
+        "L"
+      ],
+      "Size=L nodes": {
+        "Main": "91:43",
+        "Secondary": "91:50"
+      }
     }
   },
   "screens": {
