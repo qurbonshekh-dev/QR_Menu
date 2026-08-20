@@ -32,6 +32,7 @@
 - Репозиторий: https://github.com/qurbonshekh-dev/QR_Menu
 - Figma: https://www.figma.com/design/FMWyIMVAGIPPpP6SsEvGd8/DS
 - ТЗ на продукт: `docs/tz.md`
+- ТЗ приложения официанта и план работ: `docs/waiter-tz.md`
 
 ## Текущее состояние
 
@@ -104,6 +105,7 @@ packages/domain/src/   types, format (сомони), plural, cartKey, split, flo
 artifacts/             tokens.json (источник токенов), figma-mirror.json (карта id), parity-report.md
 directives/            Инструкции пайплайна (quickstart, sync_to_figma, parity_check, ...)
 docs/tz.md             ТЗ на продукт
+docs/waiter-tz.md      ТЗ приложения официанта + порядок этапов
 ```
 
 Импорты между слоями: приложение тянет `@food/ui` и `@food/domain`, ДС тянет только `@food/domain`,
