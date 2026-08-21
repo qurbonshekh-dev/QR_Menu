@@ -8,7 +8,19 @@
     <title>Кухня</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Заглушка до старта React: если приложение не поднялось (чаще всего —
+           не заданы переменные Supabase на хостинге), пользователь видит текст,
+           а не белый экран. React затирает этот блок при первом рендере. -->
+      <div style="max-width:420px;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;color:#0D0E11">
+        <h1 style="font-size:20px;margin:0 0 8px">Приложение не запустилось</h1>
+        <p style="font-size:15px;line-height:24px;margin:0;color:#6F7073">
+          Чаще всего дело в переменных окружения: проекту нужны
+          <b>VITE_SUPABASE_URL</b> и <b>VITE_SUPABASE_ANON_KEY</b>, а после их добавления —
+          пересборка (значения вшиваются при сборке). Подробности — в консоли браузера.
+        </p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
