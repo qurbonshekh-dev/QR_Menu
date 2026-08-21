@@ -51,6 +51,8 @@ export type Database = {
           status: string;
           waiter_id: string | null;
           reserved_at: string | null;
+          /** Стол объединён с другим: счёт и заказы живут на главном столе. */
+          merged_into: string | null;
         };
         Insert: {
           id?: string;
@@ -60,6 +62,7 @@ export type Database = {
           status?: string;
           waiter_id?: string | null;
           reserved_at?: string | null;
+          merged_into?: string | null;
         };
         Update: {
           id?: string;
@@ -69,6 +72,7 @@ export type Database = {
           status?: string;
           waiter_id?: string | null;
           reserved_at?: string | null;
+          merged_into?: string | null;
         };
         Relationships: [
           {
@@ -347,7 +351,12 @@ export type Database = {
       };
     };
     Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Functions: {
+      move_table_orders: { Args: { from_table: string; to_table: string }; Returns: undefined };
+      merge_tables: { Args: { primary_table: string; secondary_table: string }; Returns: undefined };
+      unmerge_table: { Args: { secondary_table: string }; Returns: undefined };
+      refresh_table_status: { Args: { target: string }; Returns: undefined };
+    };
     Enums: Record<never, never>;
     CompositeTypes: Record<never, never>;
   };

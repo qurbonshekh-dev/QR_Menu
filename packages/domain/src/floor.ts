@@ -22,6 +22,8 @@ export interface FloorTable {
   alerts: number;
   /** Время брони в формате «19:30» — только у status='reserved'. */
   reservedAt?: string;
+  /** Столы, присоединённые к этому: «24 + 25». Счёт у них общий. */
+  mergedWith?: { id: string; number: string }[];
 }
 
 const STATUS_LABELS: Record<TableStatus, string> = {

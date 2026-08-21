@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   BellIcon,
   Button,
+  Chip,
   ClockIcon,
   IconButton,
   ReceiptIcon,
@@ -19,12 +20,15 @@ import {
   closeTableBill,
   currentShift,
   fetchFloor,
+  mergeTables,
+  moveTableOrders,
   fetchTableService,
   initials,
   reserveTable,
   resolveWaiterCalls,
   serveOrderItem,
   serveReadyOrders,
+  unmergeTable,
   subscribeFloor,
   type FloorSnapshot,
   type TableService,
@@ -70,6 +74,9 @@ export function HomePage() {
   // Закрытие счёта спрашиваем дважды: заказы уходят из зала безвозвратно,
   // а официант жмёт кнопки на ходу.
   const [closing, setClosing] = useState(false);
+  // Пересадка и объединение спрашивают один и тот же вопрос — «какой стол?»,
+  // поэтому это один список с двумя режимами, а не два экрана.
+  const [picking, setPicking] = useState<'move' | 'merge' | null>(null);
 
   useEffect(() => {
     if (!me) return;
@@ -174,6 +181,7 @@ export function HomePage() {
                 setSelectedId(table.id);
                 setClosing(false);
                 setBookingAt(null);
+                setPicking(null);
               }}
             />
           ))}
@@ -199,6 +207,12 @@ export function HomePage() {
               <UsersIcon size={16} className={styles.factIcon} />
               На {selected.seats} {pluralGuests(selected.seats)}
             </span>
+            {selected.mergedWith?.length ? (
+              <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
+                <TableIcon size={16} className={styles.factIcon} />
+                Со столом {selected.mergedWith.map((table) => `№${table.number}`).join(', ')}
+              </span>
+            ) : null}
             {composition && composition.total > 0 ? (
               <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
                 <ReceiptIcon size={16} className={styles.factIcon} />
@@ -271,6 +285,60 @@ export function HomePage() {
                 </Button>
               )
             ) : null}
+
+            {picking ? (
+              <div className={styles.booking}>
+                <p className={[styles.hint, ts('body-s/regular')].join(' ')}>
+                  {picking === 'move' ? 'Куда пересаживаем гостей?' : 'С каким столом объединить?'}
+                </p>
+                <div className={styles.lane}>
+                  {floor.tables
+                    .filter((table) => table.id !== selected.id)
+                    .filter((table) => (picking === 'move' ? table.status === 'free' : true))
+                    .map((table) => (
+                      <Chip
+                        key={table.id}
+                        onClick={() => {
+                          void act(
+                            picking === 'move'
+                              ? moveTableOrders(selected.id, table.id)
+                              : mergeTables(selected.id, table.id),
+                          );
+                          if (picking === 'move') setSelectedId(table.id);
+                          setPicking(null);
+                        }}
+                      >
+                        №{table.number}
+                      </Chip>
+                    ))}
+                </div>
+                <Button block variant="secondary" onClick={() => setPicking(null)}>
+                  Отмена
+                </Button>
+              </div>
+            ) : (
+              <>
+                {composition && composition.items.length ? (
+                  <Button block variant="secondary" onClick={() => setPicking('move')}>
+                    Пересадить за другой стол
+                  </Button>
+                ) : null}
+                <Button block variant="secondary" onClick={() => setPicking('merge')}>
+                  Объединить столы
+                </Button>
+              </>
+            )}
+
+            {selected.mergedWith?.map((table) => (
+              <Button
+                key={table.id}
+                block
+                variant="secondary"
+                onClick={() => void act(unmergeTable(table.id))}
+              >
+                Отсоединить стол №{table.number}
+              </Button>
+            ))}
 
             {selected.status === 'reserved' ? (
               <Button block variant="secondary" onClick={() => void act(cancelReservation(selected.id))}>

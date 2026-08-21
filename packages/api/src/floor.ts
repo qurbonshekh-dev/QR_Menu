@@ -28,7 +28,7 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   const [tablesResult, callsResult, tipsResult] = await Promise.all([
     supabase
       .from('dining_tables')
-      .select('id, number, seats, status, reserved_at')
+      .select('id, number, seats, status, reserved_at, merged_into')
       .eq('restaurant_id', restaurantId)
       .eq('waiter_id', waiter.id)
       .order('number'),
@@ -55,20 +55,34 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   return {
     tips,
     waiter,
+    // Присоединённый стол в ленте отдельной плиткой не стоит: он часть другого,
+    // и счёт у них один. Его номер показывается на карточке главного стола.
     tables: (tablesResult.data ?? [])
+      .filter((row) => !row.merged_into)
       .slice()
       .sort((a, b) => Number(a.number) - Number(b.number))
       .map((row) => ({
         id: row.id,
         number: row.number,
         status: toStatus(row.status),
-        seats: row.seats,
+        seats: seatsOf(row, tablesResult.data ?? []),
         alerts: alertsByTable.get(row.id) ?? 0,
         reservedAt: row.reserved_at
           ? new Date(row.reserved_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
           : undefined,
+        mergedWith: (tablesResult.data ?? [])
+          .filter((other) => other.merged_into === row.id)
+          .map((other) => ({ id: other.id, number: other.number })),
       })),
   };
+}
+
+/** Объединённый стол вмещает столько же, сколько все его половины вместе:
+ *  официант сажает компанию за оба. */
+function seatsOf(row: { id: string; seats: number }, all: { merged_into: string | null; seats: number }[]): number {
+  return all
+    .filter((other) => other.merged_into === row.id)
+    .reduce((sum, other) => sum + other.seats, row.seats);
 }
 
 /** Один стол по id — экраны приёма заказа открываются по ссылке и обязаны
@@ -166,6 +180,26 @@ export async function closeTableBill(tableId: string): Promise<void> {
     .update({ status: 'paid' })
     .eq('table_id', tableId)
     .in('status', ['queued', 'cooking', 'ready', 'served']);
+  if (error) throw error;
+}
+
+/** Гости пересели за другой стол — заказы переезжают вместе с ними. */
+export async function moveTableOrders(fromTableId: string, toTableId: string): Promise<void> {
+  const { error } = await supabase.rpc('move_table_orders', { from_table: fromTableId, to_table: toTableId });
+  if (error) throw error;
+}
+
+/** Столы сдвинули вместе: счёт становится общим, второй уходит из ленты зала. */
+export async function mergeTables(primaryTableId: string, secondaryTableId: string): Promise<void> {
+  const { error } = await supabase.rpc('merge_tables', {
+    primary_table: primaryTableId,
+    secondary_table: secondaryTableId,
+  });
+  if (error) throw error;
+}
+
+export async function unmergeTable(secondaryTableId: string): Promise<void> {
+  const { error } = await supabase.rpc('unmerge_table', { secondary_table: secondaryTableId });
   if (error) throw error;
 }
 

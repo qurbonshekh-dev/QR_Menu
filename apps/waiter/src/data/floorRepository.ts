@@ -14,6 +14,9 @@ export {
   serveReadyOrders,
   closeTableBill,
   serveOrderItem,
+  moveTableOrders,
+  mergeTables,
+  unmergeTable,
 } from '@food/api';
 export type { FloorSnapshot, TableService } from '@food/api';
 
