@@ -135,6 +135,8 @@ export interface SplitState {
 export interface SessionOrderItem {
   /** Идентификатор строки заказа в базе. */
   key: string;
+  /** Слаг блюда: по нему раскладка счёта находит гостя позиции. */
+  slug?: string;
   title: string;
   /** Выбор гостя текстом: «25 см · Тонкое». */
   options?: string;

@@ -86,9 +86,13 @@ export interface TableOrder {
   comment?: string;
   total: number;
   tip: number;
+  /** Раскладка счёта по гостям, если гость её настраивал. */
+  split?: SplitState;
   placedAt: string;
   items: {
     key: string;
+    /** Слаг блюда: по нему раскладка счёта находит гостя позиции. */
+    slug?: string;
     title: string;
     options?: string;
     /** Модификаторы гостя: «− лук · + бекон». */
@@ -115,10 +119,13 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
 
   const { data, error } = await supabase
     .from('orders')
-    .select('id, number, status, serving_mode, comment, total, tip, placed_at, order_items (id, title, options, modifiers, quantity, unit_price, status)')
+    .select('id, number, status, serving_mode, comment, total, tip, split, placed_at, order_items (id, title, options, modifiers, quantity, unit_price, status, dishes (slug))')
     .eq('table_id', table.id)
     .not('status', 'in', '(cancelled,paid)')
-    .order('placed_at');
+    .order('placed_at')
+    // Порядок позиций обязан быть заданным: без него Postgres возвращает строки
+    // как придётся, и список у гостя перетасовывается на каждой смене статуса.
+    .order('title', { referencedTable: 'order_items' });
   if (error) throw error;
 
   return (data ?? []).map((order) => ({
@@ -129,9 +136,14 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
     comment: order.comment ?? undefined,
     total: order.total,
     tip: order.tip,
+    // Раскладка, сделанную гостем в корзине, читает экран счёта: без неё он
+    // молча делил бы поровну то, что гость уже разложил по блюдам.
+    split: (order.split ?? undefined) as SplitState | undefined,
     placedAt: order.placed_at,
     items: (order.order_items ?? []).map((item) => ({
       key: item.id,
+      // Слаг блюда — то, по чему раскладка счёта находит гостя позиции.
+      slug: item.dishes?.slug,
       title: item.title,
       options: item.options ?? undefined,
       modifiers: item.modifiers ?? undefined,

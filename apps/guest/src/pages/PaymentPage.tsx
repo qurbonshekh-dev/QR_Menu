@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppHeader, Button, CheckIcon, ts, WalletIcon } from '@food/ui';
 import { formatPrice } from '@food/domain';
@@ -30,27 +30,43 @@ export function PaymentPage() {
   const [error, setError] = useState<string | null>(null);
   const [paid, setPaid] = useState(0);
 
+  /**
+   * Что оплачиваем — снимок на момент захода на экран. Успешный платёж закрывает
+   * счёт стола, и чаевые в `useOrders` тут же обнуляются: если бы платёж зависел
+   * от них, эффект перезапустился бы и провёл второй платёж — гость увидел бы
+   * «За столом нет открытого счёта» поверх только что оплаченного счёта.
+   */
+  const [request] = useState(() => ({ tableNumber, tip }));
+  /** Второй запуск, пока идёт первый, — это двойное списание в настоящем шлюзе. */
+  const running = useRef(false);
+
   const pay = useCallback(async () => {
+    if (running.current) return;
+    running.current = true;
     setStage('processing');
     setError(null);
 
-    await new Promise((resolve) => setTimeout(resolve, PROCESSING_MS));
-
-    if (Math.random() < FAILURE_RATE) {
-      setError('Банк отклонил платёж. Попробуйте ещё раз или оплатите официанту');
-      setStage('failed');
-      return;
-    }
-
     try {
-      const result = await payBillMock(tableNumber, tip);
+      await new Promise((resolve) => setTimeout(resolve, PROCESSING_MS));
+
+      if (Math.random() < FAILURE_RATE) {
+        setError('Банк отклонил платёж. Попробуйте ещё раз или оплатите официанту');
+        setStage('failed');
+        return;
+      }
+
+      const result = await payBillMock(request.tableNumber, request.tip);
       setPaid(result.paid);
       setStage('done');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Платёж не прошёл');
       setStage('failed');
+    } finally {
+      running.current = false;
     }
-  }, [tableNumber, tip]);
+    // `request` — снимок из useState, ссылка стабильна: платёж не перезапустится
+    // сам, даже когда закрытый счёт обнулит чаевые в `useOrders`.
+  }, [request]);
 
   useEffect(() => {
     void pay();
@@ -99,7 +115,8 @@ export function PaymentPage() {
       <h1 className={[styles.title, ts('heading-7/bold')].join(' ')}>Счёт оплачен</h1>
       <p className={[styles.text, ts('body-m/regular')].join(' ')}>
         {formatPrice(paid || amount)}
-        {tip > 0 ? ` · включая чаевые ${formatPrice(tip)}` : ''}
+        {/* Чаевые берём из снимка: счёт закрыт, и в `useOrders` их больше нет. */}
+        {request.tip > 0 ? ` · включая чаевые ${formatPrice(request.tip)}` : ''}
       </p>
       <p className={[styles.note, ts('body-s/regular')].join(' ')}>
         Это демонстрационный шлюз: деньги не списаны, но счёт стола закрыт.

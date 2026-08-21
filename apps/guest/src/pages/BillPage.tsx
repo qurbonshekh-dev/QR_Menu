@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ActionTile, AppHeader, Button, OptionGroup, SegmentedControl, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
 import { getWaiter } from '../data/menuRepository';
-import { formatPrice, pluralGuests, type SplitLine, splitTotals } from '@food/domain';
+import {
+  formatPrice,
+  orderSplitLines,
+  pluralGuests,
+  type SplitLine,
+  splitTotals,
+} from '@food/domain';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
 import styles from './BillPage.module.css';
@@ -57,14 +63,12 @@ export function BillPage() {
     const lines: SplitLine[] = [];
     const assignments: Record<string, number> = {};
     for (const order of orders) {
-      for (const item of order.items) {
-        const key = `${order.id}:${item.key}`;
-        lines.push({ key, total: item.unitPrice * item.quantity });
-        const guest = order.split?.assignments[item.key];
-        if (order.split && order.split.mode === 'items' && guest !== undefined && guest < lastSplit.guests) {
-          assignments[key] = guest;
-        }
-      }
+      // Раскладку гость делал ключами строк корзины, а позиция заказа знает
+      // только блюдо — гость находится по слагу. Заказ без раскладки идёт
+      // в общие: делить его поровну честнее, чем приписать чужому гостю.
+      const part = orderSplitLines(order.items, order.split ?? lastSplit, `${order.id}:`);
+      lines.push(...part.lines);
+      Object.assign(assignments, order.split ? part.assignments : {});
     }
     if (tip > 0) lines.push({ key: 'tip', total: tip });
     shares = splitTotals(lines, { mode: 'items', guests: lastSplit.guests, assignments });

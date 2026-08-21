@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppHeader, Button, Chip, Counter, SegmentedControl, ts } from '@food/ui';
-import { countShared, formatPrice, pluralGuests, type SplitLine, type SplitMode, type SplitState, splitTotals } from '@food/domain';
+import {
+  countShared,
+  extrasPrice,
+  formatPrice,
+  pluralGuests,
+  type SplitLine,
+  type SplitMode,
+  type SplitState,
+  splitTotals,
+} from '@food/domain';
 import { describeSelections, findDish, resolveDishPrice } from '../data/menuRepository';
 import { useCart } from '../state/cartStore';
 import styles from './SplitPage.module.css';
@@ -19,7 +28,10 @@ export function SplitPage() {
   const lines: SplitLine[] = cart.payableItems.flatMap((item) => {
     const dish = findDish(item.dishId);
     if (!dish) return [];
-    return [{ key: item.key, total: resolveDishPrice(dish, item.selections) * item.quantity }];
+    // Цену считаем ровно как корзина — вместе с добавками: иначе сумма долей
+    // расходится с итогом счёта прямо на глазах у гостя.
+    const unitPrice = resolveDishPrice(dish, item.selections) + extrasPrice(item.extras);
+    return [{ key: item.key, total: unitPrice * item.quantity }];
   });
 
   if (lines.length === 0) {
@@ -36,6 +48,9 @@ export function SplitPage() {
     );
   }
 
+  // Цену строки берём из той же раскладки, что и доли: два разных расчёта
+  // одного числа расходятся на первой же добавке.
+  const lineTotals = new Map(lines.map((line) => [line.key, line.total]));
   const totals = splitTotals(lines, draft);
   const sharedCount = countShared(lines, draft);
 
@@ -116,7 +131,7 @@ export function SplitPage() {
                       {selections ? <span className={styles.lineOptions}> · {selections}</span> : null}
                     </span>
                     <span className={[styles.linePrice, ts('body-s/medium')].join(' ')}>
-                      {formatPrice(resolveDishPrice(dish, item.selections) * item.quantity)}
+                      {formatPrice(lineTotals.get(item.key) ?? 0)}
                     </span>
                   </div>
                   <div className={styles.owners}>

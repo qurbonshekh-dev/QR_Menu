@@ -5,11 +5,23 @@ import {
   ORDER_STEPS,
   orderStatusLabel,
   orderStatusStep,
+  orderSplitLines,
+  type SessionOrderItem,
+  type SplitState,
   splitTotals,
 } from '@food/domain';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
 import styles from './OrdersPage.module.css';
+
+/**
+ * Доли гостей по позициям заказа. Гость у позиции ищется по слагу блюда:
+ * раскладку гость делал ключами строк корзины, а в заказе их нет.
+ */
+function shareTotals(items: SessionOrderItem[], split: SplitState): number[] {
+  const { lines, assignments } = orderSplitLines(items, split);
+  return splitTotals(lines, { mode: 'items', guests: split.guests, assignments });
+}
 
 /** Время оформления: «19:40». Дата не нужна — сессия живёт один визит. */
 function formatTime(iso: string): string {
@@ -87,6 +99,10 @@ export function OrdersPage() {
                     <span className={[styles.itemName, ts('body-s/regular')].join(' ')}>
                       {item.quantity} × {item.title}
                       {item.options ? <span className={styles.itemOptions}> · {item.options}</span> : null}
+                      {/* Модификаторы гость оплачивает наравне с блюдом — значит и видеть
+                          их должен: «+ бекон» это надбавка в счёте, а «− орегано» —
+                          то, что он проверит, когда тарелку принесут. */}
+                      {item.modifiers ? <span className={styles.itemOptions}> · {item.modifiers}</span> : null}
                     </span>
                     {/* У каждой тарелки свой статус: одну уже несут, другая ещё в очереди. */}
                     <span className={[styles.itemStatus, styles[item.status], ts('body-xs/regular')].join(' ')}>
@@ -101,10 +117,7 @@ export function OrdersPage() {
             </ul>
             {order.split ? (
               <ul className={styles.shares}>
-                {splitTotals(
-                  order.items.map((item) => ({ key: item.key, total: item.unitPrice * item.quantity })),
-                  order.split,
-                ).map((share, guest) => (
+                {shareTotals(order.items, order.split).map((share, guest) => (
                   <li key={guest} className={styles.share}>
                     <span className={[styles.shareLabel, ts('body-xs/regular')].join(' ')}>Гость {guest + 1}</span>
                     <span className={[styles.shareValue, ts('body-xs/medium')].join(' ')}>{formatPrice(share)}</span>

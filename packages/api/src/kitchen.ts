@@ -21,7 +21,10 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
     .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), deliveries (kind), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity, status)')
     .eq('restaurant_id', restaurantId)
     .in('status', BOARD_STATUSES)
-    .order('placed_at');
+    .order('placed_at')
+    // Порядок позиций задаём явно: иначе отмеченная готовой строка уезжает
+    // на другое место тикета, и повар теряет её под пальцем.
+    .order('title', { referencedTable: 'order_items' });
   if (error) throw error;
 
   return (data ?? []).map((order) => ({

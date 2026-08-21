@@ -1,5 +1,5 @@
 import type { ServiceItem, SplitState } from '@food/domain';
-import { serviceItemStatus } from '@food/domain';
+import { pendingAssignments, serviceItemStatus, takeGuestBySlug } from '@food/domain';
 import { supabase } from './client';
 
 export interface TableService {
@@ -62,7 +62,7 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
         status: serviceItemStatus(item.status ?? order.status),
         // Заказ, принятый официантом, знает гостя точно — он проставлен в позиции.
         // Догадка по слагу остаётся только для гостевых заказов с раскладкой счёта.
-        guest: item.guest_index ?? takeGuest(assignments, item.dishes?.slug),
+        guest: item.guest_index ?? takeGuestBySlug(assignments, item.dishes?.slug),
       });
     }
   }
@@ -75,27 +75,4 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
 export async function serveOrderItem(itemId: string): Promise<void> {
   const { error } = await supabase.from('order_items').update({ status: 'served' }).eq('id', itemId);
   if (error) throw error;
-}
-
-/**
- * Гостевой заказ гостя в позиции не хранит: раскладка приходит ключами строк
- * корзины (`d-13|g-size:o-25`), а в `order_items` этого ключа нет — есть блюдо
- * и текст выбора. Поэтому позицию
- * сопоставляем по слагу блюда и «съедаем» ключ, чтобы вторая такая же позиция
- * досталась следующему гостю. Два разных размера одной пиццы у разных гостей
- * могут поменяться местами — это лучше, чем не показать гостей вовсе.
- * Точным сопоставление станет, когда ключ строки поедет в `order_items`.
- */
-function pendingAssignments(split: SplitState | null): [string, number][] {
-  if (!split || split.mode !== 'items') return [];
-  return Object.entries(split.assignments);
-}
-
-function takeGuest(pending: [string, number][], slug: string | undefined): number | undefined {
-  if (!slug) return undefined;
-  const index = pending.findIndex(([key]) => key === slug || key.startsWith(`${slug}|`));
-  if (index < 0) return undefined;
-  const [, guest] = pending[index];
-  pending.splice(index, 1);
-  return guest;
 }

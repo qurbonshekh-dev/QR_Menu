@@ -25,6 +25,7 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
         // оформления. Искать блюдо в меню нельзя — его могли переименовать.
         items: order.items,
         total: order.total,
+        split: order.split,
         placedAt: order.placedAt,
         status: order.status,
         servingMode: order.servingMode,
