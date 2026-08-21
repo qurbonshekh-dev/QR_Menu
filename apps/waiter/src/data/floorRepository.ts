@@ -1,7 +1,6 @@
-// Данные зала приходят из общего слоя @food/api (Supabase). Здесь остаётся
-// только то, чего в базе пока нет: расписание смены. Появится таблица shifts —
-// уедет и это.
-import type { Shift, StaffMember } from '@food/domain';
+// Данные зала приходят из общего слоя @food/api (Supabase). Шов оставлен
+// нарочно: экраны официанта не должны знать, откуда именно приходит зал.
+import type { StaffMember } from '@food/domain';
 
 export {
   fetchFloor,
@@ -19,9 +18,6 @@ export {
   unmergeTable,
 } from '@food/api';
 export type { FloorSnapshot, TableService } from '@food/api';
-
-/** Смена жёстко задана: таблицы расписаний в базе ещё нет. */
-export const currentShift: Shift = { startsAt: '12:00', endsAt: '16:00', active: false };
 
 /** Инициалы для аватара: фотографий сотрудников в моке нет. */
 export function initials(member: StaffMember): string {

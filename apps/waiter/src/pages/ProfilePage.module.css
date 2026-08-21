@@ -2,8 +2,15 @@
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-6) var(--space-4);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .title {
@@ -11,24 +18,101 @@
   color: var(--color-text-dark-1);
 }
 
+.subtitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
 .card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--color-bg-default);
 }
 
-.name {
-  color: var(--color-text-dark-1);
-}
-
-.meta {
+.cardTitle {
   color: var(--color-text-dark-2);
 }
 
-.text {
-  margin: 0;
+.big {
+  color: var(--color-text-dark-1);
+}
+
+.muted {
+  color: var(--color-text-dark-2);
+}
+
+.rowBetween {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Полоса прогресса — и у ранга, и у цели: вопрос один и тот же, «сколько осталось». */
+.track {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-muted);
+  overflow: hidden;
+}
+
+.trackFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 96px;
+  padding-top: var(--space-2);
+}
+
+.bar {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  height: 100%;
+}
+
+.barFill {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-main);
+}
+
+.barLabel {
   color: var(--color-text-dark-3);
+}
+
+.goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.goalForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-info);
+  cursor: pointer;
 }

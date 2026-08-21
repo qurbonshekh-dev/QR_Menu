@@ -320,6 +320,64 @@ export type Database = {
           },
         ];
       };
+      shifts: {
+        Row: {
+          id: string;
+          staff_id: string;
+          starts_at: string;
+          ends_at: string;
+          started_at: string | null;
+          ended_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          staff_id: string;
+          starts_at: string;
+          ends_at: string;
+          started_at?: string | null;
+          ended_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['shifts']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'shifts_staff_id_fkey';
+            columns: ['staff_id'];
+            isOneToOne: false;
+            referencedRelation: 'staff';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      staff_goals: {
+        Row: {
+          id: string;
+          staff_id: string;
+          title: string;
+          target: number;
+          created_at: string;
+          achieved_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          staff_id: string;
+          title: string;
+          target: number;
+          created_at?: string;
+          achieved_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['staff_goals']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'staff_goals_staff_id_fkey';
+            columns: ['staff_id'];
+            isOneToOne: false;
+            referencedRelation: 'staff';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       waiter_calls: {
         Row: {
           id: string;

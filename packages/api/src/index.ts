@@ -9,4 +9,5 @@ export * from './service';
 export * from './auth';
 export * from './staff';
 export * from './messages';
+export * from './profile';
 export type { Database } from './database.types';

@@ -14,11 +14,11 @@ import {
   UsersIcon,
   ts,
 } from '@food/ui';
-import { formatPrice, formatShift, pluralGuests, type FloorTable } from '@food/domain';
+import { formatPrice, pluralGuests, shiftTime, type FloorTable, type StaffShift } from '@food/domain';
+import { endShift, fetchTodayShift, startShift } from '@food/api';
 import {
   cancelReservation,
   closeTableBill,
-  currentShift,
   fetchFloor,
   mergeTables,
   moveTableOrders,
@@ -61,7 +61,9 @@ export function HomePage() {
   const navigate = useNavigate();
   const [floor, setFloor] = useState<FloorSnapshot | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [shiftActive, setShiftActive] = useState(false);
+  // Смена — запись в базе, а не флажок в памяти вкладки: её видит и кабинет,
+  // и менеджер, и она переживает перезагрузку.
+  const [shift, setShift] = useState<StaffShift | null>(null);
   // Состав держим вместе с id стола: иначе при переключении на секунду
   // светятся позиции предыдущего стола, пока не пришёл ответ.
   const [service, setService] = useState<{ tableId: string; data: TableService } | null>(null);
@@ -77,6 +79,11 @@ export function HomePage() {
   // Пересадка и объединение спрашивают один и тот же вопрос — «какой стол?»,
   // поэтому это один список с двумя режимами, а не два экрана.
   const [picking, setPicking] = useState<'move' | 'merge' | null>(null);
+
+  useEffect(() => {
+    if (!me) return;
+    void fetchTodayShift(me.id).then(setShift);
+  }, [me, version]);
 
   useEffect(() => {
     if (!me) return;
@@ -141,7 +148,9 @@ export function HomePage() {
         </span>
         <div className={styles.identity}>
           <p className={[styles.name, ts('heading-9/extrabold')].join(' ')}>{floor.waiter.name}</p>
-          <p className={[styles.shift, ts('body-xs/regular')].join(' ')}>{formatShift(currentShift)}</p>
+          <p className={[styles.shift, ts('body-xs/regular')].join(' ')}>
+            {shift ? `Смена ${shiftTime(shift.startsAt)}–${shiftTime(shift.endsAt)}` : 'Смены на сегодня нет'}
+          </p>
         </div>
         <IconButton aria-label="Уведомления" variant="muted" count={floor.tables.reduce((sum, t) => sum + t.alerts, 0)}>
           <BellIcon size={20} />
@@ -159,11 +168,17 @@ export function HomePage() {
         </Button>
       </section>
 
-      <div className={styles.shiftAction}>
-        <Button block onClick={() => setShiftActive((current) => !current)}>
-          {shiftActive ? 'Завершить смену' : 'Начать смену'}
-        </Button>
-      </div>
+      {shift && !shift.endedAt ? (
+        <div className={styles.shiftAction}>
+          <Button
+            block
+            variant={shift.startedAt ? 'secondary' : 'main'}
+            onClick={() => void act(shift.startedAt ? endShift(shift.id) : startShift(shift.id))}
+          >
+            {shift.startedAt ? 'Завершить смену' : 'Начать смену'}
+          </Button>
+        </div>
+      ) : null}
 
       <section className={styles.tables}>
         <h2 className={[styles.sectionTitle, ts('heading-7/bold')].join(' ')}>Мои столы</h2>
