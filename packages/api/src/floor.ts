@@ -119,6 +119,42 @@ export async function setTableStatus(tableId: string, status: TableStatus): Prom
   if (error) throw error;
 }
 
+/**
+ * Бронь стола. Отдельной таблицы под неё пока нет: имя и телефон гостя из ТЗ
+ * хранить негде, поэтому запоминаем только время — оно и есть то, ради чего
+ * бронь ставят. Появится `reservations` — переедет сюда же, экран не изменится.
+ */
+export async function reserveTable(tableId: string, at: Date): Promise<void> {
+  const { error } = await supabase
+    .from('dining_tables')
+    .update({ status: 'reserved', reserved_at: at.toISOString() })
+    .eq('id', tableId);
+  if (error) throw error;
+}
+
+/** Снять бронь — стол снова свободен. */
+export async function cancelReservation(tableId: string): Promise<void> {
+  const { error } = await supabase
+    .from('dining_tables')
+    .update({ status: 'free', reserved_at: null })
+    .eq('id', tableId);
+  if (error) throw error;
+}
+
+/**
+ * Официант отдал готовые блюда. Двигаем сами заказы, а не статус стола:
+ * «Занят» вернёт триггер `orders_sync_table_status`, и делать это руками
+ * значило бы завести вторую правду о том, что происходит за столом.
+ */
+export async function serveReadyOrders(tableId: string): Promise<void> {
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: 'served' })
+    .eq('table_id', tableId)
+    .eq('status', 'ready');
+  if (error) throw error;
+}
+
 /** Официант подошёл к столу — закрываем открытые вызовы. */
 export async function resolveWaiterCalls(tableId: string): Promise<void> {
   const { error } = await supabase

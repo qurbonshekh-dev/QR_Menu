@@ -3,7 +3,16 @@
 // уедет и это.
 import type { Shift, StaffMember } from '@food/domain';
 
-export { fetchFloor, subscribeFloor, resolveWaiterCalls, setTableStatus, fetchTableService } from '@food/api';
+export {
+  fetchFloor,
+  subscribeFloor,
+  resolveWaiterCalls,
+  setTableStatus,
+  fetchTableService,
+  reserveTable,
+  cancelReservation,
+  serveReadyOrders,
+} from '@food/api';
 export type { FloorSnapshot, TableService } from '@food/api';
 
 /** Смена жёстко задана: таблицы расписаний в базе ещё нет. */

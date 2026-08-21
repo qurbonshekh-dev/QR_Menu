@@ -8,17 +8,21 @@ import {
   ReceiptIcon,
   StatusPill,
   TableIcon,
+  TextInput,
   TableStatusChip,
   UsersIcon,
   ts,
 } from '@food/ui';
 import { formatPrice, formatShift, pluralGuests, type FloorTable } from '@food/domain';
 import {
+  cancelReservation,
   currentShift,
   fetchFloor,
   fetchTableService,
   initials,
+  reserveTable,
   resolveWaiterCalls,
+  serveReadyOrders,
   subscribeFloor,
   type FloorSnapshot,
   type TableService,
@@ -26,6 +30,25 @@ import {
 import { OrderComposition } from '../components/OrderComposition';
 import { useAuth } from '@food/staff';
 import styles from './HomePage.module.css';
+
+/** Бронь по умолчанию — через час, округлённая до получаса: за столом никто
+ *  не бронирует «на 19:07». */
+function defaultBookingTime(): string {
+  const at = new Date(Date.now() + 60 * 60 * 1000);
+  at.setMinutes(at.getMinutes() < 30 ? 30 : 0, 0, 0);
+  if (at.getMinutes() === 0) at.setHours(at.getHours() + 1);
+  return `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+}
+
+/** «19:30» → дата. Время уже прошло — значит, бронь на завтра: столы бронируют
+ *  вперёд, а не назад. */
+function bookingTime(value: string): Date {
+  const [hours, minutes] = value.split(':').map(Number);
+  const at = new Date();
+  at.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+  if (at.getTime() < Date.now()) at.setDate(at.getDate() + 1);
+  return at;
+}
 
 export function HomePage() {
   const { me } = useAuth();
@@ -39,6 +62,9 @@ export function HomePage() {
   // Счётчик обновлений зала: по нему перечитывается и состав выбранного стола —
   // кухня отметила блюдо готовым, и строка гостя должна стать «Нужно подать».
   const [version, setVersion] = useState(0);
+  // Форма брони раскрывается прямо в карточке: официант ставит бронь у стола,
+  // отдельный экран ради одного поля времени только удлинил бы путь.
+  const [bookingAt, setBookingAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!me) return;
@@ -83,6 +109,17 @@ export function HomePage() {
   const selected: FloorTable | undefined =
     floor.tables.find((table) => table.id === selectedId) ?? floor.tables[0];
   const composition = service && service.tableId === selected?.id ? service.data : null;
+
+  // Есть ли что нести прямо сейчас: хотя бы одна позиция ждёт подачи.
+  const waiting = composition?.items.some((item) => item.status === 'to-serve') ?? false;
+
+  /** Любое действие по столу перечитывает зал: realtime тоже принесёт событие,
+   *  но ждать его, стоя у стола, официант не должен. */
+  const act = async (action: Promise<void>) => {
+    await action;
+    setVersion((current) => current + 1);
+    if (me) setFloor(await fetchFloor(me));
+  };
 
   return (
     <div className={styles.page}>
@@ -172,9 +209,18 @@ export function HomePage() {
           ) : null}
 
           <div className={styles.cardActions}>
+            {/* Блюда готовы — сначала отдать их, а уже потом всё остальное.
+                Спрашиваем состав, а не цвет стола: статус стола может отстать
+                (его двигает триггер), а тарелка на раздаче уже стоит. */}
+            {waiting ? (
+              <Button block onClick={() => void act(serveReadyOrders(selected.id))}>
+                Отдал гостям
+              </Button>
+            ) : null}
+
             <Button
               block
-              disabled={!shiftActive}
+              variant={waiting ? 'secondary' : 'main'}
               onClick={() => {
                 // Официант подошёл к столу: закрываем его вызовы и идём набирать
                 // заказ. Одно движение — потому что за столом он делает именно это.
@@ -182,18 +228,44 @@ export function HomePage() {
                 navigate(`/table/${selected.id}/guests`);
               }}
             >
-              {selected.status === 'awaiting' ? 'Отнести и дозаказать' : 'Принять заказ'}
+              {composition && composition.items.length ? 'Добавить позиции' : 'Принять заказ'}
             </Button>
-            <Button block variant="secondary" disabled={!shiftActive}>
-              Забронировать стол
-            </Button>
-          </div>
 
-          {!shiftActive ? (
-            <p className={[styles.hint, ts('body-xs/regular')].join(' ')} role="status">
-              Начните смену, чтобы принимать заказы.
-            </p>
-          ) : null}
+            {selected.status === 'reserved' ? (
+              <Button block variant="secondary" onClick={() => void act(cancelReservation(selected.id))}>
+                Снять бронь
+              </Button>
+            ) : null}
+
+            {selected.status === 'free' ? (
+              bookingAt === null ? (
+                <Button block variant="secondary" onClick={() => setBookingAt(defaultBookingTime())}>
+                  Забронировать стол
+                </Button>
+              ) : (
+                <div className={styles.booking}>
+                  <TextInput
+                    label="Время брони"
+                    type="time"
+                    value={bookingAt}
+                    onChange={(event) => setBookingAt(event.target.value)}
+                  />
+                  <Button
+                    block
+                    onClick={() => {
+                      void act(reserveTable(selected.id, bookingTime(bookingAt)));
+                      setBookingAt(null);
+                    }}
+                  >
+                    Забронировать на {bookingAt}
+                  </Button>
+                  <Button block variant="secondary" onClick={() => setBookingAt(null)}>
+                    Отмена
+                  </Button>
+                </div>
+              )
+            ) : null}
+          </div>
         </section>
       ) : null}
     </div>
