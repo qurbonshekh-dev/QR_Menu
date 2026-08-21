@@ -52,9 +52,14 @@
   color: var(--color-text-dark-3);
 }
 
-.reasons {
+.message {
   margin: 0;
   color: var(--color-text-dark-1);
+}
+
+.reasons {
+  margin: 0;
+  color: var(--color-text-dark-2);
 }
 
 .done {

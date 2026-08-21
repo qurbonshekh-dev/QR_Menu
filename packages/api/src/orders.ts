@@ -134,8 +134,12 @@ export async function setTableTip(tableNumber: string, tip: number): Promise<voi
   if (error) throw error;
 }
 
-/** Вызов официанта. Стол при этом не трогаем: «зовут» — это событие, а не статус. */
-export async function callWaiter(tableNumber: string, reasons: string[]): Promise<void> {
+/**
+ * Вызов официанта. Стол при этом не трогаем: «зовут» — это событие, а не статус.
+ * Кроме готовых поводов гость может написать своими словами — это и есть
+ * сообщение, которое официант читает целиком.
+ */
+export async function callWaiter(tableNumber: string, reasons: string[], message?: string): Promise<void> {
   const restaurantId = await currentRestaurantId();
   const { data: table } = await supabase
     .from('dining_tables')
@@ -144,7 +148,9 @@ export async function callWaiter(tableNumber: string, reasons: string[]): Promis
     .eq('number', tableNumber)
     .single();
   if (!table) return;
-  const { error } = await supabase.from('waiter_calls').insert({ table_id: table.id, reasons });
+  const { error } = await supabase
+    .from('waiter_calls')
+    .insert({ table_id: table.id, reasons, message: message?.trim() || null });
   if (error) throw error;
 }
 

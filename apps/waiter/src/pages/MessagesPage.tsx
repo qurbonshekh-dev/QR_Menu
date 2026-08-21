@@ -53,9 +53,15 @@ export function MessagesPage() {
             <span className={[styles.table, ts('body-m/medium')].join(' ')}>Стол №{call.tableNumber}</span>
             <span className={[styles.time, ts('body-xs/regular')].join(' ')}>{formatTime(call.createdAt)}</span>
           </div>
-          <p className={[styles.reasons, ts('body-m/regular')].join(' ')}>
-            {call.reasons.length ? call.reasons.join(' · ') : 'Просят подойти'}
-          </p>
+          {/* Сообщение гостя — его слова, поэтому крупнее поводов из списка. */}
+          {call.message ? (
+            <p className={[styles.message, ts('body-l/medium')].join(' ')}>{call.message}</p>
+          ) : null}
+          {call.reasons.length || !call.message ? (
+            <p className={[styles.reasons, ts('body-m/regular')].join(' ')}>
+              {call.reasons.length ? call.reasons.join(' · ') : 'Просят подойти'}
+            </p>
+          ) : null}
           <Button size="m" onClick={() => void resolve(call)}>
             Выполнить
           </Button>
@@ -72,9 +78,14 @@ export function MessagesPage() {
             <span className={[styles.table, ts('body-m/medium')].join(' ')}>Стол №{call.tableNumber}</span>
             <span className={[styles.time, ts('body-xs/regular')].join(' ')}>{formatTime(call.createdAt)}</span>
           </div>
-          <p className={[styles.reasons, ts('body-m/regular')].join(' ')}>
-            {call.reasons.length ? call.reasons.join(' · ') : 'Просили подойти'}
-          </p>
+          {call.message ? (
+            <p className={[styles.message, ts('body-m/medium')].join(' ')}>{call.message}</p>
+          ) : null}
+          {call.reasons.length || !call.message ? (
+            <p className={[styles.reasons, ts('body-m/regular')].join(' ')}>
+              {call.reasons.length ? call.reasons.join(' · ') : 'Просили подойти'}
+            </p>
+          ) : null}
           <span className={styles.done} aria-label="Выполнено">
             <CheckDoubleIcon size={20} />
           </span>

@@ -10,6 +10,8 @@ export interface WaiterCall {
   tableNumber: string;
   /** Поводы приходят готовым текстом от гостя — переводить нечего. */
   reasons: string[];
+  /** Сообщение своими словами: «принесите вилку». Есть не всегда. */
+  message?: string;
   createdAt: string;
   /** Когда официант отметил «Выполнено». Нет — запрос ещё висит. */
   resolvedAt?: string;
@@ -20,7 +22,7 @@ export interface WaiterCall {
 export async function fetchWaiterCalls(limit = 40): Promise<WaiterCall[]> {
   const { data, error } = await supabase
     .from('waiter_calls')
-    .select('id, table_id, reasons, created_at, resolved_at, dining_tables (number)')
+    .select('id, table_id, reasons, message, created_at, resolved_at, dining_tables (number)')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
@@ -30,6 +32,7 @@ export async function fetchWaiterCalls(limit = 40): Promise<WaiterCall[]> {
     tableId: row.table_id,
     tableNumber: row.dining_tables?.number ?? '—',
     reasons: row.reasons ?? [],
+    message: row.message ?? undefined,
     createdAt: row.created_at,
     resolvedAt: row.resolved_at ?? undefined,
   }));

@@ -310,8 +310,23 @@ export type Database = {
         ];
       };
       waiter_calls: {
-        Row: { id: string; table_id: string; reasons: string[]; created_at: string; resolved_at: string | null };
-        Insert: { id?: string; table_id: string; reasons?: string[]; created_at?: string; resolved_at?: string | null };
+        Row: {
+          id: string;
+          table_id: string;
+          reasons: string[];
+          /** Сообщение гостя своими словами — в отличие от reasons, это не выбор из списка. */
+          message: string | null;
+          created_at: string;
+          resolved_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          table_id: string;
+          reasons?: string[];
+          message?: string | null;
+          created_at?: string;
+          resolved_at?: string | null;
+        };
         Update: Partial<Database['public']['Tables']['waiter_calls']['Insert']>;
         Relationships: [
           {

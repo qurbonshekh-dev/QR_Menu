@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ActionTile, AppHeader, Badge, Button, Chip, HeartIcon, IconButton, MenuListIcon, PencilIcon, ReceiptIcon, ShoppingBagIcon, StarIcon, TableCard, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
+import { ActionTile, AppHeader, Badge, Button, Chip, HeartIcon, IconButton, MenuListIcon, PencilIcon, ReceiptIcon, ShoppingBagIcon, StarIcon, TableCard, TextArea, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
+import { callWaiter as sendWaiterCall } from '@food/api';
 import { formatTableLabel, getRestaurant, waiterInitial } from '../data/menuRepository';
 import { formatPrice, type Restaurant } from '@food/domain';
 import { useCart } from '../state/cartStore';
@@ -8,8 +9,8 @@ import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
 import styles from './HomePage.module.css';
 
-/** Сколько держится подтверждение вызова официанта. Бэкенда нет — это честная
- *  локальная заглушка, а не «отправлено на кухню». */
+/** Сколько держится подтверждение вызова: гость должен увидеть, что просьба
+ *  ушла, но висеть на экране весь визит ей незачем. */
 const WAITER_CALL_MS = 30_000;
 
 /** Поводы позвать официанта. Взяты из блок-схемы продукта, но живут не в отзыве,
@@ -25,7 +26,10 @@ export function HomePage() {
   const [waiterCalled, setWaiterCalled] = useState(false);
   const [tableDraft, setTableDraft] = useState<string | null>(null);
   const [callDraft, setCallDraft] = useState<string[] | null>(null);
+  const [callMessage, setCallMessage] = useState('');
   const [calledReasons, setCalledReasons] = useState<string[]>([]);
+  const [callSending, setCallSending] = useState(false);
+  const [callError, setCallError] = useState<string | null>(null);
   const callTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -43,12 +47,25 @@ export function HomePage() {
     setTableDraft(null);
   };
 
-  const callWaiter = (reasons: string[]) => {
-    setCalledReasons(reasons);
-    setWaiterCalled(true);
-    setCallDraft(null);
-    if (callTimer.current) clearTimeout(callTimer.current);
-    callTimer.current = setTimeout(() => setWaiterCalled(false), WAITER_CALL_MS);
+  /** Просьба уходит официанту в приложение: поводы отмечены чипами, а всё
+   *  остальное гость пишет своими словами — это и есть сообщение. */
+  const callWaiter = async (reasons: string[], message: string) => {
+    if (callSending) return;
+    setCallSending(true);
+    setCallError(null);
+    try {
+      await sendWaiterCall(tableNumber, reasons, message);
+      setCalledReasons(message.trim() ? [...reasons, message.trim()] : reasons);
+      setWaiterCalled(true);
+      setCallDraft(null);
+      setCallMessage('');
+      if (callTimer.current) clearTimeout(callTimer.current);
+      callTimer.current = setTimeout(() => setWaiterCalled(false), WAITER_CALL_MS);
+    } catch {
+      setCallError('Сообщение не ушло. Попробуйте ещё раз');
+    } finally {
+      setCallSending(false);
+    }
   };
 
   const toggleReason = (reason: string) => {
@@ -118,7 +135,7 @@ export function HomePage() {
         {callDraft !== null ? (
           <section className={styles.call} aria-label="Вызов официанта">
             <p className={[styles.callTitle, ts('body-s/regular')].join(' ')}>
-              Что-то нужно? Отметьте — официант возьмёт с собой.
+              Что-то нужно? Отметьте или напишите — официант увидит это у себя.
             </p>
             <div className={styles.callReasons}>
               {WAITER_REASONS.map((reason) => (
@@ -132,9 +149,28 @@ export function HomePage() {
                 </Chip>
               ))}
             </div>
+            {/* Готовых поводов на всё не хватит: «принесите вилку» гость
+                напишет быстрее, чем найдёт нужный чип. */}
+            <TextArea
+              label="Написать официанту"
+              rows={2}
+              value={callMessage}
+              onChange={(event) => setCallMessage(event.target.value)}
+            />
+
+            {callError ? (
+              <p className={[styles.callError, ts('body-s/regular')].join(' ')} role="status">
+                {callError}
+              </p>
+            ) : null}
+
             <div className={styles.callActions}>
-              <Button size="m" onClick={() => callWaiter(callDraft)}>
-                Позвать
+              <Button
+                size="m"
+                disabled={callSending || (callDraft.length === 0 && callMessage.trim() === '')}
+                onClick={() => void callWaiter(callDraft, callMessage)}
+              >
+                {callSending ? 'Отправляем…' : 'Отправить'}
               </Button>
               <Button size="m" variant="secondary" onClick={() => setCallDraft(null)}>
                 Отмена
