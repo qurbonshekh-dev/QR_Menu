@@ -32,16 +32,20 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
     servingMode: order.serving_mode === 'together' ? 'together' : 'ready',
     comment: order.comment ?? undefined,
     status: toTicketStatus(order.status),
-    items: (order.order_items ?? []).map((item) => ({
-      id: item.id,
-      title: item.title,
-      quantity: item.quantity,
-      options: item.options ?? undefined,
-      comment: item.comment ?? undefined,
-      modifiers: item.modifiers ?? undefined,
-      serveAfterMinutes: item.serve_after_minutes ?? undefined,
-      status: toItemStatus(item.status),
-    })),
+    // Поданное с тикета убираем: при дозаказе в тот же заказ повар должен
+    // видеть, что осталось приготовить, а не историю визита.
+    items: (order.order_items ?? [])
+      .filter((item) => item.status !== 'served')
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        quantity: item.quantity,
+        options: item.options ?? undefined,
+        comment: item.comment ?? undefined,
+        modifiers: item.modifiers ?? undefined,
+        serveAfterMinutes: item.serve_after_minutes ?? undefined,
+        status: toItemStatus(item.status),
+      })),
   }));
 }
 

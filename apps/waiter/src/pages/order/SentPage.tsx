@@ -7,6 +7,8 @@ interface SentState {
   total?: number;
   items?: { title: string; quantity: number }[];
   minutes?: number;
+  /** Позиции дописаны в открытый заказ, а не создали новый. */
+  appended?: boolean;
 }
 
 /** «Заказ принят» — экран из ТЗ: номер заказа, ориентировочное время готовки
@@ -22,11 +24,16 @@ export function SentPage() {
       <span className={styles.icon} aria-hidden="true">
         <CheckDoubleIcon size={32} />
       </span>
-      <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>Заказ №{number} на кухне</h1>
+      <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>
+        {state.appended ? `Добавлено в заказ №${number}` : `Заказ №${number} на кухне`}
+      </h1>
 
       {state.minutes ? (
         <p className={[styles.text, ts('body-m/regular')].join(' ')}>
-          Ориентировочно {state.minutes} минут. Когда блюда будут готовы, стол загорится «Ждут подачу».
+          Ориентировочно {state.minutes} минут.{' '}
+          {state.appended
+            ? 'Позиции ушли в тот же тикет — повар увидит их в заказе стола.'
+            : 'Когда блюда будут готовы, стол загорится «Ждут подачу».'}
         </p>
       ) : (
         <p className={[styles.text, ts('body-m/regular')].join(' ')}>

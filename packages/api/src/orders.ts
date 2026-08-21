@@ -205,13 +205,21 @@ export async function placeWaiterOrder(input: PlaceWaiterOrderInput): Promise<Pl
     .single();
   if (orderError) throw orderError;
 
-  const slugs = [...new Set(input.items.map((item) => item.dishSlug))];
+  await insertWaiterItems(order.id, input.items);
+
+  return { id: order.id, number: order.number, placedAt: order.placed_at };
+}
+
+/** Позиции заказа официанта. Общее у оформления и дозаказа: строки одинаковые,
+ *  отличается только то, к какому заказу они цепляются. */
+async function insertWaiterItems(orderId: string, items: WaiterOrderItem[]): Promise<void> {
+  const slugs = [...new Set(items.map((item) => item.dishSlug))];
   const { data: dishes } = await supabase.from('dishes').select('id, slug').in('slug', slugs);
   const dishIdBySlug = new Map((dishes ?? []).map((dish) => [dish.slug, dish.id]));
 
-  const { error: itemsError } = await supabase.from('order_items').insert(
-    input.items.map((item) => ({
-      order_id: order.id,
+  const { error } = await supabase.from('order_items').insert(
+    items.map((item) => ({
+      order_id: orderId,
       dish_id: dishIdBySlug.get(item.dishSlug) ?? null,
       title: item.title,
       options: item.options ?? null,
@@ -223,7 +231,74 @@ export async function placeWaiterOrder(input: PlaceWaiterOrderInput): Promise<Pl
       serve_after_minutes: item.serveAfterMinutes ?? null,
     })),
   );
-  if (itemsError) throw itemsError;
+  if (error) throw error;
+}
+
+export interface OpenOrder {
+  id: string;
+  number: number;
+  status: string;
+  total: number;
+  guests: number | null;
+}
+
+/**
+ * Открытый заказ стола — тот, к которому можно дописать дозаказ. Берём
+ * последний незакрытый за сегодня: закрытый счёт — это прошлый визит,
+ * дописывать в него нечего.
+ */
+export async function fetchOpenOrder(tableId: string): Promise<OpenOrder | null> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id, number, status, total, guests')
+    .eq('table_id', tableId)
+    .not('status', 'in', '(cancelled,paid)')
+    .gte('placed_at', startOfDay.toISOString())
+    .order('placed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data ?? null;
+}
+
+export interface AppendOrderInput {
+  orderId: string;
+  items: WaiterOrderItem[];
+  /** Сколько добавили — прибавляется к сумме заказа, а не заменяет её. */
+  addedTotal: number;
+  guests?: number;
+}
+
+/**
+ * Дозаказ к открытому счёту: позиции доезжают в тот же заказ, а значит —
+ * в тот же тикет на кухне. Отдельным заказом это было бы вторым тикетом
+ * на тот же стол, и повар складывал бы их в голове.
+ *
+ * Статус заказа пересчитает триггер: пока новые позиции в очереди, весь
+ * заказ снова «в работе», даже если прошлые блюда уже поданы.
+ */
+export async function appendToOrder(input: AppendOrderInput): Promise<PlacedOrder> {
+  const { data: order, error: readError } = await supabase
+    .from('orders')
+    .select('id, number, total, guests, placed_at')
+    .eq('id', input.orderId)
+    .single();
+  if (readError) throw readError;
+
+  await insertWaiterItems(order.id, input.items);
+
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      total: Number(order.total ?? 0) + input.addedTotal,
+      // За стол могли подсесть — число гостей только растёт.
+      guests: Math.max(order.guests ?? 0, input.guests ?? 0) || null,
+    })
+    .eq('id', order.id);
+  if (error) throw error;
 
   return { id: order.id, number: order.number, placedAt: order.placed_at };
 }

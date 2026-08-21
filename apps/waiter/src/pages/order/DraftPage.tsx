@@ -13,7 +13,7 @@ import {
   serveLabel,
   type DraftLine,
 } from '@food/domain';
-import { placeWaiterOrder } from '@food/api';
+import { appendToOrder, fetchOpenOrder, placeWaiterOrder, type OpenOrder } from '@food/api';
 import { useAuth } from '@food/staff';
 import { useDraft } from '../../state/draftStore';
 import styles from './DraftPage.module.css';
@@ -48,11 +48,21 @@ export function DraftPage() {
   const sentRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Открытый заказ стола: если он есть, дозаказ по умолчанию доезжает в него —
+  // повару нужен один тикет на стол, а не два одинаковых.
+  const [openOrder, setOpenOrder] = useState<OpenOrder | null>(null);
+  const [attach, setAttach] = useState(true);
   const dragRef = useRef<Drag | null>(null);
 
   useEffect(() => {
     dragRef.current = drag;
   }, [drag]);
+
+  const draftTableId = draft?.tableId;
+  useEffect(() => {
+    if (!draftTableId) return;
+    void fetchOpenOrder(draftTableId).then(setOpenOrder).catch(() => setOpenOrder(null));
+  }, [draftTableId]);
 
   // Уводим из эффекта, а не из рендера: навигация во время рендера — это
   // обновление роутера из чужого рендера, React на это ругается по делу.
@@ -119,30 +129,41 @@ export function DraftPage() {
     setSending(true);
     setError(null);
     try {
-      const placed = await placeWaiterOrder({
-        tableId: draft.tableId,
-        waiterId: me.id,
-        guests: draft.guests,
-        servingMode: draft.servingMode,
-        comment: draft.comment,
-        total: draftTotal(draft.lines),
-        items: draft.lines.map((line) => ({
-          dishSlug: line.dishId,
-          title: line.title,
-          options: line.options,
-          modifiers: describeModifiers(line) ?? undefined,
-          comment: line.comment,
-          quantity: line.quantity,
-          unitPrice: draftLinePrice(line),
-          guest: line.guest,
-          serveAfterMinutes: line.serveAfterMinutes,
-        })),
-      });
+      const items = draft.lines.map((line) => ({
+        dishSlug: line.dishId,
+        title: line.title,
+        options: line.options,
+        modifiers: describeModifiers(line) ?? undefined,
+        comment: line.comment,
+        quantity: line.quantity,
+        unitPrice: draftLinePrice(line),
+        guest: line.guest,
+        serveAfterMinutes: line.serveAfterMinutes,
+      }));
+
+      const appending = Boolean(openOrder && attach);
+      const placed = appending
+        ? await appendToOrder({
+            orderId: openOrder!.id,
+            items,
+            addedTotal: draftTotal(draft.lines),
+            guests: draft.guests,
+          })
+        : await placeWaiterOrder({
+            tableId: draft.tableId,
+            waiterId: me.id,
+            guests: draft.guests,
+            servingMode: draft.servingMode,
+            comment: draft.comment,
+            total: draftTotal(draft.lines),
+            items,
+          });
       sentRef.current = true;
       const summary = {
         total: draftTotal(draft.lines),
         items: draft.lines.map((line) => ({ title: line.title, quantity: line.quantity })),
         minutes: estimateCookMinutes(draft.lines),
+        appended: appending,
       };
       discard();
       navigate(`/table/${tableId}/sent/${placed.number}`, { replace: true, state: summary });
@@ -247,6 +268,28 @@ export function DraftPage() {
             )}
           </section>
         ))}
+
+        {openOrder ? (
+          <section className={styles.settings}>
+            <h2 className={[styles.settingsTitle, ts('body-m/medium')].join(' ')}>
+              За столом уже открыт заказ №{openOrder.number}
+            </h2>
+            <SegmentedControl
+              aria-label="Куда добавить позиции"
+              value={attach ? 'attach' : 'new'}
+              onChange={(value) => setAttach(value === 'attach')}
+              options={[
+                { value: 'attach', label: `В заказ №${openOrder.number}` },
+                { value: 'new', label: 'Отдельным тикетом' },
+              ]}
+            />
+            <p className={[styles.hint, ts('body-xs/regular')].join(' ')}>
+              {attach
+                ? 'Позиции доедут в тот же тикет на кухне — повар увидит их в существующем заказе стола.'
+                : 'Кухня получит второй тикет на этот стол. Счёт всё равно общий.'}
+            </p>
+          </section>
+        ) : null}
 
         <section className={styles.settings}>
           <h2 className={[styles.settingsTitle, ts('body-m/medium')].join(' ')}>Как подавать</h2>
