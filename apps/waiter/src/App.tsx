@@ -1,9 +1,11 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { ts } from '@food/ui';
 import { AuthProvider, LoginPage, NoAccessPage, useAuth } from '@food/staff';
-import { AppShell, SectionStub } from './components/AppShell';
+import { AppShell } from './components/AppShell';
 import { HomePage } from './pages/HomePage';
 import { MessagesPage } from './pages/MessagesPage';
+import { HandoutPage } from './pages/handout/HandoutPage';
+import { NewDeliveryPage } from './pages/handout/NewDeliveryPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DraftPage } from './pages/order/DraftPage';
 import { GuestsPage } from './pages/order/GuestsPage';
@@ -46,20 +48,16 @@ function Shift() {
       <Route element={<AppShell />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/messages" element={<MessagesPage />} />
-        <Route
-          path="/handout"
-          element={
-            <SectionStub
-              title="Выдача"
-              text="Доставка и самовывоз. Раздел появится после того, как заработает зал."
-            />
-          }
-        />
+        <Route path="/handout" element={<HandoutPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       {/* Приём заказа идёт без таб-бара: официант ведёт один разговор с гостем,
           и уйти из него посреди набора можно только осознанно — кнопкой назад. */}
+      {/* Приём заказа на доставку — тоже разговор без таб-бара: пока менеджер
+          набирает адрес и состав, уходить с экрана незачем. */}
+      <Route path="/handout/new" element={<NewDeliveryPage />} />
+
       <Route path="/table/:tableId/guests" element={<GuestsPage />} />
       <Route path="/table/:tableId/menu" element={<OrderMenuPage />} />
       <Route path="/table/:tableId/dish/:slug" element={<OrderDishPage />} />

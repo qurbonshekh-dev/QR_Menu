@@ -216,11 +216,72 @@ export type Database = {
           },
         ];
       };
+      deliveries: {
+        Row: {
+          id: string;
+          order_id: string;
+          kind: string;
+          status: string;
+          customer_name: string | null;
+          customer_phone: string;
+          street: string | null;
+          house: string | null;
+          entrance: string | null;
+          floor: string | null;
+          flat: string | null;
+          courier_comment: string | null;
+          leave_at_door: boolean;
+          call_on_arrival: boolean;
+          payment: string;
+          change_from: number | null;
+          delivery_fee: number;
+          service_fee: number;
+          discount: number;
+          promo_code: string | null;
+          created_at: string;
+          delivered_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          kind: string;
+          status?: string;
+          customer_name?: string | null;
+          customer_phone: string;
+          street?: string | null;
+          house?: string | null;
+          entrance?: string | null;
+          floor?: string | null;
+          flat?: string | null;
+          courier_comment?: string | null;
+          leave_at_door?: boolean;
+          call_on_arrival?: boolean;
+          payment?: string;
+          change_from?: number | null;
+          delivery_fee?: number;
+          service_fee?: number;
+          discount?: number;
+          promo_code?: string | null;
+          created_at?: string;
+          delivered_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['deliveries']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'deliveries_order_id_fkey';
+            columns: ['order_id'];
+            isOneToOne: true;
+            referencedRelation: 'orders';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       orders: {
         Row: {
           id: string;
           restaurant_id: string;
-          table_id: string;
+          /** У доставки стола нет. */
+          table_id: string | null;
           number: number;
           status: string;
           serving_mode: string;
@@ -239,7 +300,7 @@ export type Database = {
         Insert: {
           id?: string;
           restaurant_id: string;
-          table_id: string;
+          table_id?: string | null;
           number?: number;
           status?: string;
           serving_mode?: string;

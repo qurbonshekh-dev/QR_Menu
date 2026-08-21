@@ -1,0 +1,91 @@
+.page {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-0) var(--space-4) var(--space-6);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.row > * {
+  flex: 1 0 0;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dish {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-default);
+}
+
+.dishText {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+  color: var(--color-text-dark-1);
+}
+
+.dishPrice {
+  color: var(--color-text-dark-2);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-accent-danger);
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+}
+
+.total {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+}
+
+.totalLabel {
+  color: var(--color-text-dark-2);
+}
+
+.totalValue {
+  color: var(--color-text-dark-1);
+}

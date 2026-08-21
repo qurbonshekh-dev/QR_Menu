@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { HomeIcon, MessageIcon, ShoppingBagIcon, TabBar, UserIcon, ts } from '@food/ui';
+import { HomeIcon, MessageIcon, ShoppingBagIcon, TabBar, UserIcon } from '@food/ui';
 import { fetchWaiterCalls, subscribeWaiterCalls } from '@food/api';
 import styles from './AppShell.module.css';
 
@@ -50,16 +50,5 @@ export function AppShell() {
         ]}
       />
     </div>
-  );
-}
-
-/** Заглушка раздела, до которого ещё не дошли руки. Пишем честно, что здесь
- *  будет: пустой экран без объяснения официант читает как поломку. */
-export function SectionStub({ title, text }: { title: string; text: string }) {
-  return (
-    <section className={styles.stub}>
-      <h1 className={[styles.stubTitle, ts('heading-7/bold')].join(' ')}>{title}</h1>
-      <p className={[styles.stubText, ts('body-m/regular')].join(' ')}>{text}</p>
-    </section>
   );
 }

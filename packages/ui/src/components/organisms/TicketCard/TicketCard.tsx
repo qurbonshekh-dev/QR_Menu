@@ -35,7 +35,7 @@ export function TicketCard({ ticket, elapsed, hotkey, overdue, action, onItemTog
       <header className={styles.head}>
         <span className={styles.headLeft}>
           {hotkey ? <span className={[styles.hotkey, ts('body-s/bold')].join(' ')}>{hotkey}</span> : null}
-          <span className={[styles.table, ts('heading-8/bold')].join(' ')}>Стол {ticket.table}</span>
+          <span className={[styles.table, ts('heading-8/bold')].join(' ')}>{ticket.place}</span>
         </span>
         <span className={[styles.elapsed, overdue && styles.overdue, ts('heading-8/bold')].filter(Boolean).join(' ')}>
           {elapsed}

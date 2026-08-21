@@ -33,7 +33,9 @@ export type TicketStatus = 'queued' | 'cooking' | 'ready';
 export interface KitchenTicket {
   /** Номер заказа — тот же, что видит гость. */
   id: string;
-  table: string;
+  /** Откуда заказ: «Стол 12» или «Доставка». Повар готовит одинаково, но
+   *  собирает по-разному — навынос нужна упаковка. */
+  place: string;
   /** ISO-время поступления: от него считается возраст тикета. */
   placedAt: string;
   servingMode: ServingMode;

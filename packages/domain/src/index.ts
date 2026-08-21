@@ -12,3 +12,4 @@ export * from './service';
 export * from './draft';
 export * from './menu';
 export * from './orderStatus';
+export * from './delivery';

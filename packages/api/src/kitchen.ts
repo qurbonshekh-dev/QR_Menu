@@ -18,7 +18,7 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
     .from('orders')
     // Строка select должна быть литералом: supabase-js выводит типы встроенных
     // выборок из неё самой, а склейка через + превращает её в обычный string.
-    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity, status)')
+    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), deliveries (kind), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity, status)')
     .eq('restaurant_id', restaurantId)
     .in('status', BOARD_STATUSES)
     .order('placed_at');
@@ -26,7 +26,12 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
 
   return (data ?? []).map((order) => ({
     id: String(order.number),
-    table: order.dining_tables?.number ?? '—',
+    // Заказ без стола — это выдача: доставка или самовывоз.
+    place: order.dining_tables?.number
+      ? `Стол ${order.dining_tables.number}`
+      : order.deliveries?.kind === 'pickup'
+        ? 'Самовывоз'
+        : 'Доставка',
     placedAt: order.placed_at,
     readyAt: order.ready_at ?? undefined,
     servingMode: order.serving_mode === 'together' ? 'together' : 'ready',

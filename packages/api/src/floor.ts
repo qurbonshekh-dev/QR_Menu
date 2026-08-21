@@ -81,6 +81,8 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   // время первого, гости — максимум из заказов, позиции — сумма количеств.
   const visits = new Map<string, { seatedAt: string; guests: number; items: number }>();
   for (const order of visitsResult.data ?? []) {
+    // Заказ без стола — это доставка: к залу она отношения не имеет.
+    if (!order.table_id) continue;
     const items = (order.order_items ?? []).reduce((sum, item) => sum + item.quantity, 0);
     const current = visits.get(order.table_id);
     visits.set(order.table_id, {
