@@ -1,5 +1,5 @@
 import type { FloorTable, StaffMember, TableStatus } from '@food/domain';
-import { supabase, currentRestaurantId } from './client';
+import { channelName, supabase, currentRestaurantId } from './client';
 
 const STATUSES: TableStatus[] = ['free', 'busy', 'awaiting', 'reserved'];
 
@@ -97,7 +97,7 @@ export async function fetchTable(tableId: string): Promise<FloorTable | null> {
  *  не трогая экран. Вызовы официанта приходят отдельным каналом. */
 export function subscribeFloor(onChange: () => void): () => void {
   const channel = supabase
-    .channel('floor')
+    .channel(channelName('floor'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'dining_tables' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_calls' }, onChange)
     // Заказы тоже слушаем: статус стола меняет триггер, а событие по столу

@@ -92,7 +92,8 @@ apps/waiter/src/       Приложение официанта (Vite + React 19)
   data/                floorRepository — зал и смена; menuRepository — каталог для приёма заказа
   state/               DraftProvider — черновик заказа за столом (sessionStorage)
   components/          AppShell (роуты + таб-бар), OrderComposition (состав заказа по гостям)
-  pages/               HomePage (зал), MessagesPage (запросы гостей), ProfilePage (кабинет)
+  pages/               HomePage (зал), MessagesPage (запросы гостей), ProfilePage (кабинет),
+                       LoginPage — общий из packages/staff
   pages/order/         GuestsPage → OrderMenuPage → OrderDishPage → DraftPage → SentPage
 apps/kitchen/src/      Экран кухни, планшет/монитор на стене (Vite + React 19)
   data/                ticketsRepository — имитация ленты заказов, на её месте будет realtime
@@ -170,6 +171,11 @@ location, а внутренние переходы query не переносят
 
 **Строка `select` в supabase-js обязана быть литералом.** Склейка через `+` превращает её
 в обычный `string`, и типы встроенных выборок схлопываются в `GenericStringError`.
+
+**Имя канала realtime — уникальное на подписку** (`channelName()` из `packages/api/src/client.ts`).
+Одно имя на два компонента — и второй `.on()` прилетает уже после `subscribe()`: supabase-js бросает
+исключение, React роняет экран в белое. Так и вышло, когда на запросы гостей подписались сразу
+оболочка (ради счётчика на вкладке) и сам экран сообщений.
 
 **Таблицу в realtime мало добавить в код — нужна публикация.** Забытая `waiter_calls`
 в `supabase_realtime` роняла весь канал официанта с `TIMED_OUT`: одна неудачная привязка

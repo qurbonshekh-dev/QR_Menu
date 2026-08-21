@@ -1,5 +1,5 @@
 import type { KitchenTicket, TicketStatus } from '@food/domain';
-import { supabase, currentRestaurantId } from './client';
+import { channelName, supabase, currentRestaurantId } from './client';
 
 /** На доске живут только незакрытые заказы: выданные уходят с экрана. */
 const BOARD_STATUSES = ['queued', 'cooking', 'ready'];
@@ -14,7 +14,7 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
     .from('orders')
     // Строка select должна быть литералом: supabase-js выводит типы встроенных
     // выборок из неё самой, а склейка через + превращает её в обычный string.
-    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), order_items (id, title, options, comment, quantity)')
+    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity)')
     .eq('restaurant_id', restaurantId)
     .in('status', BOARD_STATUSES)
     .order('placed_at');
@@ -34,6 +34,8 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
       quantity: item.quantity,
       options: item.options ?? undefined,
       comment: item.comment ?? undefined,
+      modifiers: item.modifiers ?? undefined,
+      serveAfterMinutes: item.serve_after_minutes ?? undefined,
     })),
   }));
 }
@@ -54,7 +56,7 @@ export function subscribeTickets(onChange: (tickets: KitchenTicket[]) => void): 
   push();
 
   const channel = supabase
-    .channel('kitchen')
+    .channel(channelName('kitchen'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, push)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, push)
     .subscribe();

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { KitchenTicket } from '@food/domain';
+import { serveLabel } from '@food/domain';
 import { ts } from '../../../tokens/typography';
 import styles from './TicketCard.module.css';
 
@@ -51,8 +52,16 @@ export function TicketCard({ ticket, elapsed, hotkey, overdue, action }: TicketC
               {item.options ? (
                 <span className={[styles.options, ts('body-s/regular')].join(' ')}>{item.options}</span>
               ) : null}
+              {item.modifiers ? (
+                <span className={[styles.itemComment, ts('body-s/bold')].join(' ')}>{item.modifiers}</span>
+              ) : null}
               {item.comment ? (
                 <span className={[styles.itemComment, ts('body-s/bold')].join(' ')}>{item.comment}</span>
+              ) : null}
+              {item.serveAfterMinutes !== undefined ? (
+                <span className={[styles.options, ts('body-s/regular')].join(' ')}>
+                  {serveLabel(item.serveAfterMinutes)}
+                </span>
               ) : null}
             </span>
           </li>

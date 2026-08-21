@@ -81,6 +81,47 @@ Deno.serve(async (req) => {
     return json({ ok: true });
   }
 
+  // Вход существующему сотруднику. Отдельное действие, а не 'create':
+  // у Анны уже есть строка в штате, за ней закреплены столы и её заказы —
+  // заводить дубль ради логина значит потерять всё это.
+  if (body.action === 'attach') {
+    const email = String(body.email ?? '').trim().toLowerCase();
+    const password = String(body.password ?? '');
+    const staffId = String(body.staffId ?? '');
+
+    if (!email || password.length < 8 || !staffId) {
+      return json({ error: 'Проверьте почту и пароль (от 8 символов)' }, 400);
+    }
+
+    const { data: member } = await admin
+      .from('staff')
+      .select('id, auth_user_id')
+      .eq('id', staffId)
+      .maybeSingle();
+    if (!member) return json({ error: 'Сотрудник не найден' }, 404);
+    if (member.auth_user_id) return json({ error: 'У сотрудника уже есть вход' }, 400);
+
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+    if (createError || !created.user) {
+      return json({ error: createError?.message ?? 'Не удалось создать учётную запись' }, 400);
+    }
+
+    const { error: linkError } = await admin
+      .from('staff')
+      .update({ auth_user_id: created.user.id })
+      .eq('id', member.id);
+    if (linkError) {
+      await admin.auth.admin.deleteUser(created.user.id);
+      return json({ error: linkError.message }, 400);
+    }
+
+    return json({ ok: true });
+  }
+
   if (body.action === 'reset-password') {
     const password = String(body.password ?? '');
     if (password.length < 8) return json({ error: 'Пароль от 8 символов' }, 400);

@@ -39,15 +39,16 @@ export function OrderDishPage() {
     });
   }, [slug]);
 
+  // Черновика нет — значит, экран открыли по прямой ссылке; вернуть к началу
+  // честнее, чем показывать блюдо, которое некуда добавить.
+  useEffect(() => {
+    if (!draft) navigate(`/table/${tableId}/guests`, { replace: true });
+  }, [draft, navigate, tableId]);
+
   const basePrice = useMemo(() => (dish ? resolveDishPrice(dish, selections) : 0), [dish, selections]);
   const price = basePrice + extras.reduce((sum, extra) => sum + extra.price, 0);
 
-  if (!draft) {
-    // Черновика нет — значит, экран открыли по прямой ссылке; вернуть в зал
-    // честнее, чем показывать блюдо, которое некуда добавить.
-    navigate(`/table/${tableId}/guests`, { replace: true });
-    return null;
-  }
+  if (!draft) return null;
 
   const toggleRemoved = (ingredient: string) =>
     setRemoved((current) =>

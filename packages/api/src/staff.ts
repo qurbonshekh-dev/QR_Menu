@@ -33,6 +33,13 @@ export async function createStaffAccount(input: CreateStaffInput): Promise<void>
   await invokeStaffAdmin({ action: 'create', ...input });
 }
 
+/** Вход существующему сотруднику: строка в штате уже есть, не хватает только
+ *  учётной записи. Заводить дубль ради логина нельзя — за старой строкой
+ *  закреплены столы и заказы. */
+export async function attachStaffLogin(staffId: string, email: string, password: string): Promise<void> {
+  await invokeStaffAdmin({ action: 'attach', staffId, email, password });
+}
+
 export async function resetStaffPassword(staffId: string, password: string): Promise<void> {
   await invokeStaffAdmin({ action: 'reset-password', staffId, password });
 }

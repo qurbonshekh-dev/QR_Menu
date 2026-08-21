@@ -18,6 +18,16 @@ if (!url || !key) {
 
 export const supabase = createClient<Database>(url, key);
 
+/**
+ * Имя канала realtime обязано быть уникальным на подписку. Одно имя на два
+ * компонента — и второй `.on()` прилетает уже после `subscribe()`: supabase-js
+ * бросает исключение, а React роняет экран в белое. Так и случилось, когда на
+ * запросы гостей подписались и оболочка (ради счётчика), и сам экран сообщений.
+ */
+export function channelName(prefix: string): string {
+  return `${prefix}-${crypto.randomUUID()}`;
+}
+
 /** Ресторан пока один. Когда их станет несколько, id придёт из QR-ссылки —
  *  `?restaurant=` уже читается в TableSessionProvider гостевого приложения. */
 export async function currentRestaurantId(): Promise<string> {

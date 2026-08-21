@@ -60,10 +60,15 @@ export function draftTotal(lines: DraftLine[]): number {
   return lines.reduce((sum, line) => sum + draftLineTotal(line), 0);
 }
 
-/** Модификаторы одной строкой для кухни и для счёта: «без лука · + сыр чеддер». */
+/**
+ * Модификаторы одной строкой для кухни и для счёта: «− салат айсберг · + бекон».
+ * Знаками, а не словами: «без салат айсберг» требует родительного падежа, а
+ * склонять названия блюд из базы нечем — и повар всё равно читает тикет глазами,
+ * а не вслух.
+ */
 export function describeModifiers(line: DraftLine): string | null {
   const parts = [
-    ...line.removed.map((name) => `без ${name.toLowerCase()}`),
+    ...line.removed.map((name) => `− ${name.toLowerCase()}`),
     ...line.extras.map((extra) => `+ ${extra.name.toLowerCase()}`),
   ];
   return parts.length ? parts.join(' · ') : null;

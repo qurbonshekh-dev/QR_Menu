@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { channelName, supabase } from './client';
 
 /**
  * Запросы гостей из зала — «Принесите вилку», «Помочь с заказом». В базе это
@@ -47,7 +47,7 @@ export async function resolveWaiterCall(id: string): Promise<void> {
  *  тарелки. Таблица уже опубликована в supabase_realtime — см. CLAUDE.md. */
 export function subscribeWaiterCalls(onChange: () => void): () => void {
   const channel = supabase
-    .channel('waiter-calls')
+    .channel(channelName('waiter-calls'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_calls' }, onChange)
     .subscribe();
   return () => {

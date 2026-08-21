@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Button, SegmentedControl, TextInput, ts } from '@food/ui';
 import type { StaffRole } from '@food/domain';
-import { createStaffAccount, fetchStaff, resetStaffPassword, type StaffAccount } from '@food/api';
+import {
+  attachStaffLogin,
+  createStaffAccount,
+  fetchStaff,
+  resetStaffPassword,
+  type StaffAccount,
+} from '@food/api';
 import { useAuth } from '@food/staff';
 import styles from './StaffPage.module.css';
 
@@ -18,6 +24,8 @@ const EMPTY_FORM = { name: '', email: '', password: '', role: 'waiter' as StaffR
 export function StaffPage() {
   const { me, signOut } = useAuth();
   const [staff, setStaff] = useState<StaffAccount[] | null>(null);
+  // Кому заводим вход: null — новый сотрудник, иначе существующий из списка.
+  const [attachTo, setAttachTo] = useState<StaffAccount | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -33,8 +41,14 @@ export function StaffPage() {
     setError(null);
     setDone(null);
     try {
-      await createStaffAccount(form);
-      setDone(`${form.name} может входить с логином ${form.email}`);
+      if (attachTo) {
+        await attachStaffLogin(attachTo.id, form.email, form.password);
+        setDone(`${attachTo.name} может входить с логином ${form.email}`);
+        setAttachTo(null);
+      } else {
+        await createStaffAccount(form);
+        setDone(`${form.name} может входить с логином ${form.email}`);
+      }
       setForm(EMPTY_FORM);
       load();
     } catch (cause) {
@@ -81,39 +95,52 @@ export function StaffPage() {
                   {ROLE_LABELS[member.role]} · {member.hasLogin ? 'вход заведён' : 'входа нет'}
                 </span>
               </span>
-              {member.hasLogin ? (
-                <button
-                  type="button"
-                  className={[styles.link, ts('action/semibold')].join(' ')}
-                  onClick={() => void resetPassword(member)}
-                >
-                  Сменить пароль
-                </button>
-              ) : null}
+              <button
+                type="button"
+                className={[styles.link, ts('action/semibold')].join(' ')}
+                onClick={() => {
+                  if (member.hasLogin) {
+                    void resetPassword(member);
+                    return;
+                  }
+                  setAttachTo(member);
+                  setForm({ ...EMPTY_FORM, name: member.name, role: member.role });
+                  setDone(null);
+                  setError(null);
+                }}
+              >
+                {member.hasLogin ? 'Сменить пароль' : 'Завести вход'}
+              </button>
             </div>
           ))
         )}
       </section>
 
       <form className={styles.form} onSubmit={submit} noValidate>
-        <h2 className={[styles.formTitle, ts('heading-9/extrabold')].join(' ')}>Новый сотрудник</h2>
+        <h2 className={[styles.formTitle, ts('heading-9/extrabold')].join(' ')}>
+          {attachTo ? `Вход для ${attachTo.name}` : 'Новый сотрудник'}
+        </h2>
 
-        <SegmentedControl
-          aria-label="Роль сотрудника"
-          value={form.role}
-          onChange={(role) => setForm((current) => ({ ...current, role }))}
-          options={[
-            { value: 'waiter', label: 'Официант' },
-            { value: 'cook', label: 'Повар' },
-            { value: 'manager', label: 'Менеджер' },
-          ]}
-        />
+        {attachTo ? null : (
+          <SegmentedControl
+            aria-label="Роль сотрудника"
+            value={form.role}
+            onChange={(role) => setForm((current) => ({ ...current, role }))}
+            options={[
+              { value: 'waiter', label: 'Официант' },
+              { value: 'cook', label: 'Повар' },
+              { value: 'manager', label: 'Менеджер' },
+            ]}
+          />
+        )}
 
-        <TextInput
-          label="Имя"
-          value={form.name}
-          onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-        />
+        {attachTo ? null : (
+          <TextInput
+            label="Имя"
+            value={form.name}
+            onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+          />
+        )}
         <TextInput
           label="Логин (почта)"
           type="email"
@@ -132,8 +159,21 @@ export function StaffPage() {
         />
 
         <Button type="submit" block disabled={busy || !form.name || !form.email || form.password.length < 8}>
-          {busy ? 'Создаём…' : 'Создать учётную запись'}
+          {busy ? 'Создаём…' : attachTo ? 'Завести вход' : 'Создать учётную запись'}
         </Button>
+
+        {attachTo ? (
+          <Button
+            block
+            variant="secondary"
+            onClick={() => {
+              setAttachTo(null);
+              setForm(EMPTY_FORM);
+            }}
+          >
+            Отмена
+          </Button>
+        ) : null}
 
         {done ? (
           <p className={[styles.done, ts('body-s/regular')].join(' ')} role="status">

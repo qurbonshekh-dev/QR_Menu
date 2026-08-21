@@ -42,6 +42,9 @@ export function DraftPage() {
 
   const [drag, setDrag] = useState<Drag | null>(null);
   const [sending, setSending] = useState(false);
+  // Заказ ушёл — черновика больше нет, но это не повод гнать официанта
+  // обратно к вопросу «сколько гостей»: ему полагается экран «принято».
+  const sentRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const dragRef = useRef<Drag | null>(null);
@@ -50,10 +53,13 @@ export function DraftPage() {
     dragRef.current = drag;
   }, [drag]);
 
-  if (!draft) {
-    navigate(`/table/${tableId}/guests`, { replace: true });
-    return null;
-  }
+  // Уводим из эффекта, а не из рендера: навигация во время рендера — это
+  // обновление роутера из чужого рендера, React на это ругается по делу.
+  useEffect(() => {
+    if (!draft && !sentRef.current) navigate(`/table/${tableId}/guests`, { replace: true });
+  }, [draft, navigate, tableId]);
+
+  if (!draft) return null;
 
   const groups: { guest: number | null; title: string; lines: DraftLine[] }[] = [
     ...Array.from({ length: draft.guests }, (_, index) => ({
@@ -131,6 +137,7 @@ export function DraftPage() {
           serveAfterMinutes: line.serveAfterMinutes,
         })),
       });
+      sentRef.current = true;
       discard();
       navigate(`/table/${tableId}/sent/${placed.number}`, { replace: true });
     } catch (cause) {
