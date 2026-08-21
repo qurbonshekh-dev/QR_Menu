@@ -6,6 +6,7 @@ import { HomePage } from './pages/HomePage';
 import { MenuPage } from './pages/MenuPage';
 import { OrderSuccessPage } from './pages/OrderSuccessPage';
 import { OrdersPage } from './pages/OrdersPage';
+import { PaymentPage } from './pages/PaymentPage';
 import { SplitPage } from './pages/SplitPage';
 import { CartProvider } from './state/CartContext';
 import { OrdersProvider } from './state/OrdersContext';
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/order/:orderId" element={<OrderSuccessPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/bill" element={<BillPage />} />
+                <Route path="/payment" element={<PaymentPage />} />
               </Routes>
             </div>
           </OrdersProvider>

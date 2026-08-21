@@ -1,0 +1,81 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  background: var(--color-bg-surface);
+}
+
+.body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  align-self: center;
+  border-radius: var(--radius-full);
+}
+
+.pending {
+  background: var(--color-bg-info);
+  color: var(--color-text-info);
+}
+
+.success {
+  background: var(--color-accent-success-bg);
+  color: var(--color-accent-success);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.text {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+.note {
+  margin: 0;
+  color: var(--color-text-dark-3);
+}
+
+/* Полоса вместо спиннера: она честно показывает, что процесс идёт,
+   и не притворяется, что знает прогресс. */
+.track {
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-muted);
+  overflow: hidden;
+}
+
+.trackFill {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-main);
+  animation: slide 1.2s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}

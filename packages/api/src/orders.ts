@@ -165,6 +165,36 @@ export async function setTableTip(tableNumber: string, tip: number): Promise<voi
   if (error) throw error;
 }
 
+export interface MockPaymentResult {
+  paid: number;
+  orders: number[];
+}
+
+/**
+ * Мок оплаты: списания не происходит, счёт просто закрывается — и закрывает
+ * его сервер (edge-функция `mock-pay`), а не браузер. Гостю в RLS доверена
+ * ровно одна колонка, чаевые; «оплачено» он объявить сам не может, и это
+ * правильно: подтверждение оплаты приходит от шлюза, а не от клиента.
+ */
+export async function payBillMock(tableNumber: string, tip: number): Promise<MockPaymentResult> {
+  const { data, error } = await supabase.functions.invoke<MockPaymentResult & { error?: string }>('mock-pay', {
+    body: { tableNumber, tip },
+  });
+  if (error) {
+    const context = (error as { context?: Response }).context;
+    let detail: string | null = null;
+    if (context && typeof context.json === 'function') {
+      detail = await context
+        .json()
+        .then((body: { error?: string }) => body.error ?? null)
+        .catch(() => null);
+    }
+    throw new Error(detail ?? 'Платёж не прошёл');
+  }
+  if (data?.error) throw new Error(data.error);
+  return { paid: data?.paid ?? 0, orders: data?.orders ?? [] };
+}
+
 /**
  * Вызов официанта. Стол при этом не трогаем: «зовут» — это событие, а не статус.
  * Кроме готовых поводов гость может написать своими словами — это и есть

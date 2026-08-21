@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ActionTile, AppHeader, Badge, Button, OptionGroup, SegmentedControl, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
+import { ActionTile, AppHeader, Button, OptionGroup, SegmentedControl, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
 import { getWaiter } from '../data/menuRepository';
 import { formatPrice, pluralGuests, type SplitLine, splitTotals } from '@food/domain';
 import { useOrders } from '../state/ordersStore';
@@ -162,15 +162,15 @@ export function BillPage() {
               onClick={() => setBillRequested(true)}
             />
 
-            {/* Платёжный шлюз — фаза 4 из docs/tz.md. Пока честная заглушка,
-                а не кнопка, которая делает вид, что списала деньги. */}
+            {/* Демонстрационный шлюз (фаза 4): списания не происходит, но путь
+                «обработка → успех или отказ с повтором» настоящий, и счёт
+                закрывается по-настоящему — на сервере. */}
             <ActionTile
               variant="wide"
-              title="Оплатить онлайн"
-              caption="Картой прямо в приложении"
+              title="Оплатить картой"
+              caption={`${formatPrice(billTotal)} · демонстрационный шлюз`}
               icon={<WalletIcon size={20} />}
-              disabled
-              badge={<Badge tone="overlay">скоро</Badge>}
+              onClick={() => navigate('/payment', { state: { amount: billTotal } })}
             />
           </div>
         </>
