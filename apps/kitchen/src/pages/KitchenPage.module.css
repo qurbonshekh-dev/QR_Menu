@@ -35,6 +35,16 @@
   color: var(--color-text-dark-2);
 }
 
+.signOut {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-dark-3);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .allDay {
   display: flex;
   flex: 1 0 0;

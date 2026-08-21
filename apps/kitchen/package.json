@@ -13,6 +13,7 @@
   "dependencies": {
     "@food/api": "*",
     "@food/domain": "*",
+    "@food/staff": "*",
     "@food/ui": "*",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

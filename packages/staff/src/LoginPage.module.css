@@ -1,4 +1,9 @@
 .page {
+  /* На кухонном планшете экран во всю стену — форму держим колонкой по центру,
+     иначе поля растягиваются на полтора метра. */
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;

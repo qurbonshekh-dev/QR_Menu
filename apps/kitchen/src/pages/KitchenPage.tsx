@@ -11,6 +11,7 @@ import {
 } from '@food/domain';
 import { createPortal } from 'react-dom';
 import { setTicketStatus, subscribeTickets } from '@food/api';
+import { useAuth } from '@food/staff';
 import styles from './KitchenPage.module.css';
 
 /** Колонки доски — те же три состояния, что у тикета в домене. */
@@ -59,6 +60,7 @@ function useNow(intervalMs = 1000): number {
 }
 
 export function KitchenPage() {
+  const { me, signOut } = useAuth();
   const [feed, setFeed] = useState<KitchenTicket[]>([]);
   const [moves, setMoves] = useState<Record<string, Move>>({});
   const [served, setServed] = useState<string[]>([]);
@@ -190,6 +192,16 @@ export function KitchenPage() {
             <span className={[styles.statLabel, ts('body-s/regular')].join(' ')}>самый долгий</span>
           </span>
         </div>
+
+        {/* Смена сдаётся другому повару — выход нужен, но мелкий: это стена,
+            а не личный телефон, случайный тап по нему стоит дорого. */}
+        <button
+          type="button"
+          className={[styles.signOut, ts('body-s/regular')].join(' ')}
+          onClick={() => void signOut()}
+        >
+          {me?.name} · выйти
+        </button>
 
         {/* All-day: сколько одинаковых позиций ещё готовить — повар работает партией. */}
         <div className={styles.allDay} aria-label="Осталось приготовить">
