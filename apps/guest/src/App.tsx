@@ -1,7 +1,6 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import { BillPage } from './pages/BillPage';
 import { CartPage } from './pages/CartPage';
-import { CheckoutPage } from './pages/CheckoutPage';
 import { DishPage } from './pages/DishPage';
 import { HomePage } from './pages/HomePage';
 import { MenuPage } from './pages/MenuPage';
@@ -29,7 +28,6 @@ function App() {
                 <Route path="/dish/:dishId" element={<DishPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/split" element={<SplitPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order/:orderId" element={<OrderSuccessPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/bill" element={<BillPage />} />

@@ -5,7 +5,6 @@ import styles from './OrderSuccessPage.module.css';
 
 interface OrderState {
   total?: number;
-  callBack?: boolean;
 }
 
 export function OrderSuccessPage() {
@@ -19,10 +18,9 @@ export function OrderSuccessPage() {
         <CheckIcon size={32} />
       </div>
       <h1 className={[styles.title, ts('heading-7/bold')].join(' ')}>Заказ №{orderId} принят</h1>
+      {/* Ни звонка, ни SMS: гость за столом, и заказ ему принесёт официант. */}
       <p className={[styles.text, ts('body-m/regular')].join(' ')}>
-        {state.callBack
-          ? 'Мы перезвоним для подтверждения в течение пары минут.'
-          : 'Повар уже приступил — статус придёт в SMS.'}
+        Кухня уже готовит — официант принесёт к столу.
       </p>
       {state.total ? (
         <p className={[styles.total, ts('heading-8/bold')].join(' ')}>{formatPrice(state.total)}</p>

@@ -117,19 +117,6 @@ export interface SplitState {
   assignments: Record<string, number>;
 }
 
-export type DeliveryMethod = 'delivery' | 'pickup';
-export type PaymentMethod = 'online' | 'courier';
-
-export interface Order {
-  id: string;
-  items: CartItem[];
-  total: number;
-  delivery: DeliveryMethod;
-  payment: PaymentMethod;
-  address?: string;
-  comment?: string;
-}
-
 /**
  * Заказ, оформленный в текущей сессии за столом. Живёт в sessionStorage до
  * закрытия вкладки: бэкенда нет, статус двигать некому — поэтому он всегда

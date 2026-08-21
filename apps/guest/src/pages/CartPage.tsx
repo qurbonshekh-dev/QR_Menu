@@ -12,6 +12,7 @@ import {
   resolveDishPrice,
 } from '../data/menuRepository';
 import { useCart } from '../state/cartStore';
+import { useOrders } from '../state/ordersStore';
 import styles from './CartPage.module.css';
 
 /** Категории, из которых предлагаем добавить к заказу. Рекомендаций как таковых
@@ -23,7 +24,10 @@ const SUGGESTION_LIMIT = 6;
 export function CartPage() {
   const navigate = useNavigate();
   const cart = useCart();
+  const { placeOrder } = useOrders();
   const [suggestions, setSuggestions] = useState<Dish[]>([]);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getMenu().then((menu) => {
@@ -54,6 +58,33 @@ export function CartPage() {
 
   const inCart = new Set(cart.items.map((item) => item.dishId));
   const offers = suggestions.filter((dish) => !inCart.has(dish.id)).slice(0, SUGGESTION_LIMIT);
+
+  const blocked = cart.payableItems.length === 0 || cart.hasUnavailable;
+
+  /**
+   * Заказ уходит прямо отсюда: гость сидит за столом, адрес и способ оплаты
+   * спрашивать не у кого и незачем. Всё, что нужно кухне — блюда, подача и
+   * комментарий, — уже собрано на этом экране.
+   */
+  const submit = async () => {
+    if (sending || blocked) return;
+    setSending(true);
+    setError(null);
+    try {
+      const order = await placeOrder(cart.payableItems, cart.totalPrice, {
+        servingMode: cart.servingMode,
+        comment: cart.comment,
+        split: cart.split,
+      });
+      cart.clear();
+      navigate(`/order/${order.id}`, { state: { total: order.total } });
+    } catch {
+      // Причин ровно две — нет связи или стола с таким номером нет в базе, —
+      // и гостю за столом обе выглядят одинаково: заказ не ушёл.
+      setError('Заказ не ушёл. Попробуйте ещё раз или позовите официанта');
+      setSending(false);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -183,11 +214,18 @@ export function CartPage() {
         </Button>
       </div>
 
+      {error ? (
+        <p className={[styles.warning, ts('body-s/regular')].join(' ')} role="status">
+          {error}
+        </p>
+      ) : null}
+
       <CartBar
         summary="Итого"
         total={formatPrice(cart.totalPrice)}
-        actionLabel="Далее"
-        onAction={() => navigate('/checkout')}
+        actionLabel={sending ? 'Отправляем…' : cart.hasUnavailable ? 'Уберите закончившееся' : 'Оформить заказ'}
+        onAction={() => void submit()}
+        disabled={sending || blocked}
       />
     </div>
   );
