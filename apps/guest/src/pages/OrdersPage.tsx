@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { AppHeader, Badge, Button, ts } from '@food/ui';
-import { describeSelections, findDish, resolveDishPrice } from '../data/menuRepository';
-import { formatPrice, splitTotals } from '@food/domain';
+import { AppHeader, Button, ts } from '@food/ui';
+import {
+  formatPrice,
+  ORDER_STEPS,
+  orderStatusLabel,
+  orderStatusStep,
+  splitTotals,
+} from '@food/domain';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
 import styles from './OrdersPage.module.css';
@@ -44,10 +49,27 @@ export function OrdersPage() {
                   в {formatTime(order.placedAt)} · {formatPrice(order.total)}
                 </p>
               </div>
-              {/* Статусов «готовится / подан» не будет до фазы 5 — бэкенда, который
-                  их двигает, пока нет, поэтому показываем честное «принят». */}
-              <Badge tone="muted">принят</Badge>
+              {/* Статус настоящий: его двигают повар и официант, а сюда он
+                  приезжает по realtime — гость видит движение, не спрашивая. */}
+              <span className={[styles.status, styles[order.status], ts('body-s/medium')].join(' ')}>
+                {orderStatusLabel(order.status)}
+              </span>
             </header>
+
+            {/* Путь заказа полоской: «в очереди → готовится → несут → подано».
+                Закрытый счёт шагов не имеет — это конец истории. */}
+            {order.status !== 'paid' && order.status !== 'cancelled' ? (
+              <div className={styles.steps} aria-label={`Статус: ${orderStatusLabel(order.status)}`}>
+                {ORDER_STEPS.map((step, index) => (
+                  <span
+                    key={step}
+                    className={[styles.step, index <= orderStatusStep(order.status) ? styles.stepDone : '']
+                      .filter(Boolean)
+                      .join(' ')}
+                  />
+                ))}
+              </div>
+            ) : null}
 
             <p className={[styles.orderMeta, ts('body-xs/regular')].join(' ')}>
               {order.servingMode === 'together' ? 'Подать всё вместе' : 'Подавать по мере готовности'}
@@ -59,33 +81,28 @@ export function OrdersPage() {
             ) : null}
 
             <ul className={styles.items}>
-              {order.items.map((item) => {
-                const dish = findDish(item.dishId);
-                if (!dish) return null;
-                const selections = describeSelections(dish, item.selections);
-                return (
-                  <li key={item.key} className={styles.item}>
+              {order.items.map((item) => (
+                <li key={item.key} className={styles.item}>
+                  <span className={styles.itemText}>
                     <span className={[styles.itemName, ts('body-s/regular')].join(' ')}>
-                      {item.quantity} × {dish.name}
-                      {selections ? <span className={styles.itemOptions}> · {selections}</span> : null}
+                      {item.quantity} × {item.title}
+                      {item.options ? <span className={styles.itemOptions}> · {item.options}</span> : null}
                     </span>
-                    <span className={[styles.itemPrice, ts('body-s/medium')].join(' ')}>
-                      {formatPrice(resolveDishPrice(dish, item.selections) * item.quantity)}
+                    {/* У каждой тарелки свой статус: одну уже несут, другая ещё в очереди. */}
+                    <span className={[styles.itemStatus, styles[item.status], ts('body-xs/regular')].join(' ')}>
+                      {orderStatusLabel(item.status)}
                     </span>
-                  </li>
-                );
-              })}
+                  </span>
+                  <span className={[styles.itemPrice, ts('body-s/medium')].join(' ')}>
+                    {formatPrice(item.unitPrice * item.quantity)}
+                  </span>
+                </li>
+              ))}
             </ul>
             {order.split ? (
               <ul className={styles.shares}>
                 {splitTotals(
-                  order.items.map((item) => {
-                    const dish = findDish(item.dishId);
-                    return {
-                      key: item.key,
-                      total: dish ? resolveDishPrice(dish, item.selections) * item.quantity : 0,
-                    };
-                  }),
+                  order.items.map((item) => ({ key: item.key, total: item.unitPrice * item.quantity })),
                   order.split,
                 ).map((share, guest) => (
                   <li key={guest} className={styles.share}>

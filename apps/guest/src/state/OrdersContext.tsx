@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { fetchTableOrders, placeOrder as placeOrderApi, setTableTip } from '@food/api';
+import { fetchTableOrders, placeOrder as placeOrderApi, setTableTip, subscribeTableOrders } from '@food/api';
 import { describeSelections, findDish, resolveDishPrice } from '../data/menuRepository';
 import type { CartItem, SessionOrder } from '@food/domain';
 import { OrdersContext, type OrderMeta, type OrdersValue } from './ordersStore';
@@ -20,14 +20,12 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
     setOrders(
       rows.map((order) => ({
         id: String(order.number),
-        items: order.items.map((item) => ({
-          key: item.key,
-          dishId: item.key,
-          quantity: item.quantity,
-        })),
+        // Позиции читаем из самого заказа: там снимок названия и цены на момент
+        // оформления. Искать блюдо в меню нельзя — его могли переименовать.
+        items: order.items,
         total: order.total,
         placedAt: order.placedAt,
-        status: 'placed',
+        status: order.status,
         servingMode: order.servingMode,
         comment: order.comment,
       })),
@@ -37,6 +35,8 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refresh();
+    // Кухня отметила блюдо готовым — «Мои заказы» меняются сами.
+    return subscribeTableOrders(() => void refresh());
   }, [refresh]);
 
   const placeOrder = useCallback(
@@ -61,12 +61,24 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
       });
 
       await refresh();
+      // Возвращаем заказ так, как его увидит гость на экране «принят»: позиции
+      // уже снимком, а не строками корзины, и статус — начальный, из базы.
       return {
         id: String(placed.number),
-        items,
+        items: items.map((item) => {
+          const dish = findDish(item.dishId);
+          return {
+            key: item.key,
+            title: dish?.name ?? 'Блюдо',
+            options: dish ? (describeSelections(dish, item.selections) ?? undefined) : undefined,
+            quantity: item.quantity,
+            unitPrice: dish ? resolveDishPrice(dish, item.selections) : 0,
+            status: 'queued' as const,
+          };
+        }),
         total,
         placedAt: placed.placedAt,
-        status: 'placed',
+        status: 'queued',
         servingMode: meta.servingMode,
         comment: meta.comment,
         split: meta.split ?? undefined,

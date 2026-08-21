@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ActionTile, AppHeader, Badge, Button, OptionGroup, SegmentedControl, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
-import { findDish, getWaiter, resolveDishPrice } from '../data/menuRepository';
+import { getWaiter } from '../data/menuRepository';
 import { formatPrice, pluralGuests, type SplitLine, splitTotals } from '@food/domain';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
@@ -58,9 +58,8 @@ export function BillPage() {
     const assignments: Record<string, number> = {};
     for (const order of orders) {
       for (const item of order.items) {
-        const dish = findDish(item.dishId);
         const key = `${order.id}:${item.key}`;
-        lines.push({ key, total: dish ? resolveDishPrice(dish, item.selections) * item.quantity : 0 });
+        lines.push({ key, total: item.unitPrice * item.quantity });
         const guest = order.split?.assignments[item.key];
         if (order.split && order.split.mode === 'items' && guest !== undefined && guest < lastSplit.guests) {
           assignments[key] = guest;

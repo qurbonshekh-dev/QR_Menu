@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionTile, AppHeader, Badge, Button, Chip, HeartIcon, IconButton, MenuListIcon, PencilIcon, ReceiptIcon, ShoppingBagIcon, StarIcon, TableCard, TextArea, TextInput, ts, UserIcon, WalletIcon } from '@food/ui';
 import { callWaiter as sendWaiterCall } from '@food/api';
 import { formatTableLabel, getRestaurant, waiterInitial } from '../data/menuRepository';
-import { formatPrice, type Restaurant } from '@food/domain';
+import { formatPrice, orderStatusLabel, type Restaurant } from '@food/domain';
 import { useCart } from '../state/cartStore';
 import { useOrders } from '../state/ordersStore';
 import { useTableSession } from '../state/tableSessionStore';
@@ -80,6 +80,15 @@ export function HomePage() {
   }
 
   const hasOrders = orders.length > 0;
+
+  // На плитке — состояние самого «живого» заказа: гость открывает её, чтобы
+  // узнать, скоро ли, а не чтобы пересчитать заказы.
+  const active = orders.find((order) => order.status === 'ready')
+    ?? orders.find((order) => order.status === 'cooking')
+    ?? orders.find((order) => order.status === 'queued');
+  const ordersCaption = active
+    ? `${orderStatusLabel(active.status)} · заказ №${active.id}`
+    : `Заказов за столом: ${orders.length}`;
 
   return (
     <div className={styles.page}>
@@ -221,7 +230,7 @@ export function HomePage() {
         <ActionTile
           variant="wide"
           title="Мои заказы"
-          caption={hasOrders ? `Заказов за столом: ${orders.length}` : 'Пока пусто'}
+          caption={hasOrders ? ordersCaption : 'Пока пусто'}
           icon={<ReceiptIcon size={20} />}
           onClick={() => navigate('/orders')}
         />

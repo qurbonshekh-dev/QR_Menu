@@ -1,5 +1,6 @@
-import type { ServingMode, SplitState } from '@food/domain';
-import { supabase, currentRestaurantId } from './client';
+import type { OrderStatus, ServingMode, SplitState } from '@food/domain';
+import { toOrderStatus } from '@food/domain';
+import { channelName, supabase, currentRestaurantId } from './client';
 
 export interface PlacedOrderItem {
   /** Слаг блюда — тот же, что в меню (`d-13`). */
@@ -77,13 +78,21 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlacedOrder> {
 export interface TableOrder {
   id: string;
   number: number;
-  status: string;
+  status: OrderStatus;
   servingMode: ServingMode;
   comment?: string;
   total: number;
   tip: number;
   placedAt: string;
-  items: { key: string; title: string; options?: string; quantity: number; unitPrice: number }[];
+  items: {
+    key: string;
+    title: string;
+    options?: string;
+    quantity: number;
+    unitPrice: number;
+    /** Статус тарелки: гость видит, что одно блюдо уже несут, а другое ещё готовится. */
+    status: OrderStatus;
+  }[];
 }
 
 /** Заказы стола — из них живут «Мои заказы» и счёт. Поданные (`served`) тоже
@@ -101,7 +110,7 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
 
   const { data, error } = await supabase
     .from('orders')
-    .select('id, number, status, serving_mode, comment, total, tip, placed_at, order_items (id, title, options, quantity, unit_price)')
+    .select('id, number, status, serving_mode, comment, total, tip, placed_at, order_items (id, title, options, quantity, unit_price, status)')
     .eq('table_id', table.id)
     .not('status', 'in', '(cancelled,paid)')
     .order('placed_at');
@@ -110,7 +119,7 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
   return (data ?? []).map((order) => ({
     id: order.id,
     number: order.number,
-    status: order.status,
+    status: toOrderStatus(order.status),
     servingMode: order.serving_mode === 'together' ? 'together' : 'ready',
     comment: order.comment ?? undefined,
     total: order.total,
@@ -122,8 +131,23 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
       options: item.options ?? undefined,
       quantity: item.quantity,
       unitPrice: item.unit_price,
+      status: toOrderStatus(item.status),
     })),
   }));
+}
+
+/** Заказ гостя меняется без его участия: повар отметил блюдо готовым — строка
+ *  в «Моих заказах» обязана поменяться сама, а не после обновления страницы. */
+export function subscribeTableOrders(onChange: () => void): () => void {
+  const channel = supabase
+    .channel(channelName('guest-orders'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, onChange)
+    .subscribe();
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
 }
 
 /** Чаевые кладём на последний заказ стола: счёт гость закрывает один раз. */

@@ -1,3 +1,5 @@
+import type { OrderStatus } from './orderStatus';
+
 /** Доменные типы меню. UI работает только с ними — источник данных подменяем
  *  в menuRepository (сейчас локальный JSON, дальше — API/Supabase). */
 
@@ -118,13 +120,29 @@ export interface SplitState {
 }
 
 /**
- * Заказ, оформленный в текущей сессии за столом. Живёт в sessionStorage до
- * закрытия вкладки: бэкенда нет, статус двигать некому — поэтому он всегда
- * 'placed', реальные статусы («готовится», «подан») придут в фазе 5.
+ * Строка оформленного заказа. Название и цена — снимок на момент оформления,
+ * а не ссылка в каталог: переименуют блюдо — старый счёт не должен измениться.
+ * Поэтому экраны гостя читают заказ, а не ищут блюдо в меню.
+ */
+export interface SessionOrderItem {
+  /** Идентификатор строки заказа в базе. */
+  key: string;
+  title: string;
+  /** Выбор гостя текстом: «25 см · Тонкое». */
+  options?: string;
+  quantity: number;
+  unitPrice: number;
+  /** Состояние тарелки: её двигают кухня и официант. */
+  status: OrderStatus;
+}
+
+/**
+ * Заказ, оформленный за столом. Статус настоящий: его двигают повар и официант,
+ * а гость видит движение в «Моих заказах» без обновления страницы.
  */
 export interface SessionOrder {
   id: string;
-  items: CartItem[];
+  items: SessionOrderItem[];
   total: number;
   /** Пожелания кухне, снятые с корзины в момент оформления. */
   servingMode: ServingMode;
@@ -133,5 +151,5 @@ export interface SessionOrder {
   split?: SplitState;
   /** ISO-время оформления — для подписи «в 19:40». */
   placedAt: string;
-  status: 'placed';
+  status: OrderStatus;
 }

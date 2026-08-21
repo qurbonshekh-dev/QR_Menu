@@ -139,3 +139,54 @@
 .shareValue {
   color: var(--color-text-dark-1);
 }
+
+/* Статус заказа: цветом выделено только то, что требует внимания гостя, —
+   «уже несут». Остальное читается текстом. */
+.status {
+  white-space: nowrap;
+}
+
+.queued,
+.cooking {
+  color: var(--color-text-dark-2);
+}
+
+.ready {
+  color: var(--color-status-awaiting);
+}
+
+.served,
+.paid {
+  color: var(--color-accent-success);
+}
+
+.cancelled {
+  color: var(--color-accent-danger);
+}
+
+.steps {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.step {
+  height: 4px;
+  flex: 1 0 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-muted);
+}
+
+.stepDone {
+  background: var(--color-brand-main);
+}
+
+.itemText {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.itemStatus {
+  white-space: nowrap;
+}
