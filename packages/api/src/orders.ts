@@ -86,8 +86,9 @@ export interface TableOrder {
   items: { key: string; title: string; options?: string; quantity: number; unitPrice: number }[];
 }
 
-/** Заказы стола — из них живут «Мои заказы» и счёт. Оплаченные (`served`)
- *  тоже возвращаем: гость платит в конце визита, а не после каждого блюда. */
+/** Заказы стола — из них живут «Мои заказы» и счёт. Поданные (`served`) тоже
+ *  возвращаем: гость платит в конце визита, а не после каждого блюда. А вот
+ *  закрытый счёт (`paid`) — это прошлый визит, ему на экране гостя не место. */
 export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[]> {
   const restaurantId = await currentRestaurantId();
   const { data: table } = await supabase
@@ -102,7 +103,7 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
     .from('orders')
     .select('id, number, status, serving_mode, comment, total, tip, placed_at, order_items (id, title, options, quantity, unit_price)')
     .eq('table_id', table.id)
-    .neq('status', 'cancelled')
+    .not('status', 'in', '(cancelled,paid)')
     .order('placed_at');
   if (error) throw error;
 

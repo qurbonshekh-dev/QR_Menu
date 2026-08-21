@@ -16,6 +16,7 @@ import {
 import { formatPrice, formatShift, pluralGuests, type FloorTable } from '@food/domain';
 import {
   cancelReservation,
+  closeTableBill,
   currentShift,
   fetchFloor,
   fetchTableService,
@@ -65,6 +66,9 @@ export function HomePage() {
   // Форма брони раскрывается прямо в карточке: официант ставит бронь у стола,
   // отдельный экран ради одного поля времени только удлинил бы путь.
   const [bookingAt, setBookingAt] = useState<string | null>(null);
+  // Закрытие счёта спрашиваем дважды: заказы уходят из зала безвозвратно,
+  // а официант жмёт кнопки на ходу.
+  const [closing, setClosing] = useState(false);
 
   useEffect(() => {
     if (!me) return;
@@ -163,7 +167,13 @@ export function HomePage() {
               status={table.status}
               alerts={table.alerts}
               selected={table.id === selected?.id}
-              onClick={() => setSelectedId(table.id)}
+              onClick={() => {
+                // Переключили стол — незавершённые подтверждения с прошлого
+                // не должны переезжать на новый.
+                setSelectedId(table.id);
+                setClosing(false);
+                setBookingAt(null);
+              }}
             />
           ))}
         </div>
@@ -230,6 +240,32 @@ export function HomePage() {
             >
               {composition && composition.items.length ? 'Добавить позиции' : 'Принять заказ'}
             </Button>
+
+            {composition && composition.items.length ? (
+              closing ? (
+                <div className={styles.booking}>
+                  <p className={[styles.hint, ts('body-s/regular')].join(' ')}>
+                    Закрыть счёт на {formatPrice(composition.total)}? Стол станет свободным.
+                  </p>
+                  <Button
+                    block
+                    onClick={() => {
+                      void act(closeTableBill(selected.id));
+                      setClosing(false);
+                    }}
+                  >
+                    Да, счёт закрыт
+                  </Button>
+                  <Button block variant="secondary" onClick={() => setClosing(false)}>
+                    Отмена
+                  </Button>
+                </div>
+              ) : (
+                <Button block variant="secondary" onClick={() => setClosing(true)}>
+                  Закрыть счёт · {formatPrice(composition.total)}
+                </Button>
+              )
+            ) : null}
 
             {selected.status === 'reserved' ? (
               <Button block variant="secondary" onClick={() => void act(cancelReservation(selected.id))}>

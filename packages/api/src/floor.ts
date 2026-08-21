@@ -155,6 +155,20 @@ export async function serveReadyOrders(tableId: string): Promise<void> {
   if (error) throw error;
 }
 
+/**
+ * Счёт закрыт, гости ушли. Двигаем заказы в `paid`, а стол освобождает триггер —
+ * и только когда закрыт весь счёт, а не один заказ из трёх. Отменённые не трогаем:
+ * они и так не в счёте.
+ */
+export async function closeTableBill(tableId: string): Promise<void> {
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: 'paid' })
+    .eq('table_id', tableId)
+    .in('status', ['queued', 'cooking', 'ready', 'served']);
+  if (error) throw error;
+}
+
 /** Официант подошёл к столу — закрываем открытые вызовы. */
 export async function resolveWaiterCalls(tableId: string): Promise<void> {
   const { error } = await supabase

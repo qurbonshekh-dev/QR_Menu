@@ -25,7 +25,8 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
     // Строка select — литерал: склейка через + схлопывает типы встроенных выборок.
     .select('id, number, status, total, split, guests, placed_at, order_items (id, title, options, comment, modifiers, quantity, unit_price, guest_index, serve_after_minutes, dishes (slug))')
     .eq('table_id', tableId)
-    .neq('status', 'cancelled')
+    // Закрытый счёт — это прошлый визит: за столом уже другие гости.
+    .not('status', 'in', '(cancelled,paid)')
     .gte('placed_at', startOfDay.toISOString())
     .order('placed_at');
   if (error) throw error;
