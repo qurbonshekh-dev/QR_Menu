@@ -13,6 +13,7 @@ export {
   cancelReservation,
   serveReadyOrders,
   closeTableBill,
+  serveOrderItem,
 } from '@food/api';
 export type { FloorSnapshot, TableService } from '@food/api';
 

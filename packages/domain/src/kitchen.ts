@@ -5,10 +5,16 @@
  */
 import type { ServingMode } from './types';
 
+/** Состояние тарелки на кухне. `served` на доску не попадает — она уже у гостя. */
+export type TicketItemStatus = 'queued' | 'cooking' | 'ready' | 'served';
+
 export interface KitchenTicketItem {
   id: string;
   title: string;
   quantity: number;
+  /** Своё состояние у каждой тарелки: одно готовое блюдо из четырёх не делает
+   *  готовым весь тикет. */
+  status: TicketItemStatus;
   /** Выбор гостя: «25 см · Тонкое». */
   options?: string;
   /** Пожелание по конкретной позиции — печатается заметнее остального. */

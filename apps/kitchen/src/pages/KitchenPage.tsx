@@ -10,7 +10,7 @@ import {
   type TicketStatus,
 } from '@food/domain';
 import { createPortal } from 'react-dom';
-import { setTicketStatus, subscribeTickets } from '@food/api';
+import { setTicketItemStatus, setTicketStatus, subscribeTickets } from '@food/api';
 import { useAuth } from '@food/staff';
 import styles from './KitchenPage.module.css';
 
@@ -257,6 +257,11 @@ export function KitchenPage() {
                     elapsed={formatElapsed(since, now)}
                     overdue={ticketAge(since, now, ready ? READY_AGE_THRESHOLDS : undefined) === 'late'}
                     hotkey={!ready && hotkeyIndex >= 0 && hotkeyIndex < 9 ? hotkeyIndex + 1 : undefined}
+                    // Тап по позиции отмечает готовой её одну: тикет уедет
+                    // в «Готово» сам, когда готово будет всё.
+                    onItemToggle={(item) =>
+                      void setTicketItemStatus(item.id, item.status === 'ready' ? 'cooking' : 'ready')
+                    }
                     action={
                       ready ? (
                         <div className={styles.readyActions}>

@@ -86,9 +86,16 @@
   min-width: 32px;
   height: 32px;
   flex: none;
+  padding: 0;
+  border: 0;
   border-radius: var(--radius-md);
   background: var(--color-bg-muted);
   color: var(--color-text-dark-1);
+  cursor: pointer;
+}
+
+.quantity:disabled {
+  cursor: default;
 }
 
 .itemText {
@@ -120,4 +127,16 @@
 
 .action {
   padding: var(--space-0) var(--space-4) var(--space-4);
+}
+
+/* Готовая позиция гаснет: тикет остаётся на доске, пока не готово всё. */
+.itemReady .title,
+.itemReady .options {
+  color: var(--color-text-dark-3);
+  text-decoration: line-through;
+}
+
+.itemReady .quantity {
+  background: var(--color-accent-success);
+  color: var(--color-text-white-1);
 }

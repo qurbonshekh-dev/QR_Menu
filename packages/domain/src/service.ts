@@ -18,13 +18,13 @@ export function serviceItemStatusLabel(status: ServiceItemStatus): string {
 }
 
 /**
- * Статус позиции — производная от статуса заказа: отдельного состояния у
- * тарелки в базе нет, по доске кухни едет весь тикет. Появится статус на
- * позиции — поменяется только эта функция.
+ * Статус тарелки на языке официанта. У позиции он теперь свой (`order_items.status`),
+ * а статус заказа остаётся запасным вариантом — для строк, заведённых до того,
+ * как статус переехал на позицию.
  */
-export function serviceItemStatus(orderStatus: string): ServiceItemStatus {
-  if (orderStatus === 'served') return 'served';
-  if (orderStatus === 'ready') return 'to-serve';
+export function serviceItemStatus(status: string): ServiceItemStatus {
+  if (status === 'served') return 'served';
+  if (status === 'ready') return 'to-serve';
   return 'cooking';
 }
 

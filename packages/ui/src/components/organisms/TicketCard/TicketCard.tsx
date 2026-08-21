@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { KitchenTicket } from '@food/domain';
+import type { KitchenTicket, KitchenTicketItem } from '@food/domain';
 import { serveLabel } from '@food/domain';
 import { ts } from '../../../tokens/typography';
 import styles from './TicketCard.module.css';
@@ -15,6 +15,9 @@ export interface TicketCardProps {
    *  тёмной плашкой таймера — её видно и на красном, и на жёлтом, и на зелёном. */
   overdue?: boolean;
   action: ReactNode;
+  /** Тап по позиции отмечает её готовой (и снимает отметку). Нет обработчика —
+   *  строки остаются просто текстом. */
+  onItemToggle?: (item: KitchenTicketItem) => void;
 }
 
 const SERVING_LABELS = {
@@ -26,7 +29,7 @@ const SERVING_LABELS = {
  * Тикет на кухонном экране. Читается с полутора-трёх метров, поэтому крупный
  * шрифт и никакого мелкого мяса: только то, что повар делает руками.
  */
-export function TicketCard({ ticket, elapsed, hotkey, overdue, action }: TicketCardProps) {
+export function TicketCard({ ticket, elapsed, hotkey, overdue, action, onItemToggle }: TicketCardProps) {
   return (
     <article className={[styles.card, styles[ticket.status]].join(' ')}>
       <header className={styles.head}>
@@ -45,8 +48,22 @@ export function TicketCard({ ticket, elapsed, hotkey, overdue, action }: TicketC
 
       <ul className={styles.items}>
         {ticket.items.map((item) => (
-          <li key={item.id} className={styles.item}>
-            <span className={[styles.quantity, ts('body-l/bold')].join(' ')}>{item.quantity}</span>
+          <li
+            key={item.id}
+            className={[styles.item, item.status === 'ready' && styles.itemReady].filter(Boolean).join(' ')}
+          >
+            {/* Готовая тарелка гаснет и отмечается галочкой: повар видит, что
+                осталось, не пересчитывая строки. */}
+            <button
+              type="button"
+              className={[styles.quantity, ts('body-l/bold')].join(' ')}
+              aria-label={item.status === 'ready' ? `Вернуть «${item.title}» в работу` : `Отметить «${item.title}» готовым`}
+              aria-pressed={item.status === 'ready'}
+              disabled={!onItemToggle}
+              onClick={() => onItemToggle?.(item)}
+            >
+              {item.status === 'ready' ? '✓' : item.quantity}
+            </button>
             <span className={styles.itemText}>
               <span className={[styles.title, ts('body-l/medium')].join(' ')}>{item.title}</span>
               {item.options ? (

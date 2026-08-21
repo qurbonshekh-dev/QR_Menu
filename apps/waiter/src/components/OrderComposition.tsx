@@ -6,13 +6,15 @@ import {
   serviceItemTotal,
   type ServiceItem,
 } from '@food/domain';
-import { ts } from '@food/ui';
+import { Button, ts } from '@food/ui';
 import styles from './OrderComposition.module.css';
 
 export interface OrderCompositionProps {
   items: ServiceItem[];
   /** Сколько гостей делят счёт: 1 — списком, больше — по гостям. */
   guests: number;
+  /** Официант отдал эту тарелку. Нет обработчика — строки только читаются. */
+  onServe?: (item: ServiceItem) => void;
 }
 
 /**
@@ -20,7 +22,7 @@ export interface OrderCompositionProps {
  * а не заказ целиком, поэтому строка отвечает на два вопроса сразу: чьё это
  * блюдо и нужно ли его нести прямо сейчас.
  */
-export function OrderComposition({ items, guests }: OrderCompositionProps) {
+export function OrderComposition({ items, guests, onServe }: OrderCompositionProps) {
   const groups = groupItemsByGuest(items, guests);
   if (!groups.length) return null;
 
@@ -72,9 +74,17 @@ export function OrderComposition({ items, guests }: OrderCompositionProps) {
                     </span>
                   </span>
                   <span className={styles.tail}>
-                    <span className={[styles.status, styles[item.status], ts('body-s/medium')].join(' ')}>
-                      {serviceItemStatusLabel(item.status)}
-                    </span>
+                    {/* Готовую тарелку официант закрывает по одной: одну донёс —
+                        одну отметил, а не «весь стол разом». */}
+                    {item.status === 'to-serve' && onServe ? (
+                      <Button size="s" onClick={() => onServe(item)}>
+                        Подал
+                      </Button>
+                    ) : (
+                      <span className={[styles.status, styles[item.status], ts('body-s/medium')].join(' ')}>
+                        {serviceItemStatusLabel(item.status)}
+                      </span>
+                    )}
                     <span className={[styles.price, ts('body-xs/regular')].join(' ')}>
                       {formatPrice(serviceItemTotal(item))}
                     </span>

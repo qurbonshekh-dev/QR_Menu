@@ -23,6 +23,7 @@ import {
   initials,
   reserveTable,
   resolveWaiterCalls,
+  serveOrderItem,
   serveReadyOrders,
   subscribeFloor,
   type FloorSnapshot,
@@ -210,7 +211,11 @@ export function HomePage() {
               ложное «ничего не заказали» официант читает как факт. */}
           {composition ? (
             composition.items.length ? (
-              <OrderComposition items={composition.items} guests={composition.guests} />
+              <OrderComposition
+                items={composition.items}
+                guests={composition.guests}
+                onServe={(item) => void act(serveOrderItem(item.id))}
+              />
             ) : (
               <p className={[styles.empty, ts('body-s/regular')].join(' ')}>
                 {selected.status === 'free' ? 'Стол свободен — заказов нет.' : 'Гости ещё ничего не заказали.'}

@@ -277,6 +277,10 @@ export type Database = {
           serve_after_minutes: number | null;
           /** Снимок модификаторов: «без лука · + сыр чеддер». */
           modifiers: string | null;
+          /** Состояние тарелки: queued / cooking / ready / served. */
+          status: string;
+          ready_at: string | null;
+          served_at: string | null;
         };
         Insert: {
           id?: string;
@@ -290,6 +294,9 @@ export type Database = {
           guest_index?: number | null;
           serve_after_minutes?: number | null;
           modifiers?: string | null;
+          status?: string;
+          ready_at?: string | null;
+          served_at?: string | null;
         };
         Update: Partial<Database['public']['Tables']['order_items']['Insert']>;
         Relationships: [

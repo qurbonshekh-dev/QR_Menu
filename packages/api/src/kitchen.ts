@@ -1,4 +1,4 @@
-import type { KitchenTicket, TicketStatus } from '@food/domain';
+import type { KitchenTicket, TicketItemStatus, TicketStatus } from '@food/domain';
 import { channelName, supabase, currentRestaurantId } from './client';
 
 /** На доске живут только незакрытые заказы: выданные уходят с экрана. */
@@ -8,13 +8,17 @@ function toTicketStatus(value: string): TicketStatus {
   return value === 'cooking' || value === 'ready' ? value : 'queued';
 }
 
+function toItemStatus(value: string): TicketItemStatus {
+  return value === 'cooking' || value === 'ready' || value === 'served' ? value : 'queued';
+}
+
 export async function fetchTickets(): Promise<KitchenTicket[]> {
   const restaurantId = await currentRestaurantId();
   const { data, error } = await supabase
     .from('orders')
     // Строка select должна быть литералом: supabase-js выводит типы встроенных
     // выборок из неё самой, а склейка через + превращает её в обычный string.
-    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity)')
+    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity, status)')
     .eq('restaurant_id', restaurantId)
     .in('status', BOARD_STATUSES)
     .order('placed_at');
@@ -36,6 +40,7 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
       comment: item.comment ?? undefined,
       modifiers: item.modifiers ?? undefined,
       serveAfterMinutes: item.serve_after_minutes ?? undefined,
+      status: toItemStatus(item.status),
     })),
   }));
 }
@@ -67,8 +72,25 @@ export function subscribeTickets(onChange: (tickets: KitchenTicket[]) => void): 
   };
 }
 
-/** Повар двигает тикет по доске. `ready_at` и статус стола проставит триггер в базе. */
+/**
+ * Повар двигает весь тикет: меняем статус его позиций, а статус заказа
+ * пересчитает триггер. Двигать сам заказ нельзя — иначе у одного факта
+ * появятся два источника, и они разойдутся на первой же полуготовой тарелке.
+ */
 export async function setTicketStatus(ticketNumber: string, status: TicketStatus | 'served'): Promise<void> {
-  const { error } = await supabase.from('orders').update({ status }).eq('number', Number(ticketNumber));
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .select('id')
+    .eq('number', Number(ticketNumber))
+    .single();
+  if (orderError) throw orderError;
+
+  const { error } = await supabase.from('order_items').update({ status }).eq('order_id', order.id);
+  if (error) throw error;
+}
+
+/** Одна тарелка готова. Остальные позиции тикета не трогаем — в этом весь смысл. */
+export async function setTicketItemStatus(itemId: string, status: TicketItemStatus): Promise<void> {
+  const { error } = await supabase.from('order_items').update({ status }).eq('id', itemId);
   if (error) throw error;
 }

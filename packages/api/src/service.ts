@@ -23,7 +23,7 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
   const { data, error } = await supabase
     .from('orders')
     // Строка select — литерал: склейка через + схлопывает типы встроенных выборок.
-    .select('id, number, status, total, split, guests, placed_at, order_items (id, title, options, comment, modifiers, quantity, unit_price, guest_index, serve_after_minutes, dishes (slug))')
+    .select('id, number, status, total, split, guests, placed_at, order_items (id, title, options, comment, modifiers, quantity, unit_price, guest_index, serve_after_minutes, status, dishes (slug))')
     .eq('table_id', tableId)
     // Закрытый счёт — это прошлый визит: за столом уже другие гости.
     .not('status', 'in', '(cancelled,paid)')
@@ -44,7 +44,6 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
     if (split?.guests) guests = Math.max(guests, split.guests);
     total += Number(order.total ?? 0);
 
-    const status = serviceItemStatus(order.status);
     const assignments = pendingAssignments(split);
 
     for (const item of order.order_items ?? []) {
@@ -58,7 +57,9 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
         modifiers: item.modifiers ?? undefined,
         serveAfterMinutes: item.serve_after_minutes ?? undefined,
         unitPrice: item.unit_price,
-        status,
+        // Статус берём с самой позиции; статус заказа остаётся запасным для строк,
+        // заведённых до того, как он переехал на тарелку.
+        status: serviceItemStatus(item.status ?? order.status),
         // Заказ, принятый официантом, знает гостя точно — он проставлен в позиции.
         // Догадка по слагу остаётся только для гостевых заказов с раскладкой счёта.
         guest: item.guest_index ?? takeGuest(assignments, item.dishes?.slug),
@@ -67,6 +68,13 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
   }
 
   return { items, guests, total };
+}
+
+/** Официант отдал одну тарелку. Статус заказа пересчитает триггер: заказ
+ *  «подан», когда подана последняя позиция, а не первая. */
+export async function serveOrderItem(itemId: string): Promise<void> {
+  const { error } = await supabase.from('order_items').update({ status: 'served' }).eq('id', itemId);
+  if (error) throw error;
 }
 
 /**
