@@ -109,6 +109,9 @@ export type Database = {
           image_key: string | null;
           calories: number | null;
           weight: number | null;
+          protein: number | null;
+          fat: number | null;
+          carbs: number | null;
           rating: number | null;
           ingredients: string[];
           available: boolean;
@@ -126,6 +129,9 @@ export type Database = {
           image_key?: string | null;
           calories?: number | null;
           weight?: number | null;
+          protein?: number | null;
+          fat?: number | null;
+          carbs?: number | null;
           rating?: number | null;
           ingredients?: string[];
           available?: boolean;

@@ -9,6 +9,8 @@ export interface PlacedOrderItem {
    *  тикет на кухне не должны измениться задним числом. */
   title: string;
   options?: string;
+  /** Снимок модификаторов: «− лук · + бекон». */
+  modifiers?: string;
   comment?: string;
   quantity: number;
   unitPrice: number;
@@ -65,6 +67,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlacedOrder> {
       dish_id: dishIdBySlug.get(item.dishSlug) ?? null,
       title: item.title,
       options: item.options ?? null,
+      modifiers: item.modifiers ?? null,
       comment: item.comment ?? null,
       quantity: item.quantity,
       unit_price: item.unitPrice,
@@ -88,6 +91,8 @@ export interface TableOrder {
     key: string;
     title: string;
     options?: string;
+    /** Модификаторы гостя: «− лук · + бекон». */
+    modifiers?: string;
     quantity: number;
     unitPrice: number;
     /** Статус тарелки: гость видит, что одно блюдо уже несут, а другое ещё готовится. */
@@ -110,7 +115,7 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
 
   const { data, error } = await supabase
     .from('orders')
-    .select('id, number, status, serving_mode, comment, total, tip, placed_at, order_items (id, title, options, quantity, unit_price, status)')
+    .select('id, number, status, serving_mode, comment, total, tip, placed_at, order_items (id, title, options, modifiers, quantity, unit_price, status)')
     .eq('table_id', table.id)
     .not('status', 'in', '(cancelled,paid)')
     .order('placed_at');
@@ -129,6 +134,7 @@ export async function fetchTableOrders(tableNumber: string): Promise<TableOrder[
       key: item.id,
       title: item.title,
       options: item.options ?? undefined,
+      modifiers: item.modifiers ?? undefined,
       quantity: item.quantity,
       unitPrice: item.unit_price,
       status: toOrderStatus(item.status),

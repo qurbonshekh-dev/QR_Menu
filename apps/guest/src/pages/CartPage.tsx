@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppHeader, Button, CartBar, DishCard, FormRow, IconButton, Radio, TextArea, TrashIcon, ts } from '@food/ui';
-import { type Dish, formatPrice, pluralDishes } from '@food/domain';
+import { describeCartModifiers, type Dish, extrasPrice, formatPrice, pluralDishes } from '@food/domain';
 import {
   describeSelections,
   dishImage,
@@ -108,9 +108,13 @@ export function CartPage() {
           const dish = findDish(item.dishId);
           if (!dish) return null;
           const available = isAvailable(dish);
-          const unitPrice = resolveDishPrice(dish, item.selections);
-          const selectionLabel = describeSelections(dish, item.selections);
-          const hasOptions = Boolean(dish.optionGroups?.length);
+          const unitPrice = resolveDishPrice(dish, item.selections) + extrasPrice(item.extras);
+          const modifiers = describeCartModifiers(item.removed, item.extras);
+          const selectionLabel = [describeSelections(dish, item.selections), modifiers]
+            .filter(Boolean)
+            .join(' · ');
+          // «Изменить» имеет смысл там, где есть что менять: размер, состав или добавки.
+          const hasOptions = Boolean(dish.optionGroups?.length || dish.ingredients.length || dish.extras?.length);
           return (
             <DishCard
               key={item.key}
@@ -118,16 +122,26 @@ export function CartPage() {
               unavailable={!available}
               title={dish.name}
               price={unitPrice * item.quantity}
-              meta={available ? (selectionLabel ?? formatMeta(dish)) : 'Закончилось — уберите из заказа'}
+              meta={available ? (selectionLabel || formatMeta(dish)) : 'Закончилось — уберите из заказа'}
               image={dishImage(dish.image)}
               quantity={item.quantity}
-              onQuantityChange={(quantity) => cart.setQuantity(item.key, quantity, item.dishId, item.selections)}
+              onQuantityChange={(quantity) =>
+                cart.setQuantity(item.key, quantity, item.dishId, item.selections, item.removed, item.extras)
+              }
               // «Изменить» имеет смысл только там, где есть что менять — у блюд
               // с размером/тестом. Текущий выбор уезжает на страницу блюда,
               // иначе он молча сбрасывался бы на дефолтный.
               onEdit={
                 available && hasOptions
-                  ? () => navigate(`/dish/${dish.id}`, { state: { selections: item.selections, cartKey: item.key } })
+                  ? () =>
+                      navigate(`/dish/${dish.id}`, {
+                        state: {
+                          selections: item.selections,
+                          removed: item.removed,
+                          extras: item.extras,
+                          cartKey: item.key,
+                        },
+                      })
                   : undefined
               }
               onOpen={() => navigate(`/dish/${dish.id}`)}

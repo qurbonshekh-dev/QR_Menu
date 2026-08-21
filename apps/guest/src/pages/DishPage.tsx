@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { AppHeader, Badge, Button, Counter, OptionGroup, StarIcon, ts } from '@food/ui';
-import { cartKey, type Dish, type DishSelections, formatPrice } from '@food/domain';
+import { AppHeader, Badge, Button, Counter, FormRow, OptionGroup, StarIcon, Toggle, ts } from '@food/ui';
+import {
+  cartKey,
+  type Dish,
+  type DishExtra,
+  type DishSelections,
+  extrasPrice,
+  formatPrice,
+} from '@food/domain';
 import { defaultSelections, dishImage, formatMeta, getDish, isAvailable, resolveDishPrice } from '../data/menuRepository';
 import { useCart } from '../state/cartStore';
 import styles from './DishPage.module.css';
@@ -9,6 +16,9 @@ import styles from './DishPage.module.css';
 interface EditState {
   /** Выбор редактируемой строки корзины — приходит по «Изменить». */
   selections?: DishSelections;
+  /** Модификаторы редактируемой строки: «без лука» правится там же, где размер. */
+  removed?: string[];
+  extras?: DishExtra[];
   /** Ключ строки до правки: размер сменили — ключ станет другим, старую строку убираем. */
   cartKey?: string;
 }
@@ -20,6 +30,8 @@ export function DishPage() {
   const edit = (useLocation().state ?? {}) as EditState;
   const [dish, setDish] = useState<Dish | null | undefined>(undefined);
   const [selections, setSelections] = useState<DishSelections>({});
+  const [removed, setRemoved] = useState<string[]>(edit.removed ?? []);
+  const [extras, setExtras] = useState<DishExtra[]>(edit.extras ?? []);
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -34,8 +46,8 @@ export function DishPage() {
 
   const hasOptions = Boolean(dish?.optionGroups?.length);
   const key = useMemo(
-    () => (dish ? cartKey(dish.id, hasOptions ? selections : undefined) : ''),
-    [dish, hasOptions, selections],
+    () => (dish ? cartKey(dish.id, hasOptions ? selections : undefined, removed, extras) : ''),
+    [dish, hasOptions, selections, removed, extras],
   );
 
   // Смена размера/теста указывает на другую строку корзины — подтягиваем её
@@ -62,7 +74,19 @@ export function DishPage() {
   }
 
   const inCart = cart.quantityOfKey(key) > 0;
-  const unitPrice = resolveDishPrice(dish, selections);
+  const unitPrice = resolveDishPrice(dish, selections) + extrasPrice(extras);
+
+  const toggleRemoved = (ingredient: string) =>
+    setRemoved((current) =>
+      current.includes(ingredient) ? current.filter((item) => item !== ingredient) : [...current, ingredient],
+    );
+
+  const toggleExtra = (extra: DishExtra) =>
+    setExtras((current) =>
+      current.some((item) => item.id === extra.id)
+        ? current.filter((item) => item.id !== extra.id)
+        : [...current, extra],
+    );
   const available = isAvailable(dish);
   const editing = Boolean(edit.cartKey);
 
@@ -107,16 +131,83 @@ export function DishPage() {
           </section>
         ))}
 
-        <section className={styles.section}>
-          <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>Состав</h2>
-          <ul className={styles.ingredients}>
-            {dish.ingredients.map((ingredient) => (
-              <li key={ingredient} className={ts('body-s/regular')}>
-                {ingredient}
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* КБЖУ: калории были и раньше, белки-жиры-углеводы обещаны ТЗ. */}
+        {dish.protein !== undefined || dish.fat !== undefined || dish.carbs !== undefined ? (
+          <section className={styles.section}>
+            <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>КБЖУ на порцию</h2>
+            <div className={styles.macros}>
+              {[
+                { label: 'ккал', value: dish.calories },
+                { label: 'белки', value: dish.protein },
+                { label: 'жиры', value: dish.fat },
+                { label: 'углеводы', value: dish.carbs },
+              ].map((macro) => (
+                <span key={macro.label} className={styles.macro}>
+                  <span className={[styles.macroValue, ts('body-m/bold')].join(' ')}>
+                    {macro.value ?? '—'}
+                    {macro.label === 'ккал' ? '' : ' г'}
+                  </span>
+                  <span className={[styles.macroLabel, ts('body-xs/regular')].join(' ')}>{macro.label}</span>
+                </span>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {dish.ingredients.length ? (
+          <section className={styles.section}>
+            <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>Состав</h2>
+            {/* Убрать можно только то, что в блюде и так есть, — поэтому список
+                состава и список «убрать» это одно и то же. */}
+            <div className={styles.rows}>
+              {dish.ingredients.map((ingredient) => (
+                <FormRow
+                  key={ingredient}
+                  label={
+                    removed.includes(ingredient) ? (
+                      <span className={styles.removed}>{ingredient}</span>
+                    ) : (
+                      ingredient
+                    )
+                  }
+                  action={
+                    <Toggle
+                      label=""
+                      aria-label={`Убрать «${ingredient}»`}
+                      checked={!removed.includes(ingredient)}
+                      onChange={() => toggleRemoved(ingredient)}
+                    />
+                  }
+                />
+              ))}
+            </div>
+            <p className={[styles.hint, ts('body-xs/regular')].join(' ')}>
+              Выключите то, чего не хотите, — кухня увидит это в заказе.
+            </p>
+          </section>
+        ) : null}
+
+        {dish.extras?.length ? (
+          <section className={styles.section}>
+            <h2 className={[styles.sectionTitle, ts('heading-9/extrabold')].join(' ')}>Добавить</h2>
+            <div className={styles.rows}>
+              {dish.extras.map((extra) => (
+                <FormRow
+                  key={extra.id}
+                  label={`${extra.name} · ${formatPrice(extra.price)}`}
+                  action={
+                    <Toggle
+                      label=""
+                      aria-label={`Добавить «${extra.name}»`}
+                      checked={extras.some((item) => item.id === extra.id)}
+                      onChange={() => toggleExtra(extra)}
+                    />
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       <div className={styles.actions}>
@@ -138,7 +229,7 @@ export function DishPage() {
             if (edit.cartKey && edit.cartKey !== key) {
               cart.setQuantity(edit.cartKey, 0, dish.id, edit.selections);
             }
-            cart.setQuantity(key, quantity, dish.id, hasOptions ? selections : undefined);
+            cart.setQuantity(key, quantity, dish.id, hasOptions ? selections : undefined, removed, extras);
             navigate('/cart');
           }}
         >

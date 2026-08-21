@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { CartItem, DishSelections, ServingMode, SplitState } from '@food/domain';
+import type { CartItem, DishExtra, DishSelections, ServingMode, SplitState } from '@food/domain';
 
 export interface CartValue {
   items: CartItem[];
@@ -12,8 +12,16 @@ export interface CartValue {
   quantityOfKey: (key: string) => number;
   /** Суммарное количество блюда по всем его строкам (разным размерам/тесту), для бейджей на карточке в сетке меню. */
   quantityOfDish: (dishId: string) => number;
-  /** Создаёт/обновляет/удаляет (при quantity<=0) строку корзины. */
-  setQuantity: (key: string, quantity: number, dishId: string, selections?: DishSelections) => void;
+  /** Создаёт/обновляет/удаляет (при quantity<=0) строку корзины. Модификаторы
+   *  входят в ключ, поэтому «без лука» живёт отдельной строкой. */
+  setQuantity: (
+    key: string,
+    quantity: number,
+    dishId: string,
+    selections?: DishSelections,
+    removed?: string[],
+    extras?: DishExtra[],
+  ) => void;
   clear: () => void;
   totalCount: number;
   totalPrice: number;

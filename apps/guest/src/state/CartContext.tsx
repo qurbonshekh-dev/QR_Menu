@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { findDish, isAvailable, resolveDishPrice } from '../data/menuRepository';
-import type { CartItem, DishSelections, ServingMode, SplitState } from '@food/domain';
+import { extrasPrice } from '@food/domain';
+import type { CartItem, DishExtra, DishSelections, ServingMode, SplitState } from '@food/domain';
 import { CartContext, type CartValue } from './cartStore';
 
 const STORAGE_KEY = 'qr-menu.cart';
@@ -44,17 +45,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
   }, [prefs]);
 
-  const setQuantity = useCallback((key: string, quantity: number, dishId: string, selections?: DishSelections) => {
-    setItems((current) => {
-      if (quantity <= 0) {
-        return current.filter((item) => item.key !== key);
-      }
-      if (current.some((item) => item.key === key)) {
-        return current.map((item) => (item.key === key ? { ...item, quantity } : item));
-      }
-      return [...current, { key, dishId, quantity, selections }];
-    });
-  }, []);
+  const setQuantity = useCallback(
+    (
+      key: string,
+      quantity: number,
+      dishId: string,
+      selections?: DishSelections,
+      removed?: string[],
+      extras?: DishExtra[],
+    ) => {
+      setItems((current) => {
+        if (quantity <= 0) {
+          return current.filter((item) => item.key !== key);
+        }
+        if (current.some((item) => item.key === key)) {
+          return current.map((item) => (item.key === key ? { ...item, quantity } : item));
+        }
+        return [...current, { key, dishId, quantity, selections, removed, extras }];
+      });
+    },
+    [],
+  );
 
   const setServingMode = useCallback((servingMode: ServingMode) => {
     setPrefs((current) => ({ ...current, servingMode }));
@@ -78,7 +89,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const totalCount = payable.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = payable.reduce((sum, item) => {
       const dish = findDish(item.dishId);
-      const unitPrice = dish ? resolveDishPrice(dish, item.selections) : 0;
+      // Размер заменяет цену блюда, добавки к ней прибавляются.
+      const unitPrice = (dish ? resolveDishPrice(dish, item.selections) : 0) + extrasPrice(item.extras);
       return sum + unitPrice * item.quantity;
     }, 0);
     return {

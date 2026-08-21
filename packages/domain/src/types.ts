@@ -75,6 +75,10 @@ export interface Dish {
   image: string;
   calories: number;
   weight: number;
+  /** Белки, жиры, углеводы на порцию — вторая половина КБЖУ. */
+  protein?: number;
+  fat?: number;
+  carbs?: number;
   rating?: number;
   /** Состав — показывается на странице блюда. */
   ingredients: string[];
@@ -94,14 +98,18 @@ export interface Menu {
 }
 
 export interface CartItem {
-  /** Составной ключ строки корзины — dishId, если у блюда нет optionGroups,
-   *  иначе dishId + сериализованный выбор (см. data/cartKey.ts). Разные
-   *  размеры одной пиццы — разные строки корзины. */
+  /** Составной ключ строки корзины — dishId, если у блюда нет ни опций, ни
+   *  модификаторов, иначе dishId + сериализованный выбор (см. data/cartKey.ts).
+   *  Разные размеры одной пиццы — разные строки корзины, как и «без лука». */
   key: string;
   dishId: string;
   quantity: number;
   /** Выбор пользователя по группам опций — только у блюд с optionGroups. */
   selections?: DishSelections;
+  /** Убранные ингредиенты — только те, что есть в составе блюда. */
+  removed?: string[];
+  /** Платные добавки. Прибавляются к цене, в отличие от опции размера. */
+  extras?: DishExtra[];
 }
 
 /** Как подавать заказ — вопрос кухне, а не курьеру: dine-in-модель из ТЗ. */
@@ -130,6 +138,8 @@ export interface SessionOrderItem {
   title: string;
   /** Выбор гостя текстом: «25 см · Тонкое». */
   options?: string;
+  /** Модификаторы: «− лук · + бекон». */
+  modifiers?: string;
   quantity: number;
   unitPrice: number;
   /** Состояние тарелки: её двигают кухня и официант. */

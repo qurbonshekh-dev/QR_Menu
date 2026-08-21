@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { fetchTableOrders, placeOrder as placeOrderApi, setTableTip, subscribeTableOrders } from '@food/api';
+import { describeCartModifiers, extrasPrice } from '@food/domain';
 import { describeSelections, findDish, resolveDishPrice } from '../data/menuRepository';
 import type { CartItem, SessionOrder } from '@food/domain';
 import { OrdersContext, type OrderMeta, type OrdersValue } from './ordersStore';
@@ -54,8 +55,9 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
             dishSlug: item.dishId,
             title: dish?.name ?? 'Блюдо',
             options: dish ? (describeSelections(dish, item.selections) ?? undefined) : undefined,
+            modifiers: describeCartModifiers(item.removed, item.extras) ?? undefined,
             quantity: item.quantity,
-            unitPrice: dish ? resolveDishPrice(dish, item.selections) : 0,
+            unitPrice: (dish ? resolveDishPrice(dish, item.selections) : 0) + extrasPrice(item.extras),
           };
         }),
       });
@@ -71,8 +73,9 @@ export function OrdersProvider({ children }: { children: ReactNode }) {
             key: item.key,
             title: dish?.name ?? 'Блюдо',
             options: dish ? (describeSelections(dish, item.selections) ?? undefined) : undefined,
+            modifiers: describeCartModifiers(item.removed, item.extras) ?? undefined,
             quantity: item.quantity,
-            unitPrice: dish ? resolveDishPrice(dish, item.selections) : 0,
+            unitPrice: (dish ? resolveDishPrice(dish, item.selections) : 0) + extrasPrice(item.extras),
             status: 'queued' as const,
           };
         }),
