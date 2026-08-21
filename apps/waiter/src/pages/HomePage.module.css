@@ -171,6 +171,48 @@
   color: var(--color-text-dark-2);
 }
 
+.calls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.callsTitle {
+  margin: 0;
+  color: var(--color-text-dark-2);
+}
+
+/* Просьба обведена цветом «ждут»: она требует ног, как и готовое блюдо. */
+.call {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-status-awaiting);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.callText {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.callMessage {
+  color: var(--color-text-dark-1);
+}
+
+.callReasons {
+  color: var(--color-text-dark-3);
+}
+
+.phone {
+  color: var(--color-text-info);
+}
+
 .empty {
   margin: 0;
   color: var(--color-text-dark-3);

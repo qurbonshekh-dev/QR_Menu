@@ -320,6 +320,38 @@ export type Database = {
           },
         ];
       };
+      reservations: {
+        Row: {
+          id: string;
+          table_id: string;
+          guest_name: string | null;
+          guest_phone: string | null;
+          guests: number | null;
+          starts_at: string;
+          created_at: string;
+          cancelled_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          table_id: string;
+          guest_name?: string | null;
+          guest_phone?: string | null;
+          guests?: number | null;
+          starts_at: string;
+          created_at?: string;
+          cancelled_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['reservations']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'reservations_table_id_fkey';
+            columns: ['table_id'];
+            isOneToOne: false;
+            referencedRelation: 'dining_tables';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       shifts: {
         Row: {
           id: string;

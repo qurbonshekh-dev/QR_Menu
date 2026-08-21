@@ -1,4 +1,4 @@
-import type { FloorTable, StaffMember, TableStatus } from '@food/domain';
+import type { FloorTable, StaffMember, TableReservation, TableStatus } from '@food/domain';
 import { channelName, supabase, currentRestaurantId } from './client';
 
 const STATUSES: TableStatus[] = ['free', 'busy', 'awaiting', 'reserved'];
@@ -25,7 +25,7 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [tablesResult, callsResult, tipsResult] = await Promise.all([
+  const [tablesResult, callsResult, tipsResult, reservationsResult, visitsResult] = await Promise.all([
     supabase
       .from('dining_tables')
       .select('id, number, seats, status, reserved_at, merged_into')
@@ -41,6 +41,19 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
       .select('tip, dining_tables!inner (waiter_id)')
       .eq('dining_tables.waiter_id', waiter.id)
       .gte('placed_at', startOfDay.toISOString()),
+    // Активные брони: имя и телефон гостя, которых в столе не хранится.
+    supabase
+      .from('reservations')
+      .select('id, table_id, guest_name, guest_phone, guests, starts_at')
+      .is('cancelled_at', null)
+      .gte('starts_at', startOfDay.toISOString())
+      .order('starts_at'),
+    // Открытые визиты: время посадки, число гостей и позиций для карточки «Занят».
+    supabase
+      .from('orders')
+      .select('table_id, guests, placed_at, order_items (quantity)')
+      .not('status', 'in', '(cancelled,paid)')
+      .gte('placed_at', startOfDay.toISOString()),
   ]);
 
   if (tablesResult.error) throw tablesResult.error;
@@ -51,6 +64,31 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
   }
 
   const tips = (tipsResult.data ?? []).reduce((sum, order) => sum + Number(order.tip ?? 0), 0);
+
+  const reservationByTable = new Map<string, TableReservation>();
+  for (const row of reservationsResult.data ?? []) {
+    if (reservationByTable.has(row.table_id)) continue;
+    reservationByTable.set(row.table_id, {
+      id: row.id,
+      startsAt: row.starts_at,
+      guestName: row.guest_name ?? undefined,
+      guestPhone: row.guest_phone ?? undefined,
+      guests: row.guests ?? undefined,
+    });
+  }
+
+  // Визит стола складывается из его сегодняшних незакрытых заказов: посадка —
+  // время первого, гости — максимум из заказов, позиции — сумма количеств.
+  const visits = new Map<string, { seatedAt: string; guests: number; items: number }>();
+  for (const order of visitsResult.data ?? []) {
+    const items = (order.order_items ?? []).reduce((sum, item) => sum + item.quantity, 0);
+    const current = visits.get(order.table_id);
+    visits.set(order.table_id, {
+      seatedAt: current && current.seatedAt < order.placed_at ? current.seatedAt : order.placed_at,
+      guests: Math.max(current?.guests ?? 0, order.guests ?? 0),
+      items: (current?.items ?? 0) + items,
+    });
+  }
 
   return {
     tips,
@@ -73,6 +111,10 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
         mergedWith: (tablesResult.data ?? [])
           .filter((other) => other.merged_into === row.id)
           .map((other) => ({ id: other.id, number: other.number })),
+        reservation: reservationByTable.get(row.id),
+        seatedAt: visits.get(row.id)?.seatedAt,
+        guests: visits.get(row.id)?.guests || undefined,
+        items: visits.get(row.id)?.items,
       })),
   };
 }
@@ -138,16 +180,42 @@ export async function setTableStatus(tableId: string, status: TableStatus): Prom
  * хранить негде, поэтому запоминаем только время — оно и есть то, ради чего
  * бронь ставят. Появится `reservations` — переедет сюда же, экран не изменится.
  */
-export async function reserveTable(tableId: string, at: Date): Promise<void> {
+export interface ReservationInput {
+  at: Date;
+  guestName?: string;
+  guestPhone?: string;
+  guests?: number;
+}
+
+export async function reserveTable(tableId: string, input: ReservationInput): Promise<void> {
+  const { error: bookingError } = await supabase.from('reservations').insert({
+    table_id: tableId,
+    starts_at: input.at.toISOString(),
+    guest_name: input.guestName?.trim() || null,
+    guest_phone: input.guestPhone?.trim() || null,
+    guests: input.guests ?? null,
+  });
+  if (bookingError) throw bookingError;
+
+  // Время дублируется в столе намеренно: зал читается одним запросом, без
+  // join к броням на каждую плитку.
   const { error } = await supabase
     .from('dining_tables')
-    .update({ status: 'reserved', reserved_at: at.toISOString() })
+    .update({ status: 'reserved', reserved_at: input.at.toISOString() })
     .eq('id', tableId);
   if (error) throw error;
 }
 
-/** Снять бронь — стол снова свободен. */
+/** Снять бронь — стол снова свободен. Саму бронь помечаем отменённой, а не
+ *  удаляем: по отменам видно, как часто столы простаивают зря. */
 export async function cancelReservation(tableId: string): Promise<void> {
+  const { error: bookingError } = await supabase
+    .from('reservations')
+    .update({ cancelled_at: new Date().toISOString() })
+    .eq('table_id', tableId)
+    .is('cancelled_at', null);
+  if (bookingError) throw bookingError;
+
   const { error } = await supabase
     .from('dining_tables')
     .update({ status: 'free', reserved_at: null })

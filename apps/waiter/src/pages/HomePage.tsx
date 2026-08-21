@@ -14,8 +14,16 @@ import {
   UsersIcon,
   ts,
 } from '@food/ui';
-import { formatPrice, pluralGuests, shiftTime, type FloorTable, type StaffShift } from '@food/domain';
-import { endShift, fetchTodayShift, startShift } from '@food/api';
+import { formatPrice, pluralGuests, pluralItems, shiftTime, type FloorTable, type StaffShift } from '@food/domain';
+import {
+  endShift,
+  fetchTodayShift,
+  fetchWaiterCalls,
+  resolveWaiterCall,
+  startShift,
+  subscribeWaiterCalls,
+  type WaiterCall,
+} from '@food/api';
 import {
   cancelReservation,
   closeTableBill,
@@ -36,6 +44,14 @@ import {
 import { OrderComposition } from '../components/OrderComposition';
 import { useAuth } from '@food/staff';
 import styles from './HomePage.module.css';
+
+/** «40 минут» с момента посадки. Часы показываем только когда они появились:
+ *  «120 минут» за столом читается хуже, чем «2 ч 0 мин». */
+function elapsedSince(iso: string, now: number): string {
+  const minutes = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60000));
+  if (minutes < 60) return `${minutes} мин`;
+  return `${Math.floor(minutes / 60)} ч ${minutes % 60} мин`;
+}
 
 /** Бронь по умолчанию — через час, округлённая до получаса: за столом никто
  *  не бронирует «на 19:07». */
@@ -72,18 +88,34 @@ export function HomePage() {
   const [version, setVersion] = useState(0);
   // Форма брони раскрывается прямо в карточке: официант ставит бронь у стола,
   // отдельный экран ради одного поля времени только удлинил бы путь.
-  const [bookingAt, setBookingAt] = useState<string | null>(null);
+  const [booking, setBooking] = useState<{ at: string; name: string; phone: string; guests: string } | null>(null);
   // Закрытие счёта спрашиваем дважды: заказы уходят из зала безвозвратно,
   // а официант жмёт кнопки на ходу.
   const [closing, setClosing] = useState(false);
   // Пересадка и объединение спрашивают один и тот же вопрос — «какой стол?»,
   // поэтому это один список с двумя режимами, а не два экрана.
   const [picking, setPicking] = useState<'move' | 'merge' | null>(null);
+  // Проведённое за столом время идёт само: один таймер на экран, как на кухне.
+  const [now, setNow] = useState(() => Date.now());
+  // Запросы гостей нужны и здесь, и в «Сообщениях»: официант стоит у стола
+  // и должен видеть просьбу этого стола, не уходя с экрана зала.
+  const [calls, setCalls] = useState<WaiterCall[]>([]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!me) return;
     void fetchTodayShift(me.id).then(setShift);
   }, [me, version]);
+
+  useEffect(() => {
+    const load = () => void fetchWaiterCalls().then(setCalls).catch(() => setCalls([]));
+    load();
+    return subscribeWaiterCalls(load);
+  }, []);
 
   useEffect(() => {
     if (!me) return;
@@ -131,12 +163,14 @@ export function HomePage() {
 
   // Есть ли что нести прямо сейчас: хотя бы одна позиция ждёт подачи.
   const waiting = composition?.items.some((item) => item.status === 'to-serve') ?? false;
+  const tableCalls = calls.filter((call) => !call.resolvedAt && call.tableId === selected?.id);
 
   /** Любое действие по столу перечитывает зал: realtime тоже принесёт событие,
    *  но ждать его, стоя у стола, официант не должен. */
   const act = async (action: Promise<void>) => {
     await action;
     setVersion((current) => current + 1);
+    setCalls(await fetchWaiterCalls().catch(() => calls));
     if (me) setFloor(await fetchFloor(me));
   };
 
@@ -195,7 +229,7 @@ export function HomePage() {
                 // не должны переезжать на новый.
                 setSelectedId(table.id);
                 setClosing(false);
-                setBookingAt(null);
+                setBooking(null);
                 setPicking(null);
               }}
             />
@@ -216,12 +250,24 @@ export function HomePage() {
           <div className={styles.facts}>
             <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
               <ClockIcon size={16} className={styles.factIcon} />
-              {selected.reservedAt ? `Бронь в ${selected.reservedAt}` : 'Брони нет'}
+              {selected.seatedAt
+                ? `Сели в ${shiftTime(selected.seatedAt)} · ${elapsedSince(selected.seatedAt, now)}`
+                : selected.reservedAt
+                  ? `Бронь в ${selected.reservedAt}`
+                  : 'Брони нет'}
             </span>
             <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
               <UsersIcon size={16} className={styles.factIcon} />
-              На {selected.seats} {pluralGuests(selected.seats)}
+              {selected.guests
+                ? `${selected.guests} ${pluralGuests(selected.guests)} за столом`
+                : `На ${selected.seats} ${pluralGuests(selected.seats)}`}
             </span>
+            {selected.items ? (
+              <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
+                <ReceiptIcon size={16} className={styles.factIcon} />
+                {selected.items} {pluralItems(selected.items)}
+              </span>
+            ) : null}
             {selected.mergedWith?.length ? (
               <span className={[styles.fact, ts('body-s/regular')].join(' ')}>
                 <TableIcon size={16} className={styles.factIcon} />
@@ -235,6 +281,48 @@ export function HomePage() {
               </span>
             ) : null}
           </div>
+
+          {selected.reservation && selected.status === 'reserved' ? (
+            <p className={[styles.hint, ts('body-s/regular')].join(' ')}>
+              {[
+                selected.reservation.guestName,
+                selected.reservation.guests ? `${selected.reservation.guests} ${pluralGuests(selected.reservation.guests)}` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ') || 'Гость не записан'}
+              {selected.reservation.guestPhone ? (
+                <>
+                  {' · '}
+                  <a className={styles.phone} href={`tel:${selected.reservation.guestPhone}`}>
+                    {selected.reservation.guestPhone}
+                  </a>
+                </>
+              ) : null}
+            </p>
+          ) : null}
+
+          {tableCalls.length ? (
+            <section className={styles.calls}>
+              <h3 className={[styles.callsTitle, ts('body-s/regular')].join(' ')}>Просьбы гостей</h3>
+              {tableCalls.map((call) => (
+                <div key={call.id} className={styles.call}>
+                  <span className={styles.callText}>
+                    <span className={[styles.callMessage, ts('body-m/regular')].join(' ')}>
+                      {call.message ?? call.reasons.join(' · ') ?? 'Просят подойти'}
+                    </span>
+                    {call.message && call.reasons.length ? (
+                      <span className={[styles.callReasons, ts('body-xs/regular')].join(' ')}>
+                        {call.reasons.join(' · ')}
+                      </span>
+                    ) : null}
+                  </span>
+                  <Button size="s" onClick={() => void act(resolveWaiterCall(call.id))}>
+                    Выполнить
+                  </Button>
+                </div>
+              ))}
+            </section>
+          ) : null}
 
           {/* Пока состав не пришёл, не показываем ни позиций, ни «пусто»:
               ложное «ничего не заказали» официант читает как факт. */}
@@ -362,8 +450,12 @@ export function HomePage() {
             ) : null}
 
             {selected.status === 'free' ? (
-              bookingAt === null ? (
-                <Button block variant="secondary" onClick={() => setBookingAt(defaultBookingTime())}>
+              booking === null ? (
+                <Button
+                  block
+                  variant="secondary"
+                  onClick={() => setBooking({ at: defaultBookingTime(), name: '', phone: '', guests: '' })}
+                >
                   Забронировать стол
                 </Button>
               ) : (
@@ -371,19 +463,46 @@ export function HomePage() {
                   <TextInput
                     label="Время брони"
                     type="time"
-                    value={bookingAt}
-                    onChange={(event) => setBookingAt(event.target.value)}
+                    value={booking.at}
+                    onChange={(event) => setBooking({ ...booking, at: event.target.value })}
+                  />
+                  {/* Имя и телефон гостя — из ТЗ: по телефону звонят, если бронь
+                      опаздывает, а по имени встречают у входа. */}
+                  <TextInput
+                    label="Имя гостя"
+                    value={booking.name}
+                    onChange={(event) => setBooking({ ...booking, name: event.target.value })}
+                  />
+                  <TextInput
+                    label="Телефон"
+                    type="tel"
+                    inputMode="tel"
+                    value={booking.phone}
+                    onChange={(event) => setBooking({ ...booking, phone: event.target.value })}
+                  />
+                  <TextInput
+                    label="Сколько персон"
+                    inputMode="numeric"
+                    value={booking.guests}
+                    onChange={(event) => setBooking({ ...booking, guests: event.target.value })}
                   />
                   <Button
                     block
                     onClick={() => {
-                      void act(reserveTable(selected.id, bookingTime(bookingAt)));
-                      setBookingAt(null);
+                      void act(
+                        reserveTable(selected.id, {
+                          at: bookingTime(booking.at),
+                          guestName: booking.name,
+                          guestPhone: booking.phone,
+                          guests: Number(booking.guests) || undefined,
+                        }),
+                      );
+                      setBooking(null);
                     }}
                   >
-                    Забронировать на {bookingAt}
+                    Забронировать на {booking.at}
                   </Button>
-                  <Button block variant="secondary" onClick={() => setBookingAt(null)}>
+                  <Button block variant="secondary" onClick={() => setBooking(null)}>
                     Отмена
                   </Button>
                 </div>

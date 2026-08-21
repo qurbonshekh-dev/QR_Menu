@@ -11,6 +11,16 @@
  */
 export type TableStatus = 'free' | 'busy' | 'awaiting' | 'reserved';
 
+/** Бронь: на кого и на когда записан стол. */
+export interface TableReservation {
+  id: string;
+  /** ISO-время начала брони. */
+  startsAt: string;
+  guestName?: string;
+  guestPhone?: string;
+  guests?: number;
+}
+
 export interface FloorTable {
   id: string;
   /** Номер, который видит гость на QR-наклейке. */
@@ -22,6 +32,13 @@ export interface FloorTable {
   alerts: number;
   /** Время брони в формате «19:30» — только у status='reserved'. */
   reservedAt?: string;
+  /** Кто забронировал: имя, телефон, сколько персон. */
+  reservation?: TableReservation;
+  /** Когда за стол сели — время первого заказа визита. */
+  seatedAt?: string;
+  /** Сколько гостей за столом по заказу и сколько позиций в счёте. */
+  guests?: number;
+  items?: number;
   /** Столы, присоединённые к этому: «24 + 25». Счёт у них общий. */
   mergedWith?: { id: string; number: string }[];
 }

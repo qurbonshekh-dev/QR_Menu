@@ -91,6 +91,20 @@ export function serveLabel(minutes?: number): string {
   return `В течение ${minutes} минут`;
 }
 
+/**
+ * Ориентировочное время готовки заказа. Своих нормативов у блюд нет, поэтому
+ * считаем честно и грубо: базовые 15 минут, а если официант назначил курсы —
+ * ждём самый поздний из них. Обещать точнее, чем знаем, нельзя.
+ */
+export const BASE_COOK_MINUTES = 15;
+
+export function estimateCookMinutes(lines: DraftLine[]): number {
+  const courses = lines
+    .map((line) => line.serveAfterMinutes)
+    .filter((minutes): minutes is number => minutes !== undefined);
+  return Math.max(BASE_COOK_MINUTES, ...courses);
+}
+
 /** Сколько гостей упомянуто в черновике — для заголовков «Гость №2». */
 export function draftGuestLines(lines: DraftLine[], guest: number | null): DraftLine[] {
   return lines.filter((line) => line.guest === guest);

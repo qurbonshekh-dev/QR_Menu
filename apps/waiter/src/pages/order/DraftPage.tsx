@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AppHeader, Button, Counter, OptionGroup, SegmentedControl, TextArea, ts } from '@food/ui';
 import {
   describeModifiers,
+  estimateCookMinutes,
   draftLinePrice,
   draftLineTotal,
   draftTotal,
@@ -138,8 +139,13 @@ export function DraftPage() {
         })),
       });
       sentRef.current = true;
+      const summary = {
+        total: draftTotal(draft.lines),
+        items: draft.lines.map((line) => ({ title: line.title, quantity: line.quantity })),
+        minutes: estimateCookMinutes(draft.lines),
+      };
       discard();
-      navigate(`/table/${tableId}/sent/${placed.number}`, { replace: true });
+      navigate(`/table/${tableId}/sent/${placed.number}`, { replace: true, state: summary });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Не получилось отправить заказ');
       setSending(false);

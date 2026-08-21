@@ -9,6 +9,12 @@ import styles from './OrderMenuPage.module.css';
 /** Каталог глазами официанта. Отличие от гостевого меню одно, но важное:
  *  количество здесь не меняется прямо в карточке — у каждой тарелки есть гость,
  *  модификаторы и время подачи, а это разговор на странице блюда. */
+/** «Рекомендуемые» из ТЗ — это не персонализация: движка рекомендаций нет,
+ *  и выдумывать его нечестно. Показываем то, что гости и так берут чаще всего, —
+ *  блюда с высоким рейтингом. */
+const RECOMMENDED_RATING = 4.7;
+const RECOMMENDED_LIMIT = 6;
+
 export function OrderMenuPage() {
   const { tableId = '' } = useParams();
   const navigate = useNavigate();
@@ -30,6 +36,10 @@ export function OrderMenuPage() {
       return dish.name.toLowerCase().includes(needle);
     });
   }, [menu, category, query]);
+
+  const recommended = (menu?.dishes ?? [])
+    .filter((dish) => isDishAvailable(dish) && (dish.rating ?? 0) >= RECOMMENDED_RATING)
+    .slice(0, RECOMMENDED_LIMIT);
 
   const lines = draft?.lines ?? [];
   const count = lines.reduce((sum, line) => sum + line.quantity, 0);
@@ -60,6 +70,28 @@ export function OrderMenuPage() {
           ))}
         </div>
       </div>
+
+      {/* Полка рекомендуемых прячется, как только официант начал искать:
+          он уже знает, что ему нужно. */}
+      {recommended.length && !query && !category ? (
+        <section className={styles.shelf}>
+          <h2 className={[styles.shelfTitle, ts('body-m/medium')].join(' ')}>Рекомендуемые блюда</h2>
+          <div className={styles.shelfLane}>
+            {recommended.map((dish) => (
+              <button
+                key={dish.id}
+                type="button"
+                className={styles.shelfItem}
+                onClick={() => navigate(`/table/${tableId}/dish/${dish.id}`)}
+              >
+                <img className={styles.shelfImage} src={dishImage(dish.image)} alt="" loading="lazy" />
+                <span className={[styles.shelfName, ts('body-s/medium')].join(' ')}>{dish.name}</span>
+                <span className={[styles.shelfPrice, ts('body-s/bold')].join(' ')}>{formatPrice(dish.price)}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className={styles.grid}>
         {dishes.map((dish) => (
