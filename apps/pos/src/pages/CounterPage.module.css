@@ -1,8 +1,9 @@
 .page {
   display: grid;
-  grid-template-columns: 1fr minmax(320px, 400px);
+  /* Каталог и чек рядом, как две колонки кухонной доски: гость стоит напротив,
+     и переключать экраны ради второй позиции кассир не должен. */
+  grid-template-columns: 1fr minmax(340px, 420px);
   gap: var(--space-4);
-  height: 100%;
   min-height: 0;
 }
 
@@ -29,7 +30,7 @@
 .grid {
   display: grid;
   /* Тач-зона: кассир жмёт вслепую, пока смотрит на гостя. */
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
   gap: var(--space-3);
   align-content: start;
   overflow-y: auto;
@@ -41,7 +42,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: var(--space-2);
-  min-height: 88px;
+  min-height: 96px;
   padding: var(--space-3);
   text-align: left;
   border: 1px solid var(--color-border-default);

@@ -77,64 +77,59 @@ export function FloorPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.summary}>
-        <Stat label="Выручка за смену" value={formatPrice(summary.revenue)} big />
-        <Stat label="Чеков" value={String(summary.receipts)} />
-        <Stat label="Средний чек" value={formatPrice(summary.average)} />
-        <Stat label="Наличными" value={formatPrice(summary.byMethod.cash)} />
-        <Stat label="Картой" value={formatPrice(summary.byMethod.card)} />
-        <Stat label="По QR" value={formatPrice(summary.byMethod.qr)} />
-
-        <div className={styles.shiftBox}>
-          {shift ? (
-            <>
-              <span className={[styles.shiftLabel, ts('body-xs/regular')].join(' ')}>
-                Смена открыта{shift.cashierName ? ` · ${shift.cashierName}` : ''} · в ящике должно быть{' '}
-                {formatPrice(summary.cashExpected)}
-              </span>
-              <div className={styles.shiftRow}>
-                <TextInput
-                  label="Насчитали в ящике"
-                  inputMode="numeric"
-                  value={shiftForm}
-                  onChange={(event) => setShiftForm(event.target.value)}
-                />
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    void close(Number(shiftForm) || 0);
-                    setShiftForm('');
-                  }}
-                >
-                  Закрыть смену
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <span className={[styles.shiftLabel, ts('body-xs/regular')].join(' ')}>
-                Смена закрыта — чеки не попадут в отчёт, пока её не откроют.
-              </span>
-              <div className={styles.shiftRow}>
-                <TextInput
-                  label="Наличных на начало"
-                  inputMode="numeric"
-                  value={shiftForm}
-                  onChange={(event) => setShiftForm(event.target.value)}
-                />
-                <Button
-                  onClick={() => {
-                    void open(Number(shiftForm) || 0);
-                    setShiftForm('');
-                  }}
-                >
-                  Открыть смену
-                </Button>
-              </div>
-            </>
-          )}
-        </div>
-      </header>
+      {/* Смена — не сводка: цифры висят в шапке приложения, а здесь то, что
+          кассир делает раз в день: открывает ящик утром и считает его вечером. */}
+      <section className={styles.shiftBar}>
+        {shift ? (
+          <>
+            <div className={styles.shiftFacts}>
+              <Fact label="Наличными" value={formatPrice(summary.byMethod.cash)} />
+              <Fact label="Картой" value={formatPrice(summary.byMethod.card)} />
+              <Fact label="По QR" value={formatPrice(summary.byMethod.qr)} />
+              <Fact label="Должно быть в ящике" value={formatPrice(summary.cashExpected)} />
+            </div>
+            <div className={styles.shiftRow}>
+              <TextInput
+                label="Насчитали в ящике"
+                inputMode="numeric"
+                value={shiftForm}
+                onChange={(event) => setShiftForm(event.target.value)}
+              />
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  void close(Number(shiftForm) || 0);
+                  setShiftForm('');
+                }}
+              >
+                Закрыть смену
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className={[styles.shiftHint, ts('body-m/regular')].join(' ')}>
+              Смена закрыта — чеки не попадут в отчёт, пока её не откроют.
+            </p>
+            <div className={styles.shiftRow}>
+              <TextInput
+                label="Наличных на начало"
+                inputMode="numeric"
+                value={shiftForm}
+                onChange={(event) => setShiftForm(event.target.value)}
+              />
+              <Button
+                onClick={() => {
+                  void open(Number(shiftForm) || 0);
+                  setShiftForm('');
+                }}
+              >
+                Открыть смену
+              </Button>
+            </div>
+          </>
+        )}
+      </section>
 
       <div className={styles.body}>
         <section className={styles.map} aria-label="Карта зала">
@@ -204,13 +199,11 @@ export function FloorPage() {
   );
 }
 
-function Stat({ label, value, big }: { label: string; value: string; big?: boolean }) {
+function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className={styles.stat}>
-      <span className={[styles.statLabel, ts('body-xs/regular')].join(' ')}>{label}</span>
-      <span className={[styles.statValue, ts(big ? 'heading-7/bold' : 'heading-9/extrabold')].join(' ')}>
-        {value}
-      </span>
+    <div className={styles.fact}>
+      <span className={[styles.factLabel, ts('body-xs/regular')].join(' ')}>{label}</span>
+      <span className={[styles.factValue, ts('body-l/medium')].join(' ')}>{value}</span>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { HashRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { AuthProvider, LoginPage, NoAccessPage, useAuth } from '@food/staff';
-import { canUsePos, STAFF_ROLE_LABELS } from '@food/domain';
+import { canUsePos, formatPrice, STAFF_ROLE_LABELS } from '@food/domain';
 import { ts } from '@food/ui';
 import { CashShiftProvider } from './state/CashShiftContext';
+import { useCashShift } from './state/cashShiftStore';
 import { FloorPage } from './pages/FloorPage';
 import { CounterPage } from './pages/CounterPage';
 import styles from './App.module.css';
@@ -39,27 +40,35 @@ function Gate() {
   return (
     <CashShiftProvider cashierId={me.id}>
       <div className={styles.app}>
-        <nav className={styles.rail} aria-label="Разделы кассы">
+        {/* Шапка как на кухне: узкая полоса сверху, а не колонка сбоку — на
+            планшете 1024×768 ширина дороже высоты, и отдавать 130 px под
+            навигацию значит отнять их у карты зала. */}
+        <header className={styles.header}>
+          <nav className={styles.tabs} aria-label="Разделы кассы">
+            <NavLink
+              to="/floor"
+              className={({ isActive }) => [styles.tab, ts('body-l/medium'), isActive && styles.tabActive].filter(Boolean).join(' ')}
+            >
+              Зал
+            </NavLink>
+            <NavLink
+              to="/counter"
+              className={({ isActive }) => [styles.tab, ts('body-l/medium'), isActive && styles.tabActive].filter(Boolean).join(' ')}
+            >
+              Стойка
+            </NavLink>
+          </nav>
+
+          <ShiftStats />
+
           <div className={styles.who}>
             <span className={[styles.whoName, ts('body-m/medium')].join(' ')}>{me.name}</span>
             <span className={[styles.whoRole, ts('body-xs/regular')].join(' ')}>
               {STAFF_ROLE_LABELS[me.role]}
             </span>
           </div>
-          <NavLink
-            to="/floor"
-            className={({ isActive }) => [styles.tab, ts('body-m/medium'), isActive && styles.tabActive].filter(Boolean).join(' ')}
-          >
-            Зал
-          </NavLink>
-          <NavLink
-            to="/counter"
-            className={({ isActive }) => [styles.tab, ts('body-m/medium'), isActive && styles.tabActive].filter(Boolean).join(' ')}
-          >
-            Касса
-          </NavLink>
           <SignOut />
-        </nav>
+        </header>
 
         <main className={styles.screen}>
           <Routes>
@@ -70,6 +79,34 @@ function Gate() {
         </main>
       </div>
     </CashShiftProvider>
+  );
+}
+
+/** Выручка смены на виду всегда: кассир отвечает на «сколько сегодня» чаще,
+ *  чем открывает что-либо ещё — как повар смотрит на «в работе». */
+function ShiftStats() {
+  const { shift, summary } = useCashShift();
+  return (
+    <div className={styles.stats}>
+      <span className={styles.stat}>
+        <span className={[styles.statValue, ts('heading-5/bold')].join(' ')}>
+          {formatPrice(summary.revenue)}
+        </span>
+        <span className={[styles.statLabel, ts('body-s/regular')].join(' ')}>
+          выручка{shift ? '' : ' · смена закрыта'}
+        </span>
+      </span>
+      <span className={styles.stat}>
+        <span className={[styles.statValue, ts('heading-5/bold')].join(' ')}>{summary.receipts}</span>
+        <span className={[styles.statLabel, ts('body-s/regular')].join(' ')}>чеков</span>
+      </span>
+      <span className={styles.stat}>
+        <span className={[styles.statValue, ts('heading-5/bold')].join(' ')}>
+          {formatPrice(summary.average)}
+        </span>
+        <span className={[styles.statLabel, ts('body-s/regular')].join(' ')}>средний чек</span>
+      </span>
+    </div>
   );
 }
 

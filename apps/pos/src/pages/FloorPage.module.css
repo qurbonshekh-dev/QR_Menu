@@ -2,40 +2,43 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  height: 100%;
+  min-height: 0;
 }
 
-.summary {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(96px, 1fr)) minmax(260px, 1.4fr);
-  gap: var(--space-3);
+/* Полоса смены: слева факты по ящику, справа единственное действие дня. */
+.shiftBar {
+  display: flex;
+  flex: none;
   align-items: end;
-  padding: var(--space-4);
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-bg-surface);
   border-radius: var(--radius-lg);
 }
 
-.stat {
+.shiftFacts {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-6);
 }
 
-.statLabel {
+.fact {
+  display: flex;
+  flex-direction: column;
+}
+
+.factLabel {
   color: var(--color-text-dark-3);
+  white-space: nowrap;
 }
 
-.statValue {
+.factValue {
   color: var(--color-text-dark-1);
+  white-space: nowrap;
 }
 
-.shiftBox {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.shiftLabel {
+.shiftHint {
+  margin: 0;
   color: var(--color-text-dark-2);
 }
 
@@ -48,16 +51,18 @@
 
 .body {
   display: grid;
-  grid-template-columns: 1fr minmax(300px, 380px);
+  /* Планшет в ландшафте: карта зала слева, счёт справа — как три колонки
+     кухни, только их две. Скроллит колонка, а не страница. */
+  grid-template-columns: 1fr minmax(320px, 400px);
   gap: var(--space-4);
   min-height: 0;
-  flex: 1;
+  flex: 1 0 0;
 }
 
 .map {
   display: grid;
   /* Плитки крупные: по столу попадают пальцем, не глядя. */
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
   gap: var(--space-3);
   align-content: start;
   padding: var(--space-4);

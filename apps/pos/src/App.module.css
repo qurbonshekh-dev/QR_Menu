@@ -1,25 +1,69 @@
+/* Касса стоит на планшете в ландшафте, как экран кухни: занимает всё окно,
+   страница не скроллится — скроллят внутренние колонки. Иначе шапка со сводкой
+   уезжает наверх ровно тогда, когда кассиру нужно назвать сумму. */
 .app {
-  display: grid;
-  /* Рельса навигации фиксированной ширины, остальное — экран раздела.
-     Ландшафт: касса стоит на столе и не поворачивается. */
-  grid-template-columns: 132px 1fr;
-  min-height: 100vh;
-}
-
-.rail {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-3);
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg-default);
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-3) var(--space-6);
   background: var(--color-bg-surface);
-  border-right: 1px solid var(--color-border-default);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.tabs {
+  display: flex;
+  flex: none;
+  gap: var(--space-2);
+}
+
+.tab {
+  /* Тач-зона: по вкладке попадают пальцем, не глядя на экран. */
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  color: var(--color-text-dark-2);
+  text-decoration: none;
+}
+
+.tabActive {
+  background: var(--color-brand-main);
+  color: var(--color-brand-contrast);
+}
+
+.stats {
+  display: flex;
+  flex: 1 0 0;
+  gap: var(--space-6);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  color: var(--color-text-dark-1);
+  white-space: nowrap;
+}
+
+.statLabel {
+  color: var(--color-text-dark-2);
+  white-space: nowrap;
 }
 
 .who {
   display: flex;
+  flex: none;
   flex-direction: column;
-  gap: 2px;
-  padding-bottom: var(--space-3);
+  align-items: flex-end;
 }
 
 .whoName {
@@ -30,30 +74,29 @@
   color: var(--color-text-dark-3);
 }
 
-.tab {
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  color: var(--color-text-dark-2);
-  text-decoration: none;
-}
-
-.tabActive {
-  background: var(--color-brand-main);
-  color: var(--color-text-dark-1);
-}
-
+/* Выход мелкой строкой: касса — рабочее место на смену, а не личный телефон;
+   случайный тап по нему стоит дорого, как и на кухне. */
 .signOut {
-  margin-top: auto;
-  padding: var(--space-2);
+  flex: none;
+  align-self: flex-start;
+  padding: 0;
   border: 0;
   background: none;
   color: var(--color-text-dark-3);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .screen {
-  min-width: 0;
-  padding: var(--space-4);
+  display: flex;
+  flex: 1 0 0;
+  min-height: 0;
+  padding: var(--space-4) var(--space-6);
+}
+
+.screen > * {
+  flex: 1 0 0;
+  min-height: 0;
 }
 
 .state,
