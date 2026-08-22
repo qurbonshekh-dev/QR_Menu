@@ -176,6 +176,9 @@ export async function createDelivery(input: CreateDeliveryInput): Promise<{ numb
     .insert({
       restaurant_id: restaurantId,
       table_id: null,
+      // Канал спрашивают у самого заказа: кухня по нему подписывает тикет,
+      // а гадать по связям — значит держать развилку в трёх местах.
+      channel: input.kind,
       serving_mode: 'together',
       comment: input.comment?.trim() || null,
       total: input.itemsTotal,

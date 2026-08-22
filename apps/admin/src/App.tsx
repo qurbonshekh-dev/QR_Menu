@@ -28,7 +28,7 @@ function Gate() {
 
   // Роль проверяет и edge-функция, но показывать менеджерский экран повару
   // всё равно нельзя: человек будет жать кнопки, которые ответят отказом.
-  if (me?.role !== 'manager') return <NotManager />;
+  if (me?.role !== 'manager' && me?.role !== 'admin') return <NotManager />;
 
   return <StaffPage />;
 }

@@ -1,0 +1,82 @@
+.app {
+  display: grid;
+  /* Рельса навигации фиксированной ширины, остальное — экран раздела.
+     Ландшафт: касса стоит на столе и не поворачивается. */
+  grid-template-columns: 132px 1fr;
+  min-height: 100vh;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-3);
+  background: var(--color-bg-surface);
+  border-right: 1px solid var(--color-border-default);
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--space-3);
+}
+
+.whoName {
+  color: var(--color-text-dark-1);
+}
+
+.whoRole {
+  color: var(--color-text-dark-3);
+}
+
+.tab {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-dark-2);
+  text-decoration: none;
+}
+
+.tabActive {
+  background: var(--color-brand-main);
+  color: var(--color-text-dark-1);
+}
+
+.signOut {
+  margin-top: auto;
+  padding: var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--color-text-dark-3);
+  cursor: pointer;
+}
+
+.screen {
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.state,
+.notice {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.noticeTitle {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-dark-1);
+}
+
+.noticeText {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-dark-2);
+}
+
+.link {
+  border: 0;
+  background: none;
+  color: var(--color-text-dark-3);
+  cursor: pointer;
+}

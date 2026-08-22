@@ -14,7 +14,8 @@
     "lint": "oxlint apps packages",
     "dev:waiter": "npm --workspace apps/waiter run dev",
     "dev:kitchen": "npm --workspace apps/kitchen run dev",
-    "dev:admin": "npm --workspace apps/admin run dev"
+    "dev:admin": "npm --workspace apps/admin run dev",
+    "dev:pos": "npm --workspace apps/pos run dev"
   },
   "devDependencies": {
     "oxlint": "^1.75.0",

@@ -8,6 +8,14 @@ function toTicketStatus(value: string): TicketStatus {
   return value === 'cooking' || value === 'ready' ? value : 'queued';
 }
 
+/** Подпись тикета: стол, доставка, самовывоз или стойка. */
+function placeOf(channel: string, tableNumber?: string): string {
+  if (channel === 'delivery') return 'Доставка';
+  if (channel === 'pickup') return 'Самовывоз';
+  if (channel === 'counter') return 'Стойка';
+  return tableNumber ? `Стол ${tableNumber}` : 'Зал';
+}
+
 function toItemStatus(value: string): TicketItemStatus {
   return value === 'cooking' || value === 'ready' || value === 'served' ? value : 'queued';
 }
@@ -18,7 +26,7 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
     .from('orders')
     // Строка select должна быть литералом: supabase-js выводит типы встроенных
     // выборок из неё самой, а склейка через + превращает её в обычный string.
-    .select('id, number, status, serving_mode, comment, placed_at, ready_at, dining_tables (number), deliveries (kind), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity, status)')
+    .select('id, number, status, serving_mode, comment, placed_at, ready_at, channel, dining_tables (number), order_items (id, title, options, comment, modifiers, serve_after_minutes, quantity, status)')
     .eq('restaurant_id', restaurantId)
     .in('status', BOARD_STATUSES)
     .order('placed_at')
@@ -29,12 +37,9 @@ export async function fetchTickets(): Promise<KitchenTicket[]> {
 
   return (data ?? []).map((order) => ({
     id: String(order.number),
-    // Заказ без стола — это выдача: доставка или самовывоз.
-    place: order.dining_tables?.number
-      ? `Стол ${order.dining_tables.number}`
-      : order.deliveries?.kind === 'pickup'
-        ? 'Самовывоз'
-        : 'Доставка',
+    // Откуда заказ, говорит он сам: готовят одинаково, а собирают по-разному —
+    // навынос нужна упаковка, а стойка ждёт у кассы.
+    place: placeOf(order.channel, order.dining_tables?.number),
     placedAt: order.placed_at,
     readyAt: order.ready_at ?? undefined,
     servingMode: order.serving_mode === 'together' ? 'together' : 'ready',

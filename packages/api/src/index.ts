@@ -11,4 +11,5 @@ export * from './staff';
 export * from './messages';
 export * from './profile';
 export * from './delivery';
+export * from './receipts';
 export type { Database } from './database.types';

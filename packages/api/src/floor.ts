@@ -1,5 +1,6 @@
 import type { FloorTable, StaffMember, TableReservation, TableStatus } from '@food/domain';
 import { channelName, supabase, currentRestaurantId } from './client';
+import { closeBill, fetchOpenOrderIds } from './receipts';
 
 const STATUSES: TableStatus[] = ['free', 'busy', 'awaiting', 'reserved'];
 
@@ -20,18 +21,38 @@ export interface FloorSnapshot {
  * официант брался в базе первым попавшимся, оба числа были общими по ресторану.
  */
 export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
+  const { tables, tips } = await loadFloor(waiter.id);
+  return { waiter, tables, tips };
+}
+
+/**
+ * Зал целиком, без деления на «мои столы»: касса рассчитывает любого гостя,
+ * который подошёл, и закреплённость стола за официантом ей ничего не говорит.
+ */
+export async function fetchAllTables(): Promise<FloorTable[]> {
+  const { tables } = await loadFloor(null);
+  return tables;
+}
+
+async function loadFloor(waiterId: string | null): Promise<{ tables: FloorTable[]; tips: number }> {
   const restaurantId = await currentRestaurantId();
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
   const [tablesResult, callsResult, tipsResult, reservationsResult, visitsResult] = await Promise.all([
-    supabase
-      .from('dining_tables')
-      .select('id, number, seats, status, reserved_at, merged_into')
-      .eq('restaurant_id', restaurantId)
-      .eq('waiter_id', waiter.id)
-      .order('number'),
+    (waiterId
+      ? supabase
+          .from('dining_tables')
+          .select('id, number, seats, status, reserved_at, merged_into')
+          .eq('restaurant_id', restaurantId)
+          .eq('waiter_id', waiterId)
+          .order('number')
+      : supabase
+          .from('dining_tables')
+          .select('id, number, seats, status, reserved_at, merged_into')
+          .eq('restaurant_id', restaurantId)
+          .order('number')),
     // Открытые вызовы — это и есть счётчик событий на плитке стола.
     supabase.from('waiter_calls').select('table_id').is('resolved_at', null),
     // Чаевые считаем по столам официанта: !inner превращает вложенную выборку
@@ -39,7 +60,7 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
     supabase
       .from('orders')
       .select('tip, dining_tables!inner (waiter_id)')
-      .eq('dining_tables.waiter_id', waiter.id)
+      .eq('dining_tables.waiter_id', waiterId ?? '00000000-0000-0000-0000-000000000000')
       .gte('placed_at', startOfDay.toISOString()),
     // Активные брони: имя и телефон гостя, которых в столе не хранится.
     supabase
@@ -94,7 +115,6 @@ export async function fetchFloor(waiter: StaffMember): Promise<FloorSnapshot> {
 
   return {
     tips,
-    waiter,
     // Присоединённый стол в ленте отдельной плиткой не стоит: он часть другого,
     // и счёт у них один. Его номер показывается на карточке главного стола.
     tables: (tablesResult.data ?? [])
@@ -255,17 +275,19 @@ export async function serveReadyOrders(tableId: string): Promise<void> {
 }
 
 /**
- * Счёт закрыт, гости ушли. Двигаем заказы в `paid`, а стол освобождает триггер —
- * и только когда закрыт весь счёт, а не один заказ из трёх. Отменённые не трогаем:
- * они и так не в счёте.
+ * Счёт закрыт, гости ушли. Заказы двигает не этот код, а `close_bill`: чек
+ * выписывает одна серверная функция на всех, кто закрывает счёт. Пока каждый
+ * писал `paid` сам, выручка жила только суммой заказов, и закрытое официантом
+ * мимо кассы не попадало ни в один отчёт.
+ *
+ * Официант забирает деньги на месте, поэтому платёж пишется наличными одной
+ * строкой: разбивку по методам ведёт касса, у него для этого нет экрана.
  */
-export async function closeTableBill(tableId: string): Promise<void> {
-  const { error } = await supabase
-    .from('orders')
-    .update({ status: 'paid' })
-    .eq('table_id', tableId)
-    .in('status', ['queued', 'cooking', 'ready', 'served']);
-  if (error) throw error;
+export async function closeTableBill(tableId: string, staffId?: string): Promise<string> {
+  const orderIds = await fetchOpenOrderIds(tableId);
+  if (orderIds.length === 0) throw new Error('За столом нет открытого счёта');
+
+  return closeBill({ orderIds, cashierId: staffId });
 }
 
 /** Гости пересели за другой стол — заказы переезжают вместе с ними. */

@@ -1,0 +1,226 @@
+.page {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 400px);
+  gap: var(--space-4);
+  height: 100%;
+  min-height: 0;
+}
+
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  min-height: 0;
+}
+
+.search {
+  max-width: 420px;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.grid {
+  display: grid;
+  /* Тач-зона: кассир жмёт вслепую, пока смотрит на гостя. */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  align-content: start;
+  overflow-y: auto;
+  padding-right: var(--space-1);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 88px;
+  padding: var(--space-3);
+  text-align: left;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+}
+
+.tile:active {
+  background: var(--color-bg-muted);
+}
+
+.tileName {
+  color: var(--color-text-dark-1);
+}
+
+.tilePrice {
+  color: var(--color-text-dark-2);
+}
+
+.check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  min-height: 0;
+}
+
+.checkTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-text-dark-3);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.lineHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.lineTitle,
+.linePrice {
+  color: var(--color-text-dark-1);
+}
+
+.lineNote {
+  color: var(--color-text-dark-3);
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.step {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.discount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.discountRow {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-default);
+  color: var(--color-text-dark-1);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.error {
+  margin: 0;
+  color: var(--color-accent-danger);
+}
+
+.warn {
+  margin: 0;
+  color: var(--color-accent-orange);
+}
+
+.sheetBackdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: var(--color-bg-overlay);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(480px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+}
+
+.sheetTitle {
+  margin: 0;
+  color: var(--color-text-dark-1);
+}
+
+.sheetLabel {
+  color: var(--color-text-dark-2);
+}
+
+.extras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.extrasRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.sheetActions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

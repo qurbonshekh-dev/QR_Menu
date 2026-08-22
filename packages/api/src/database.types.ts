@@ -296,6 +296,8 @@ export type Database = {
           waiter_id: string | null;
           /** Сколько гостей за столом — официант вводит это первым шагом. */
           guests: number | null;
+          /** Откуда заказ: зал, доставка, самовывоз, стойка кассы. */
+          channel: string;
         };
         Insert: {
           id?: string;
@@ -313,6 +315,7 @@ export type Database = {
           served_at?: string | null;
           waiter_id?: string | null;
           guests?: number | null;
+          channel?: string;
         };
         Update: Partial<Database['public']['Tables']['orders']['Insert']>;
         Relationships: [
@@ -506,6 +509,180 @@ export type Database = {
           },
         ];
       };
+      cash_shifts: {
+        Row: {
+          id: string;
+          restaurant_id: string;
+          cashier_id: string;
+          opened_at: string;
+          closed_at: string | null;
+          /** Наличные в ящике на начало смены. */
+          cash_start: number;
+          /** Сколько насчитали при инкассации — расхождение вычислить нельзя. */
+          cash_counted: number | null;
+          note: string | null;
+        };
+        Insert: {
+          id?: string;
+          restaurant_id: string;
+          cashier_id: string;
+          opened_at?: string;
+          closed_at?: string | null;
+          cash_start?: number;
+          cash_counted?: number | null;
+          note?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['cash_shifts']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'cash_shifts_cashier_id_fkey';
+            columns: ['cashier_id'];
+            isOneToOne: false;
+            referencedRelation: 'staff';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      receipts: {
+        Row: {
+          id: string;
+          restaurant_id: string;
+          number: number;
+          cash_shift_id: string | null;
+          cashier_id: string | null;
+          /** Снимок: чек не следует за пересадкой стола. */
+          table_number: string | null;
+          channel: string;
+          subtotal: number;
+          discount: number;
+          discount_reason: string | null;
+          tip: number;
+          total: number;
+          status: string;
+          created_at: string;
+          paid_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          restaurant_id: string;
+          number?: number;
+          cash_shift_id?: string | null;
+          cashier_id?: string | null;
+          table_number?: string | null;
+          channel?: string;
+          subtotal?: number;
+          discount?: number;
+          discount_reason?: string | null;
+          tip?: number;
+          total?: number;
+          status?: string;
+          created_at?: string;
+          paid_at?: string | null;
+        };
+        Update: Partial<Database['public']['Tables']['receipts']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'receipts_cash_shift_id_fkey';
+            columns: ['cash_shift_id'];
+            isOneToOne: false;
+            referencedRelation: 'cash_shifts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'receipts_cashier_id_fkey';
+            columns: ['cashier_id'];
+            isOneToOne: false;
+            referencedRelation: 'staff';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      receipt_orders: {
+        Row: { receipt_id: string; order_id: string };
+        Insert: { receipt_id: string; order_id: string };
+        Update: Partial<Database['public']['Tables']['receipt_orders']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'receipt_orders_order_id_fkey';
+            columns: ['order_id'];
+            isOneToOne: false;
+            referencedRelation: 'orders';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'receipt_orders_receipt_id_fkey';
+            columns: ['receipt_id'];
+            isOneToOne: false;
+            referencedRelation: 'receipts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      receipt_items: {
+        Row: {
+          id: string;
+          receipt_id: string;
+          title: string;
+          options: string | null;
+          modifiers: string | null;
+          quantity: number;
+          unit_price: number;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          receipt_id: string;
+          title: string;
+          options?: string | null;
+          modifiers?: string | null;
+          quantity: number;
+          unit_price: number;
+          sort_order?: number;
+        };
+        Update: Partial<Database['public']['Tables']['receipt_items']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'receipt_items_receipt_id_fkey';
+            columns: ['receipt_id'];
+            isOneToOne: false;
+            referencedRelation: 'receipts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      receipt_payments: {
+        Row: {
+          id: string;
+          receipt_id: string;
+          method: string;
+          /** Отрицательная сумма — возврат. */
+          amount: number;
+          change_given: number;
+          provider_ref: string | null;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          receipt_id: string;
+          method: string;
+          amount: number;
+          change_given?: number;
+          provider_ref?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['receipt_payments']['Insert']>;
+        Relationships: [
+          {
+            foreignKeyName: 'receipt_payments_receipt_id_fkey';
+            columns: ['receipt_id'];
+            isOneToOne: false;
+            referencedRelation: 'receipts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -513,6 +690,19 @@ export type Database = {
       merge_tables: { Args: { primary_table: string; secondary_table: string }; Returns: undefined };
       unmerge_table: { Args: { secondary_table: string }; Returns: undefined };
       refresh_table_status: { Args: { target: string }; Returns: undefined };
+      close_bill: {
+        Args: {
+          p_order_ids: string[];
+          p_payments?: Json;
+          p_cashier_id?: string;
+          p_cash_shift_id?: string;
+          p_discount?: number;
+          p_discount_reason?: string;
+          p_tip?: number;
+        };
+        /** id выписанного чека. */
+        Returns: string;
+      };
     };
     Enums: Record<never, never>;
     CompositeTypes: Record<never, never>;

@@ -6,7 +6,7 @@ import { supabase } from './client';
  * поэтому авторизация живёт только в приложениях персонала.
  */
 
-const ROLES: StaffRole[] = ['waiter', 'manager', 'cook'];
+const ROLES: StaffRole[] = ['waiter', 'manager', 'cook', 'cashier', 'admin'];
 
 function toRole(value: string): StaffRole {
   return (ROLES as string[]).includes(value) ? (value as StaffRole) : 'waiter';

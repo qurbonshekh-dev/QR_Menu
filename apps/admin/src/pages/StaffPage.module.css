@@ -82,3 +82,9 @@
   margin: 0;
   color: var(--color-accent-success);
 }
+
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

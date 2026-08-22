@@ -5,6 +5,7 @@ export * from './format';
 export * from './plural';
 export * from './cartKey';
 export * from './split';
+export * from './discount';
 export * from './floor';
 export * from './staff';
 export * from './kitchen';

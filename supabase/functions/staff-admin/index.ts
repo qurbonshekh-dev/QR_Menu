@@ -13,7 +13,7 @@ const CORS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-const ROLES = ['waiter', 'cook', 'manager'];
+const ROLES = ['waiter', 'cook', 'manager', 'cashier', 'admin'];
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -39,8 +39,8 @@ Deno.serve(async (req) => {
     .select('id, role, restaurant_id')
     .eq('auth_user_id', caller.user.id)
     .maybeSingle();
-  if (!manager || manager.role !== 'manager') {
-    return json({ error: 'Заводить сотрудников может только менеджер' }, 403);
+  if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
+    return json({ error: 'Заводить сотрудников может только менеджер или администратор' }, 403);
   }
 
   const body = await req.json().catch(() => ({}));

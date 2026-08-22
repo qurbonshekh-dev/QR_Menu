@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Button, SegmentedControl, TextInput, ts } from '@food/ui';
-import type { StaffRole } from '@food/domain';
+import { Button, Chip, TextInput, ts } from '@food/ui';
+import { STAFF_ROLE_LABELS, type StaffRole } from '@food/domain';
 import {
   attachStaffLogin,
   createStaffAccount,
@@ -11,11 +11,11 @@ import {
 import { useAuth } from '@food/staff';
 import styles from './StaffPage.module.css';
 
-const ROLE_LABELS: Record<StaffRole, string> = {
-  waiter: 'Официант',
-  cook: 'Повар',
-  manager: 'Менеджер',
-};
+const ROLE_LABELS = STAFF_ROLE_LABELS;
+
+/** Порядок ролей в форме — от самой частой к самой редкой: официантов заводят
+ *  пачками, администратора один раз за всё время. */
+const ROLES: StaffRole[] = ['waiter', 'cook', 'cashier', 'manager', 'admin'];
 
 const EMPTY_FORM = { name: '', email: '', password: '', role: 'waiter' as StaffRole };
 
@@ -121,17 +121,20 @@ export function StaffPage() {
           {attachTo ? `Вход для ${attachTo.name}` : 'Новый сотрудник'}
         </h2>
 
+        {/* Ролей стало пять — сегментами они не помещаются в ширину планшета,
+            поэтому чипы: они переносятся на вторую строку сами. */}
         {attachTo ? null : (
-          <SegmentedControl
-            aria-label="Роль сотрудника"
-            value={form.role}
-            onChange={(role) => setForm((current) => ({ ...current, role }))}
-            options={[
-              { value: 'waiter', label: 'Официант' },
-              { value: 'cook', label: 'Повар' },
-              { value: 'manager', label: 'Менеджер' },
-            ]}
-          />
+          <div className={styles.roles} role="radiogroup" aria-label="Роль сотрудника">
+            {ROLES.map((role) => (
+              <Chip
+                key={role}
+                selected={form.role === role}
+                onClick={() => setForm((current) => ({ ...current, role }))}
+              >
+                {ROLE_LABELS[role]}
+              </Chip>
+            ))}
+          </div>
         )}
 
         {attachTo ? null : (

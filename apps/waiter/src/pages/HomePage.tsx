@@ -167,7 +167,7 @@ export function HomePage() {
 
   /** Любое действие по столу перечитывает зал: realtime тоже принесёт событие,
    *  но ждать его, стоя у стола, официант не должен. */
-  const act = async (action: Promise<void>) => {
+  const act = async (action: Promise<unknown>) => {
     await action;
     setVersion((current) => current + 1);
     setCalls(await fetchWaiterCalls().catch(() => calls));
@@ -372,7 +372,9 @@ export function HomePage() {
                   <Button
                     block
                     onClick={() => {
-                      void act(closeTableBill(selected.id));
+                      // Кто закрыл счёт — уходит в чек: отчёт кассы должен знать
+                      // и то, что забрали деньгами в зале.
+                      void act(closeTableBill(selected.id, me?.id));
                       setClosing(false);
                     }}
                   >

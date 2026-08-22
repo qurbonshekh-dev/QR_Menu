@@ -1,6 +1,29 @@
 /** Сотрудник и его смена. Общее для приложений официанта, кухни и админки. */
 
-export type StaffRole = 'waiter' | 'cook' | 'manager';
+export type StaffRole = 'waiter' | 'cook' | 'manager' | 'cashier' | 'admin';
+
+/** Подпись роли на экране. Один словарь на все приложения: иначе «Кассир»
+ *  и «Касса» разъедутся по админке и по кассе. */
+export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
+  waiter: 'Официант',
+  cook: 'Повар',
+  manager: 'Менеджер',
+  cashier: 'Кассир',
+  admin: 'Администратор',
+};
+
+/** Кому открыта касса. Менеджер и администратор заходят туда же, где кассир:
+ *  подменить его в обед — обычное дело, заводить ради этого вторую роль не за чем. */
+export function canUsePos(role: StaffRole): boolean {
+  return role === 'cashier' || role === 'manager' || role === 'admin';
+}
+
+/** Кому можно то, что стоит денег: скидка выше порога, отмена чека, изъятие
+ *  наличных. Кассиру — нет: он у стойки, и просьба гостя «сделайте скидку»
+ *  адресована не ему. */
+export function canApproveMoney(role: StaffRole): boolean {
+  return role === 'manager' || role === 'admin';
+}
 
 export interface StaffMember {
   id: string;

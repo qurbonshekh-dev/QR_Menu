@@ -78,6 +78,56 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlacedOrder> {
   return { id: order.id, number: order.number, placedAt: order.placed_at };
 }
 
+export interface CounterOrderInput {
+  items: PlacedOrderItem[];
+  total: number;
+  comment?: string;
+  /** Кто пробил — кассир: у заказа со стойки официанта нет. */
+  staffId?: string;
+}
+
+/**
+ * Заказ у стойки: кофе с собой, бар. Стола у него нет — как и у доставки,
+ * поэтому `table_id` пуст, а откуда заказ, говорит `channel`.
+ */
+export async function placeCounterOrder(input: CounterOrderInput): Promise<PlacedOrder> {
+  const restaurantId = await currentRestaurantId();
+
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      restaurant_id: restaurantId,
+      table_id: null,
+      channel: 'counter',
+      serving_mode: 'together',
+      comment: input.comment?.trim() || null,
+      total: input.total,
+      waiter_id: input.staffId ?? null,
+    })
+    .select('id, number, placed_at')
+    .single();
+  if (orderError) throw orderError;
+
+  const slugs = [...new Set(input.items.map((item) => item.dishSlug))];
+  const { data: dishes } = await supabase.from('dishes').select('id, slug').in('slug', slugs);
+  const dishIdBySlug = new Map((dishes ?? []).map((dish) => [dish.slug, dish.id]));
+
+  const { error: itemsError } = await supabase.from('order_items').insert(
+    input.items.map((item) => ({
+      order_id: order.id,
+      dish_id: dishIdBySlug.get(item.dishSlug) ?? null,
+      title: item.title,
+      options: item.options ?? null,
+      modifiers: item.modifiers ?? null,
+      quantity: item.quantity,
+      unit_price: item.unitPrice,
+    })),
+  );
+  if (itemsError) throw itemsError;
+
+  return { id: order.id, number: order.number, placedAt: order.placed_at };
+}
+
 export interface TableOrder {
   id: string;
   number: number;

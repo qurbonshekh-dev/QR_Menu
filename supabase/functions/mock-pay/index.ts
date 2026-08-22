@@ -50,29 +50,32 @@ Deno.serve(async (req) => {
   if (readError) return json({ error: readError.message }, 400);
   if (!orders?.length) return json({ error: 'За столом нет открытого счёта' }, 409);
 
-  // Чаевые кладём на последний заказ — счёт гость закрывает один раз.
-  if (tip > 0) {
-    const last = orders[orders.length - 1];
-    const { error } = await admin.from('orders').update({ tip }).eq('id', last.id);
-    if (error) return json({ error: error.message }, 400);
-  }
+  // Счёт закрывает `close_bill` — одна функция на всех, кто это делает: касса,
+  // официант и вот этот шлюз. Чек с методом «qr» появляется здесь же, иначе
+  // оплаченное гостем не попало бы ни в один отчёт кассы.
+  //
+  // Чаевые передаём ей: она сама положит их в последний заказ и в чек. Если
+  // гость оставил их раньше, отдельным действием, — берутся те, что в заказах.
+  const orderIds = orders.map((order) => order.id);
+  const { data: receiptId, error: closeError } = await admin.rpc('close_bill', {
+    p_order_ids: orderIds,
+    // Без суммы: её знает чек, а второй расчёт на этой стороне разошёлся бы
+    // с ним на первой же скидке.
+    p_payments: [{ method: 'qr', status: 'paid', provider_ref: 'mock-pay' }],
+    p_tip: tip > 0 ? tip : null,
+  });
+  if (closeError) return json({ error: closeError.message }, 400);
 
-  const { error: payError } = await admin
-    .from('orders')
-    .update({ status: 'paid' })
-    .in('id', orders.map((order) => order.id));
-  if (payError) return json({ error: payError.message }, 400);
+  const { data: receipt } = await admin
+    .from('receipts')
+    .select('number, total')
+    .eq('id', receiptId)
+    .maybeSingle();
 
-  // Сумму считаем после записи чаевых и по самой базе: гость мог оставить их
-  // раньше, отдельным действием, и клиент об этом уже не помнит.
-  const { data: closed } = await admin
-    .from('orders')
-    .select('total, tip')
-    .in('id', orders.map((order) => order.id));
-
-  const paid = (closed ?? []).reduce(
-    (sum, order) => sum + Number(order.total ?? 0) + Number(order.tip ?? 0),
-    0,
-  );
-  return json({ ok: true, paid, orders: orders.map((o) => o.number) });
+  return json({
+    ok: true,
+    paid: Number(receipt?.total ?? 0),
+    receipt: receipt?.number,
+    orders: orders.map((o) => o.number),
+  });
 });
