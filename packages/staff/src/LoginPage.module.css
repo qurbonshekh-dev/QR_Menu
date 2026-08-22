@@ -1,17 +1,36 @@
+/* Подложка во весь экран. На телефоне официанта она белая и незаметная,
+   на планшете кассы и кухни — фон зала, по которому карточка входа читается
+   как карточка, а не как узкая белая полоса посреди экрана. */
 .page {
-  /* На кухонном планшете экран во всю стену — форму держим колонкой по центру,
-     иначе поля растягиваются на полтора метра. */
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
   display: flex;
   flex: 1 0 auto;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: var(--space-6);
   min-height: 100vh;
   padding: var(--space-6) var(--space-4);
   background: var(--color-bg-surface);
+}
+
+.card {
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .page {
+    background: var(--color-bg-default);
+  }
+
+  .card {
+    max-width: 460px;
+    padding: var(--space-7);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-surface);
+    box-shadow: var(--shadow-card);
+  }
 }
 
 .intro {

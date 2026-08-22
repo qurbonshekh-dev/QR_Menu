@@ -34,37 +34,39 @@ export function LoginPage({ title = 'Вход в смену', text = 'Логин
 
   return (
     <div className={styles.page}>
-      <div className={styles.intro}>
-        <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>{title}</h1>
-        <p className={[styles.text, ts('body-m/regular')].join(' ')}>{text}</p>
-      </div>
+      <div className={styles.card}>
+        <div className={styles.intro}>
+          <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>{title}</h1>
+          <p className={[styles.text, ts('body-m/regular')].join(' ')}>{text}</p>
+        </div>
 
-      <form className={styles.form} onSubmit={submit} noValidate>
-        <TextInput
-          label="Логин"
-          type="email"
-          name="email"
-          autoComplete="username"
-          inputMode="email"
-          autoCapitalize="none"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <TextInput
-          label="Пароль"
-          type="password"
-          name="password"
-          autoComplete="current-password"
-          value={password}
-          // Ошибку вешаем на пароль: логин обычно набран верно, а Supabase
-          // намеренно не говорит, что именно не подошло.
-          error={error ?? undefined}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        <Button type="submit" block disabled={busy || !email || !password}>
-          {busy ? 'Входим…' : 'Войти'}
-        </Button>
-      </form>
+        <form className={styles.form} onSubmit={submit} noValidate>
+          <TextInput
+            label="Логин"
+            type="email"
+            name="email"
+            autoComplete="username"
+            inputMode="email"
+            autoCapitalize="none"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <TextInput
+            label="Пароль"
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            value={password}
+            // Ошибку вешаем на пароль: логин обычно набран верно, а Supabase
+            // намеренно не говорит, что именно не подошло.
+            error={error ?? undefined}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <Button type="submit" block disabled={busy || !email || !password}>
+            {busy ? 'Входим…' : 'Войти'}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -75,16 +77,18 @@ export function NoAccessPage() {
   const { signOut } = useAuth();
   return (
     <div className={styles.page}>
-      <div className={styles.intro}>
-        <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>Нет доступа</h1>
-        <p className={[styles.text, ts('body-m/regular')].join(' ')}>
-          Учётная запись не привязана ни к одному сотруднику ресторана. Попросите менеджера
-          добавить вас в штат и войдите ещё раз.
-        </p>
+      <div className={styles.card}>
+        <div className={styles.intro}>
+          <h1 className={[styles.title, ts('heading-6/bold')].join(' ')}>Нет доступа</h1>
+          <p className={[styles.text, ts('body-m/regular')].join(' ')}>
+            Учётная запись не привязана ни к одному сотруднику ресторана. Попросите менеджера
+            добавить вас в штат и войдите ещё раз.
+          </p>
+        </div>
+        <Button block variant="secondary" onClick={() => void signOut()}>
+          Выйти
+        </Button>
       </div>
-      <Button block variant="secondary" onClick={() => void signOut()}>
-        Выйти
-      </Button>
     </div>
   );
 }
