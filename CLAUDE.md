@@ -39,6 +39,7 @@
 - Figma: https://www.figma.com/design/FMWyIMVAGIPPpP6SsEvGd8/DS
 - ТЗ на продукт: `docs/tz.md`
 - ТЗ приложения официанта и план работ: `docs/waiter-tz.md`
+- ТЗ кассы (POS) и план работ: `docs/pos-tz.md` — приложение ещё не начато
 
 ## Текущее состояние
 
