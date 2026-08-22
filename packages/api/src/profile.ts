@@ -44,7 +44,7 @@ export async function fetchStaffStats(staffId: string): Promise<StaffStats> {
   const weekAgo = new Date(startOfDay);
   weekAgo.setDate(weekAgo.getDate() - 6);
 
-  const [shiftsResult, ordersResult, goalsResult] = await Promise.all([
+  const [shiftsResult, ordersResult, tipsResult, goalsResult] = await Promise.all([
     supabase
       .from('shifts')
       .select('id, starts_at, ends_at, started_at, ended_at')
@@ -52,9 +52,17 @@ export async function fetchStaffStats(staffId: string): Promise<StaffStats> {
       .gte('starts_at', startOfDay.toISOString())
       .order('starts_at')
       .limit(8),
-    // Заказы официанта: те, что он принял сам. Гостевые заказы его столов
-    // в заработок не идут — их принял гость, а не он.
+    // Заказы официанта: те, что он принял сам. Ранг — про работу с гостем
+    // за столом, и гостевой заказ через QR к ней не относится.
     supabase.from('orders').select('total, tip, placed_at').eq('waiter_id', staffId),
+    // Чаевые — по столам официанта, как их считает и главный экран: гость
+    // благодарит за обслуживание столика, а не за то, кто нажал «принять».
+    // Два разных счёта одного числа расходились: на главной «41 с. за смену»,
+    // в кабинете — ноль, и официант не знал, какому верить.
+    supabase
+      .from('orders')
+      .select('tip, placed_at, dining_tables!inner (waiter_id)')
+      .eq('dining_tables.waiter_id', staffId),
     supabase.from('staff_goals').select('id, title, target').eq('staff_id', staffId).order('created_at'),
   ]);
 
@@ -66,6 +74,7 @@ export async function fetchStaffStats(staffId: string): Promise<StaffStats> {
   const today = shifts.find((shift) => new Date(shift.startsAt) < todayEnd);
 
   const orders = ordersResult.data ?? [];
+  const tipped = tipsResult.data ?? [];
   const isToday = (iso: string) => new Date(iso) >= startOfDay;
 
   const tipsByDay = new Map<string, number>();
@@ -74,7 +83,7 @@ export async function fetchStaffStats(staffId: string): Promise<StaffStats> {
     day.setDate(day.getDate() + i);
     tipsByDay.set(day.toISOString().slice(0, 10), 0);
   }
-  for (const order of orders) {
+  for (const order of tipped) {
     const day = order.placed_at.slice(0, 10);
     if (tipsByDay.has(day)) tipsByDay.set(day, (tipsByDay.get(day) ?? 0) + Number(order.tip ?? 0));
   }
@@ -82,8 +91,8 @@ export async function fetchStaffStats(staffId: string): Promise<StaffStats> {
   return {
     today,
     upcoming: shifts.filter((shift) => shift.id !== today?.id),
-    tipsToday: orders.filter((o) => isToday(o.placed_at)).reduce((sum, o) => sum + Number(o.tip ?? 0), 0),
-    tipsTotal: orders.reduce((sum, o) => sum + Number(o.tip ?? 0), 0),
+    tipsToday: tipped.filter((o) => isToday(o.placed_at)).reduce((sum, o) => sum + Number(o.tip ?? 0), 0),
+    tipsTotal: tipped.reduce((sum, o) => sum + Number(o.tip ?? 0), 0),
     ordersToday: orders.filter((o) => isToday(o.placed_at)).length,
     ordersTotal: orders.reduce((sum, o) => sum + Number(o.total ?? 0), 0),
     tipsByDay: [...tipsByDay.entries()].map(([day, amount]) => ({ day, amount })),

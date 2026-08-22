@@ -28,7 +28,10 @@ export async function fetchTableService(tableId: string): Promise<TableService> 
     // Закрытый счёт — это прошлый визит: за столом уже другие гости.
     .not('status', 'in', '(cancelled,paid)')
     .gte('placed_at', startOfDay.toISOString())
-    .order('placed_at');
+    .order('placed_at')
+    // Порядок позиций задаём явно: без него отмеченная поданной тарелка
+    // перескакивает на другое место списка прямо под рукой официанта.
+    .order('title', { referencedTable: 'order_items' });
   if (error) throw error;
   if (!data?.length) return EMPTY;
 

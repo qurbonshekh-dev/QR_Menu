@@ -97,7 +97,11 @@ export async function setTicketStatus(ticketNumber: string, status: TicketStatus
     .single();
   if (orderError) throw orderError;
 
-  const { error } = await supabase.from('order_items').update({ status }).eq('order_id', order.id);
+  // Поданное не трогаем: в тикете таких строк уже нет, а в заказе они есть —
+  // без этого условия «Готово» по дозаказу откатывало бы съеденное блюдо
+  // обратно в «нужно подать», зажигая столу «Ждут подачу» на пустом месте.
+  const query = supabase.from('order_items').update({ status }).eq('order_id', order.id);
+  const { error } = status === 'served' ? await query : await query.neq('status', 'served');
   if (error) throw error;
 }
 

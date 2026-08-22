@@ -226,15 +226,30 @@ export async function cancelReservation(tableId: string): Promise<void> {
 }
 
 /**
- * Официант отдал готовые блюда. Двигаем сами заказы, а не статус стола:
- * «Занят» вернёт триггер `orders_sync_table_status`, и делать это руками
- * значило бы завести вторую правду о том, что происходит за столом.
+ * Официант отдал готовые блюда. Двигаем тарелки, а не заказ: статус живёт на
+ * позиции, а `orders.status` из неё выводит триггер `order_items_sync_order_status`.
+ * Писать в заказ напрямую значило бы завести вторую правду — и она разошлась бы
+ * сразу: заказ «подан», а тарелка всё ещё «ready», гость видит «Уже несут»,
+ * а следующий дозаказ пересчитает заказ из позиций и снова зажжёт «Ждут подачу».
+ * Статус стола тоже не трогаем — «Занят» вернёт `orders_sync_table_status`.
  */
 export async function serveReadyOrders(tableId: string): Promise<void> {
-  const { error } = await supabase
+  // Незакрытые заказы стола — включая уже «поданные»: в них может остаться
+  // готовая тарелка, если официант отдавал блюда по одной.
+  const { data: openOrders, error: ordersError } = await supabase
     .from('orders')
-    .update({ status: 'served' })
+    .select('id')
     .eq('table_id', tableId)
+    .in('status', ['queued', 'cooking', 'ready', 'served']);
+  if (ordersError) throw ordersError;
+
+  const ids = (openOrders ?? []).map((order) => order.id);
+  if (ids.length === 0) return;
+
+  const { error } = await supabase
+    .from('order_items')
+    .update({ status: 'served' })
+    .in('order_id', ids)
     .eq('status', 'ready');
   if (error) throw error;
 }

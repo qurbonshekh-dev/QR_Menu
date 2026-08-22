@@ -21,7 +21,17 @@ const COLUMNS: TicketStatus[] = ['queued', 'cooking', 'ready'];
 interface Move {
   status: TicketStatus;
   readyAt?: string;
+  /** Когда правку сделали: она живёт до подтверждения сервером, но не вечно. */
+  at: number;
 }
+
+/**
+ * Сколько ждём подтверждения от базы, прежде чем снять оптимистичную правку.
+ * Без срока она пережила бы любой ответ сервера: тикет, возвращённый в работу
+ * официантом или разбуженный дозаказом, так и висел бы в «Готово» до
+ * перезагрузки — а кухонный монитор не перезагружают неделями.
+ */
+const MOVE_TTL_MS = 10_000;
 
 /** Тащим на pointer-событиях, а не на HTML5 drag-and-drop: последний мышиный,
  *  на планшете его просто нет. Порог в 8 px и условие |dx| > |dy| отделяют
@@ -63,15 +73,38 @@ export function KitchenPage() {
   const { me, signOut } = useAuth();
   const [feed, setFeed] = useState<KitchenTicket[]>([]);
   const [moves, setMoves] = useState<Record<string, Move>>({});
-  const [served, setServed] = useState<string[]>([]);
+  const [served, setServed] = useState<Record<string, number>>({});
   const now = useNow();
 
   useEffect(() => subscribeTickets(setFeed), []);
 
+  // Правку снимаем, как только база догнала — дальше источником истины снова
+  // становится лента. Иначе `{...ticket, ...move}` перекрывал бы её навсегда.
+  useEffect(() => {
+    setMoves((current) => {
+      const next = Object.fromEntries(
+        Object.entries(current).filter(([id, move]) => {
+          if (now - move.at > MOVE_TTL_MS) return false;
+          const ticket = feed.find((item) => item.id === id);
+          return ticket ? ticket.status !== move.status : false;
+        }),
+      );
+      return Object.keys(next).length === Object.keys(current).length ? current : next;
+    });
+    setServed((current) => {
+      const next = Object.fromEntries(
+        Object.entries(current).filter(
+          ([id, at]) => now - at <= MOVE_TTL_MS && feed.some((ticket) => ticket.id === id),
+        ),
+      );
+      return Object.keys(next).length === Object.keys(current).length ? current : next;
+    });
+  }, [feed, now]);
+
   const tickets = useMemo(
     () =>
       feed
-        .filter((ticket) => !served.includes(ticket.id))
+        .filter((ticket) => !(ticket.id in served))
         .map((ticket) => ({ ...ticket, ...moves[ticket.id] }))
         .sort((a, b) => new Date(a.placedAt).getTime() - new Date(b.placedAt).getTime()),
     [feed, moves, served],
@@ -87,13 +120,17 @@ export function KitchenPage() {
   const move = useCallback((ticket: KitchenTicket, status: TicketStatus) => {
     setMoves((current) => ({
       ...current,
-      [ticket.id]: { status, readyAt: status === 'ready' ? new Date().toISOString() : undefined },
+      [ticket.id]: {
+        status,
+        readyAt: status === 'ready' ? new Date().toISOString() : undefined,
+        at: Date.now(),
+      },
     }));
     void setTicketStatus(ticket.id, status);
   }, []);
 
   const serve = useCallback((ticket: KitchenTicket) => {
-    setServed((current) => [...current, ticket.id]);
+    setServed((current) => ({ ...current, [ticket.id]: Date.now() }));
     void setTicketStatus(ticket.id, 'served');
   }, []);
 

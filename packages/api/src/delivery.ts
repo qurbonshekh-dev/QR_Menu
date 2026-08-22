@@ -132,6 +132,9 @@ export async function fetchDeliveries(limit = 60): Promise<Delivery[]> {
     .from('deliveries')
     .select(SELECT)
     .order('created_at', { ascending: false })
+    // Позиции внутри заказа — в заданном порядке: иначе состав карточки
+    // перетасовывается на каждой смене статуса тарелки.
+    .order('title', { referencedTable: 'orders.order_items' })
     .limit(limit);
   if (error) throw error;
   return ((data ?? []) as unknown as Row[]).map(toDelivery);
